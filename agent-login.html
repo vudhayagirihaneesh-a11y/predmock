@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Login | Exam Prep Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .hide { display: none !important; }
+    html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+    html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+  </style>
+  <script>
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+  </script>
+</head>
+<body class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white text-center">
+      <h2 class="text-3xl font-extrabold mb-2">Agent Portal</h2>
+      <p class="text-indigo-100 text-sm">Login using email verification code.</p>
+    </div>
+
+    <div class="p-8 space-y-6">
+      <div id="step-email" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+          <input type="email" id="email-input" placeholder="agent@email.com" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+        </div>
+
+        <!-- Terms / EULA Gate -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-left">
+          <p class="text-xs text-slate-600 font-semibold uppercase tracking-wider mb-2">Terms, Privacy & EULA</p>
+          <div class="text-sm text-slate-700 space-y-2">
+            <p class="text-xs text-slate-600">By continuing, you agree to our <span class="font-semibold">Comprehensive Terms of Service & End User License Agreement (EULA)</span>.</p>
+            <label class="flex items-start gap-3">
+              <input id="agent-agree-terms" type="checkbox" class="mt-1.5 w-5 h-5 accent-indigo-600 cursor-pointer" />
+              <span class="text-sm text-slate-700">I agree to the Terms & EULA and understand access may require manual approval.</span>
+            </label>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-3 text-xs">
+            <a href="agent-terms.html" class="text-indigo-600 font-semibold hover:underline">Read Full Terms & EULA</a>
+          </div>
+          <p id="agent-terms-error" class="text-sm text-red-500 mt-2 hide">Please accept the terms to continue.</p>
+        </div>
+
+        <button id="send-code-btn" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Send Verification Code</button>
+
+        <p id="error-msg" class="text-sm text-rose-600 text-center hide"></p>
+      </div>
+
+      <div id="step-otp" class="space-y-4 hide">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Verification Code</label>
+          <input type="text" id="otp-input" placeholder="Enter 6-digit code" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-center text-2xl tracking-widest" />
+        </div>
+
+        <button id="verify-code-btn" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Verify & Login</button>
+
+        <button id="resend-code-btn" class="w-full py-2.5 px-4 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition">Resend Code</button>
+
+        <p id="error-msg-otp" class="text-sm text-rose-600 text-center hide"></p>
+      </div>
+
+      <div id="step-register" class="space-y-4 hide">
+        <h3 class="text-lg font-bold text-slate-800 text-center">Agent Registration</h3>
+        <p class="text-sm text-slate-600 text-center mb-4">Please provide your details to request admin approval.</p>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">First Name</label>
+              <input type="text" id="reg-first-name" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">Last Name</label>
+              <input type="text" id="reg-last-name" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+            </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Age</label>
+          <input type="number" id="reg-age" min="18" placeholder="18+" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Verification Proof (ID Document)</label>
+          <input type="file" id="reg-proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50" />
+        </div>
+        <button id="submit-reg-btn" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition mt-2">Submit Registration</button>
+        <p id="error-msg-reg" class="text-sm text-rose-600 text-center hide"></p>
+      </div>
+
+      <div id="step-pending" class="space-y-4 hide text-center py-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 text-amber-600 mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800">Approval Pending</h3>
+        <p class="text-sm text-slate-600 mt-2">Your details have been securely saved. You can log in as soon as an admin approves your request.</p>
+        <button id="check-status-btn" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition mt-4">Check My Status Now</button>
+        <p id="pending-error-msg" class="text-sm text-rose-600 text-center hide"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+
+    let currentAgentEmail = '';
+
+    const errorMsg = document.getElementById('error-msg');
+    const errorMsgOtp = document.getElementById('error-msg-otp');
+    const sendCodeBtn = document.getElementById('send-code-btn');
+    const verifyCodeBtn = document.getElementById('verify-code-btn');
+    const resendCodeBtn = document.getElementById('resend-code-btn');
+    const stepEmail = document.getElementById('step-email');
+    const stepOtp = document.getElementById('step-otp');
+    const stepRegister = document.getElementById('step-register');
+    const stepPending = document.getElementById('step-pending');
+    const emailInput = document.getElementById('email-input');
+    const otpInput = document.getElementById('otp-input');
+
+    const agentAgreeTermsEl = document.getElementById('agent-agree-terms');
+    const agentTermsErrorEl = document.getElementById('agent-terms-error');
+
+    function showErr(msg, isOtp = false) {
+      const el = isOtp ? errorMsgOtp : errorMsg;
+      el.textContent = msg;
+      el.classList.remove('hide');
+    }
+
+    function hideErr(isOtp = false) {
+      const el = isOtp ? errorMsgOtp : errorMsg;
+      el.classList.add('hide');
+    }
+
+
+    sendCodeBtn.addEventListener('click', async () => {
+      hideErr();
+      const email = emailInput.value.trim();
+
+      if (!agentAgreeTermsEl || !agentAgreeTermsEl.checked) {
+        if (agentTermsErrorEl) {
+          agentTermsErrorEl.textContent = 'Please accept the Terms & EULA to continue.';
+          agentTermsErrorEl.classList.remove('hide');
+        }
+        return;
+      }
+
+      if (agentTermsErrorEl) agentTermsErrorEl.classList.add('hide');
+      if (!email || !email.includes('@')) return showErr('Enter a valid email');
+      sendCodeBtn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch('api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'send_otp', email, type: 'agent_login' })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          showErr(data.message || 'Failed to send code');
+          return;
+        }
+        currentAgentEmail = email;
+        stepEmail.classList.add('hide');
+        stepOtp.classList.remove('hide');
+        otpInput.focus();
+      } catch (e) {
+        showErr('Error: ' + (e.message || e));
+      } finally {
+        sendCodeBtn.disabled = false;
+        sendCodeBtn.textContent = 'Send Verification Code';
+      }
+    });
+
+    verifyCodeBtn.addEventListener('click', async () => {
+      hideErr(true);
+      const code = otpInput.value.trim();
+      if (!code || code.length < 6) return showErr('Enter a valid 6-digit code', true);
+
+      verifyCodeBtn.disabled = true;
+      verifyCodeBtn.textContent = 'Verifying...';
+
+      try {
+        const res = await fetch('api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'agent_login_cc012', email: currentAgentEmail, code })
+        });
+        const data = await res.json();
+        
+        if (data.require_registration) {
+            stepOtp.classList.add('hide');
+            stepRegister.classList.remove('hide');
+            return;
+        }
+        if (data.is_pending) {
+            stepOtp.classList.add('hide');
+            stepPending.classList.remove('hide');
+            return;
+        }
+        if (!data.success) {
+          showErr(data.message || 'Login failed', true);
+          return;
+        }
+        localStorage.setItem('agent_email', data.agent.email);
+        localStorage.setItem('agent_logged_in', 'true');
+        localStorage.setItem('agent_id', data.agent.id);
+        localStorage.setItem('session_token', data.session_token);
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTarget = urlParams.get('redirect') || 'agent-portal.html';
+        window.location.href = redirectTarget;
+      } catch (e) {
+        showErr('Error: ' + (e.message || e), true);
+      } finally {
+        verifyCodeBtn.disabled = false;
+        verifyCodeBtn.textContent = 'Verify & Login';
+      }
+    });
+
+    resendCodeBtn.addEventListener('click', async () => {
+      hideErr(true);
+      resendCodeBtn.disabled = true;
+      resendCodeBtn.textContent = 'Resending...';
+
+      try {
+        const res = await fetch('api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'send_otp', email: currentAgentEmail, type: 'agent_login' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          otpInput.value = '';
+          otpInput.focus();
+        } else {
+          showErr(data.message || 'Failed to resend', true);
+        }
+      } catch (e) {
+        showErr('Error: ' + (e.message || e), true);
+      } finally {
+        resendCodeBtn.disabled = false;
+        resendCodeBtn.textContent = 'Resend Code';
+      }
+    });
+
+    otpInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') verifyCodeBtn.click();
+    });
+
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendCodeBtn.click();
+    });
+
+    document.getElementById('submit-reg-btn').addEventListener('click', async () => {
+        const firstName = document.getElementById('reg-first-name').value.trim();
+        const lastName = document.getElementById('reg-last-name').value.trim();
+        const age = parseInt(document.getElementById('reg-age').value.trim() || '0', 10);
+        const proofInput = document.getElementById('reg-proof');
+        const errEl = document.getElementById('error-msg-reg');
+
+        if (!firstName || !lastName || !age || age < 18 || !proofInput.files[0]) {
+            errEl.textContent = 'All fields are required and age must be 18 or older.';
+            errEl.classList.remove('hide');
+            return;
+        }
+        errEl.classList.add('hide');
+        const btn = document.getElementById('submit-reg-btn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        const fd = new FormData();
+        fd.append('action', 'agent_register');
+        fd.append('email', currentAgentEmail);
+        fd.append('first_name', firstName);
+        fd.append('last_name', lastName);
+        fd.append('age', String(age));
+        fd.append('proof', proofInput.files[0]);
+
+        try {
+            const res = await fetch('api.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.success) {
+                stepRegister.classList.add('hide');
+                stepPending.classList.remove('hide');
+            } else {
+                errEl.textContent = data.message || 'Submission failed';
+                errEl.classList.remove('hide');
+            }
+        } catch(e) {
+            errEl.textContent = 'Error: ' + e.message;
+            errEl.classList.remove('hide');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Submit Registration';
+        }
+    });
+
+    document.getElementById('check-status-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('check-status-btn');
+            // If approval is pending, do not redirect away. Stay on OTP screen.
+            // Also disable button to prevent repeated clicks causing mixed responses.
+
+        const errEl = document.getElementById('pending-error-msg');
+        errEl.classList.add('hide');
+        btn.disabled = true;
+        btn.textContent = 'Checking...';
+
+        errEl.textContent = "Please return to the login screen and request a new OTP to check your approval status.";
+        errEl.classList.remove('hide');
+        btn.disabled = false;
+        btn.textContent = 'Check My Status Now';
+    });
+
+    // If already logged in
+    if (localStorage.getItem('agent_logged_in') === 'true') {
+      window.location.href = 'agent-portal.html';
+    }
+  </script>
+
+</body>
+</html>
+    

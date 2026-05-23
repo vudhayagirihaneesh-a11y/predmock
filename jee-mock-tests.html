@@ -1,0 +1,697 @@
+<?php
+session_start();
+if (empty($_COOKIE['session_token'])) {
+    header("Location: login.html");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Mains Premium Mock Test Series</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+        .q-palette::-webkit-scrollbar { width: 6px; }
+        .q-palette::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme canvas, html.dark-theme img { filter: invert(1) hue-rotate(180deg); }
+    </style>
+    <script>
+        try {
+            if (!localStorage.getItem('user_email')) {
+                window.location.href = 'login.html?redirect=jee-mock-tests.html';
+            }
+            if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+        } catch(e) {}
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+    
+    <div id="view-dashboard" class="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">JEE Mains <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-600">Mock Test Series</span></h1>
+                <p class="text-slate-500 mt-1">Practice with 25 full-length papers mirroring the exact JEE Mains 2026 pattern.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <button onclick="toggleDarkMode()" class="text-sm font-medium text-slate-500 hover:text-sky-600 transition px-2 flex items-center gap-1.5" title="Toggle Theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <span id="theme-text">Dark</span>
+                </button>
+                <button onclick="openPurchaseModal('all')" class="px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition">Unlock All Exams (₹1500)</button>
+                <button onclick="openCustomModal()" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition">🎯 Custom Test</button>
+                <button onclick="openHistoryModal()" class="px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition">📚 History</button>
+                <button onclick="clearMockData()" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Clear Data</button>
+                <a href="index.html" class="px-4 py-2 bg-sky-50 text-sky-700 font-semibold rounded-lg hover:bg-sky-100 transition shadow-sm">Back to Home</a>
+            </div>
+        </header>
+        <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-2"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="test-grid"></div>
+    </div>
+
+    <div id="view-instructions" class="hide max-w-4xl mx-auto p-4 md:p-8 space-y-6 mt-6">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-sky-600 p-6 text-white">
+                <h2 class="text-2xl font-bold" id="instructions-title">Instructions for JEE Mains Mock Test</h2>
+            </div>
+            <div class="p-8 space-y-6 text-slate-700">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Exam Pattern & Weightage</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Total Duration:</strong> 180 Minutes (3 Hours)</li>
+                        <li><strong>Total Questions:</strong> 90 Questions (Evaluate on all 90 for practice)</li>
+                        <li><strong>Physics:</strong> 30 Questions</li>
+                        <li><strong>Chemistry:</strong> 30 Questions</li>
+                        <li><strong>Mathematics:</strong> 30 Questions</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Marking Scheme</h3>
+                    <p>+4 for correct answer, <span class="text-rose-600 font-bold">-1 for incorrect answer</span>.</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3 mt-4">
+                    <input type="checkbox" id="gadget-checkbox" class="mt-1 w-5 h-5 accent-sky-600 cursor-pointer shrink-0" onchange="toggleProceedBtn()">
+                    <label for="gadget-checkbox" class="text-sm font-medium text-amber-900 cursor-pointer select-none">I confirm that I will attempt this test with strict honesty.</label>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-4">
+                <button onclick="backToDashboard()" class="px-6 py-2 bg-white border text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition shadow-sm">Cancel</button>
+                <button id="proceed-btn" disabled onclick="proceedToExam()" class="px-6 py-2 bg-sky-600 text-white font-bold rounded-lg opacity-50 cursor-not-allowed transition shadow-md">Proceed to Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-exam" class="hide h-screen flex flex-col bg-slate-100 relative">
+        <div id="pause-overlay" class="hide absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-white">
+            <h2 class="text-4xl font-extrabold mb-4">Exam Paused</h2>
+            <button onclick="resumeExam()" class="px-8 py-3 bg-sky-600 font-bold rounded-xl hover:bg-sky-700 shadow-lg transition text-lg">Resume Exam</button>
+        </div>
+        <header class="bg-white shadow-sm border-b border-slate-200 z-10 shrink-0 flex flex-col">
+            <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-xl font-bold text-slate-800" id="exam-title">Mock Test</h2>
+                    <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold uppercase tracking-wide">JEE Pattern</span>
+                </div>
+                <div id="exam-controls" class="flex flex-wrap justify-center items-center gap-2 md:gap-4">
+                    <button onclick="toggleCalculator()" class="px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="14.01"></line><line x1="16" y1="10" x2="16" y2="10.01"></line><line x1="16" y1="18" x2="16" y2="18.01"></line><line x1="12" y1="14" x2="12" y2="14.01"></line><line x1="12" y1="10" x2="12" y2="10.01"></line><line x1="12" y1="18" x2="12" y2="18.01"></line></svg>
+                        <span class="hidden sm:inline">Calculator</span>
+                    </button>
+                    <button onclick="togglePalette()" class="lg:hidden px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        <span class="hidden sm:inline">Questions</span>
+                    </button>
+                    <button id="pause-btn" onclick="pauseExam()" class="px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                        <span class="hidden sm:inline">Pause</span>
+                    </button>
+                    <div id="timer-display" class="flex items-center gap-2 text-rose-600 font-bold bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span id="timer">180:00</span>
+                    </div>
+                    <button id="submit-btn" onclick="submitExam()" class="px-4 py-2 bg-sky-600 text-white font-semibold rounded-lg hover:bg-sky-700 shadow-md transition">Submit Test</button>
+                </div>
+                <button id="exit-review-btn" onclick="exitReview()" class="hide px-6 py-2 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-900 shadow-md transition flex items-center gap-2">Exit Review</button>
+            </div>
+            <div class="w-full bg-slate-100 h-1">
+                <div id="exam-progress" class="bg-sky-500 h-1 transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <!-- VIRTUAL CALCULATOR -->
+        <div id="virtual-calculator" class="hide absolute top-20 right-2 sm:right-6 z-50 w-80 max-w-[95vw] bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col cursor-move">
+            <div id="calc-header" class="bg-slate-900 p-3 flex justify-between items-center select-none">
+                <span class="text-white font-bold text-sm tracking-wider pointer-events-none">SCIENTIFIC CALC</span>
+                <button onclick="toggleCalculator()" class="text-slate-400 hover:text-white transition cursor-pointer">&times;</button>
+            </div>
+            <div class="p-4">
+                <input type="text" id="calc-display" class="w-full bg-slate-100 text-right text-xl p-2 rounded mb-3 font-mono font-bold text-slate-800 h-12 outline-none" value="0" readonly>
+                <div class="grid grid-cols-5 gap-2 text-sm [&>button]:cursor-pointer">
+                    <button onclick="calcPress('7')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">7</button>
+                    <button onclick="calcPress('8')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">8</button>
+                    <button onclick="calcPress('9')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">9</button>
+                    <button onclick="calcPress('/')" class="col-span-1 bg-sky-600 text-white font-bold py-2 rounded">/</button>
+                    <button onclick="calcPress('C')" class="col-span-1 bg-rose-500 text-white font-bold py-2 rounded">C</button>
+                    <button onclick="calcPress('4')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">4</button>
+                    <button onclick="calcPress('5')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">5</button>
+                    <button onclick="calcPress('6')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">6</button>
+                    <button onclick="calcPress('*')" class="col-span-1 bg-sky-600 text-white font-bold py-2 rounded">*</button>
+                    <button onclick="calcPress('(')" class="col-span-1 bg-sky-600 text-white font-bold py-2 rounded">(</button>
+                    <button onclick="calcPress('1')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">1</button>
+                    <button onclick="calcPress('2')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">2</button>
+                    <button onclick="calcPress('3')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">3</button>
+                    <button onclick="calcPress('-')" class="col-span-1 bg-sky-600 text-white font-bold py-2 rounded">-</button>
+                    <button onclick="calcPress(')')" class="col-span-1 bg-sky-600 text-white font-bold py-2 rounded">)</button>
+                    <button onclick="calcPress('0')" class="col-span-2 bg-slate-700 text-white font-bold py-2 rounded">0</button>
+                    <button onclick="calcPress('.')" class="col-span-1 bg-slate-700 text-white font-bold py-2 rounded">.</button>
+                    <button onclick="calcPress('+')" class="col-span-1 bg-sky-600 text-white font-bold py-2 rounded">+</button>
+                    <button onclick="calcPress('=')" class="col-span-1 bg-emerald-500 text-white font-bold py-2 rounded">=</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row flex-1 lg:overflow-hidden">
+            <div class="flex-1 flex flex-col p-3 md:p-6 lg:overflow-y-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col max-w-4xl w-full mx-auto">
+                    <div class="flex flex-wrap border-b p-2 gap-2 bg-slate-50/50 rounded-t-xl" id="subject-tabs"></div>
+                    <div class="p-4 md:p-8 flex-1">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start md:items-center gap-3 mb-6">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <h3 class="text-lg font-bold text-slate-800">Question <span id="q-num">1</span></h3>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span id="q-time-spent" class="hide text-sm font-bold text-sky-600 bg-sky-50 border border-sky-200 px-2 py-1 rounded flex items-center gap-1.5 shadow-sm"></span>
+                                <span class="text-sm font-medium text-slate-500 bg-slate-100 border px-2 py-1 rounded shadow-sm">Marking: +4 / -1</span>
+                            </div>
+                        </div>
+                        <p class="text-lg md:text-xl text-slate-700 mb-6" id="q-text">Loading question...</p>
+                        <div class="space-y-3" id="options-container"></div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <button onclick="prevQuestion()" class="w-full sm:w-auto px-4 py-2 bg-white border border-slate-300 text-slate-700 font-medium rounded hover:bg-slate-50 transition shadow-sm text-sm">Previous</button>
+                        <div class="flex w-full sm:w-auto justify-center items-center gap-2">
+                            <button id="clear-btn" onclick="clearSelection()" class="flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-300 text-slate-600 font-medium rounded hover:bg-slate-50 transition shadow-sm text-sm">Clear</button>
+                            <button id="mark-review-btn" onclick="markForReview()" class="flex-1 sm:flex-none px-4 py-2 bg-sky-50 border border-sky-200 text-sky-700 font-medium rounded hover:bg-sky-100 transition shadow-sm text-sm">Mark for Review</button>
+                        </div>
+                        <button id="next-btn" onclick="saveAndNext()" class="w-full sm:w-auto px-6 py-2 bg-sky-600 text-white font-medium rounded hover:bg-sky-700 transition shadow-sm text-sm">Save & Next</button>
+                    </div>
+                </div>
+            </div>
+            <div id="palette-backdrop" class="hide fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden" onclick="togglePalette()"></div>
+            <div id="question-palette" class="fixed lg:static inset-y-0 right-0 z-40 w-[85vw] sm:w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 transform translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-2xl lg:shadow-none h-[100dvh] lg:h-auto lg:overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0 flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-slate-800 mb-3">Questions (90)</h3>
+                        <div class="grid grid-cols-2 gap-2 text-[10px] sm:text-xs font-medium text-slate-600">
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-emerald-500"></div> Answered</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-rose-500"></div> Not Answered</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded border border-slate-300 bg-white"></div> Not Visited</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-sky-100 border border-sky-400"></div> Marked</div>
+                        </div>
+                    </div>
+                    <button onclick="togglePalette()" class="lg:hidden text-slate-500 hover:text-slate-800 p-1 -mt-1 -mr-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto q-palette grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-5 gap-2 content-start" id="palette-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-results" class="hide max-w-4xl mx-auto p-4 md:p-8 space-y-8 mt-10">
+        <div class="bg-white rounded-2xl shadow-xl border overflow-hidden text-center">
+            <div class="bg-gradient-to-r from-sky-500 to-blue-600 p-8 text-white">
+                <h2 class="text-3xl font-extrabold mb-2">Test Submitted Successfully</h2>
+                <p class="text-sky-100 font-medium text-lg">Here is your JEE Mains performance analysis</p>
+            </div>
+            <div class="p-8 flex flex-col md:flex-row items-center justify-around gap-8">
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <p class="text-slate-500 font-semibold uppercase tracking-wider mb-2">Your Score</p>
+                        <p class="text-6xl font-black text-slate-800"><span id="result-score">0</span> <span class="text-2xl text-slate-400 font-medium">/ 360</span></p>
+                    </div>
+                </div>
+                <div class="w-full md:w-64 h-64"><canvas id="subjectChart"></canvas></div>
+                <div class="border-l h-32 hidden md:block"></div>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4 text-left">
+                    <div><p class="text-slate-500 text-sm font-medium">Unattempted</p><p class="text-xl font-bold text-slate-800" id="res-unattempted">0</p></div>
+                    <div><p class="text-slate-500 text-sm font-medium">Correct</p><p class="text-xl font-bold text-emerald-600" id="res-correct">0</p></div>
+                    <div><p class="text-slate-500 text-sm font-medium">Incorrect</p><p class="text-xl font-bold text-rose-600" id="res-incorrect">0</p></div>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex flex-wrap justify-center gap-4">
+                <button onclick="location.reload()" class="px-6 py-2.5 bg-white border font-bold rounded-lg shadow-sm">Try Another Test</button>
+                <button id="review-mistakes-btn" onclick="reviewAnswers()" class="px-6 py-2.5 bg-white border border-sky-200 text-sky-700 font-bold rounded-lg shadow-sm">Review Mistakes</button>
+                <a href="index.html" class="px-6 py-2.5 bg-sky-600 text-white font-bold rounded-lg shadow-md">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM TEST GENERATOR MODAL -->
+    <div id="custom-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh]">
+            <header class="p-4 bg-gradient-to-r from-sky-600 to-blue-600 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg">🎯 Custom Test Generator</h3>
+                <button onclick="closeCustomModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-4 md:p-5 overflow-y-auto space-y-4">
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Select Subjects:</p>
+                    <div id="custom-subjects" class="space-y-3 max-h-60 overflow-y-auto p-2 border border-slate-200 rounded-lg bg-slate-50/50"></div>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Number of Questions: <span id="custom-qty-val">60</span></p>
+                    <input type="range" id="custom-qty" min="30" max="170" value="60" step="10" class="w-full accent-sky-600" oninput="document.getElementById('custom-qty-val').innerText=this.value">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1"><span>30</span><span>100</span><span>170</span></div>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Time Limit (minutes): <span id="custom-time-val">60</span></p>
+                    <input type="range" id="custom-time" min="30" max="180" value="60" step="5" class="w-full accent-sky-600" oninput="document.getElementById('custom-time-val').innerText=this.value">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1"><span>30</span><span>105</span><span>180</span></div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800">
+                    <strong>Note:</strong> Questions drawn from the full JEE question bank, filtered by your selections and shuffled.
+                </div>
+            </div>
+            <footer class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeCustomModal()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition">Cancel</button>
+                <button onclick="startCustomTest()" class="px-6 py-2 bg-sky-600 text-white font-bold rounded-lg hover:bg-sky-700 transition shadow-md">Generate & Start</button>
+            </footer>
+        </div>
+    </div>
+    <div id="custom-history-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh]">
+            <header class="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg">📚 Custom Test History</h3>
+                    <p class="text-sm text-slate-200 mt-1">Review your saved custom test attempts and scores.</p>
+                </div>
+                <button onclick="closeHistoryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-4 md:p-5 overflow-y-auto space-y-4">
+                <div id="custom-history-list" class="space-y-4"></div>
+            </div>
+            <footer class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition">Close</button>
+            </footer>
+        </div>
+    </div>
+ 
+    <script>
+        const toggleDarkMode = () => { document.documentElement.classList.toggle('dark-theme'); localStorage.setItem('theme', document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light'); const el = document.getElementById('theme-text'); if(el) el.innerText = document.documentElement.classList.contains('dark-theme') ? 'Light' : 'Dark'; };
+        
+        // Fetches from your authentic JSON database!
+        const generateQuestionsForTest = (testId, fetchAll = false) => {
+            let questions = [];
+            const req = new XMLHttpRequest();
+            req.open('GET', `api.php?action=get_mock_test&test_name=jee`, false);
+            req.send(null);
+            if (req.status === 200) {
+                const data = JSON.parse(req.responseText);
+                if (data.success && data.questions) {
+                    if (fetchAll) return data.questions;
+                    const totalQs = 90;
+                    const startIndex = ((testId - 1) * totalQs) % Math.max(1, data.questions.length - totalQs + 1);
+                    questions = data.questions.slice(startIndex, startIndex + totalQs);
+                }
+            }
+            return questions;
+        };
+
+        let currentTestId = null, currentQIndex = 0, questionsData = [], answers = [], markedForReview = [], visited = [], timerInterval, timeLeft = 10800, examEndTime = 0, isExamActive = false, reviewMode = false, radarChartInst = null, timeSpent = [], lastQStartTime = Date.now();
+        let isCustomTest = false;
+        let customPreviousTimeLeft = 10800;
+        let CUSTOM_CONFIG = {};
+        const CUSTOM_SUBJECT_LABELS = {
+            'Mathematics': '🧮 Math',
+            'Physics': '⚡ Physics',
+            'Chemistry': '🔬 Chemistry'
+        };
+        
+        const getMockTestResults = () => { try { return JSON.parse(localStorage.getItem('jeeMockResults') || '{}'); } catch (e) { return {}; } };
+        
+        const renderDashboard = () => {
+            const results = getMockTestResults();
+            const elGrid = document.getElementById('test-grid'); elGrid.innerHTML = '';
+            const validResults = Object.values(results).filter(r => r && typeof r === 'object' && r.score !== undefined);
+            const resultValues = validResults.map(r => r.score);
+            const totalAttempts = resultValues.length;
+            document.getElementById('dashboard-stats').innerHTML = `
+                <div class="bg-sky-600 text-white rounded-xl p-6 shadow-md flex items-center justify-between"><div><p class="text-sky-200 text-sm font-bold uppercase tracking-wider mb-1">Tests Attempted</p><p class="text-4xl font-black">${totalAttempts} <span class="text-lg font-medium text-sky-300">/ 25</span></p></div></div>
+                <div class="bg-white border rounded-xl p-6 shadow-sm flex justify-between"><div><p class="text-slate-500 text-sm font-bold uppercase mb-1">Average Score</p><p class="text-4xl font-black">${totalAttempts ? Math.round(resultValues.reduce((a, b) => a + b, 0) / totalAttempts) : 0}</p></div></div>
+                <div class="bg-white border rounded-xl p-6 shadow-sm flex justify-between"><div><p class="text-slate-500 text-sm font-bold uppercase mb-1">Highest Score</p><p class="text-4xl font-black text-emerald-600">${totalAttempts ? Math.max(...resultValues) : 0}</p></div></div>
+            `;
+            for (let i = 1; i <= 25; i++) {
+                let isUnlocked = false;
+                try { isUnlocked = localStorage.getItem('jee_all_tests_unlocked') === 'true' || localStorage.getItem(`jee_test_${i}_unlocked`) === 'true'; } catch(e) {}
+                const p = results[i];
+                elGrid.innerHTML += `
+                    <div class="bg-white border ${isUnlocked ? (p ? 'border-sky-200 border-b-4' : 'border-emerald-200 border-b-4') : 'border-slate-200'} rounded-xl p-6 shadow-sm flex flex-col h-full">
+                        <h3 class="font-bold text-xl text-slate-800 mb-4">JEE Mains Mock Test ${i}</h3>
+                        ${p ? `<div class="mb-4 p-3 bg-slate-50 border rounded-lg"><span class="text-sm font-semibold">Score: </span><span class="text-lg font-black text-sky-600">${p.score} / 360</span></div>` : ''}
+                        <div class="mt-auto flex gap-2 w-full">
+                            <button onclick="${isUnlocked ? `startTest(${i})` : `openPurchaseModal('single')`}" class="flex-1 py-2.5 rounded-lg font-semibold transition ${isUnlocked ? 'bg-sky-50 text-sky-700 border-sky-200' : 'bg-amber-50 text-amber-700'}">${isUnlocked ? (p ? 'Reattempt' : 'Start Test') : '🔒 Unlock All (₹500)'}</button>
+                            ${p ? `<button onclick="viewPastResults(${i})" class="px-4 py-2.5 rounded-lg font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">View</button>` : ''}
+                        </div>
+                    </div>`;
+            }
+        };
+
+        const openPurchaseModal = () => window.location.href = `payments.html?plan=jee`;
+        const startTest = (id) => { currentTestId = id; document.getElementById('view-dashboard').classList.add('hide'); document.getElementById('view-instructions').classList.remove('hide'); document.getElementById('instructions-title').innerText = `Instructions for JEE Mains Mock Test ${id}`; document.getElementById('gadget-checkbox').checked = false; toggleProceedBtn(); };
+        const toggleProceedBtn = () => { const btn = document.getElementById('proceed-btn'); btn.disabled = !document.getElementById('gadget-checkbox').checked; btn.classList.toggle('opacity-50', btn.disabled); };
+        const backToDashboard = () => { document.getElementById('view-instructions').classList.add('hide'); document.getElementById('view-dashboard').classList.remove('hide'); };
+        const togglePalette = () => { document.getElementById('question-palette').classList.toggle('translate-x-full'); document.getElementById('palette-backdrop').classList.toggle('hide'); };
+        
+        const proceedToExam = () => { 
+            document.getElementById('view-instructions').classList.add('hide'); document.getElementById('view-exam').classList.remove('hide'); 
+            questionsData = generateQuestionsForTest(currentTestId); const n = questionsData.length || 90; answers = new Array(n).fill(null); timeSpent = new Array(n).fill(0); markedForReview = new Array(n).fill(false); visited = new Array(n).fill(false); 
+            document.getElementById('exam-title').innerText = `Mock Test ${currentTestId}`;
+            currentQIndex = 0; timeLeft = 10800; examEndTime = Date.now() + 10800 * 1000; isExamActive = true; reviewMode = false; lastQStartTime = Date.now();
+            startTimer(); buildSubjects(); buildPalette(); loadQuestion(0); 
+        };
+
+        const startTimer = () => { clearInterval(timerInterval); timerInterval = setInterval(() => { timeLeft = Math.max(0, Math.ceil((examEndTime - Date.now()) / 1000)); const m = Math.floor(timeLeft / 60).toString().padStart(3, '0'); const s = (timeLeft % 60).toString().padStart(2, '0'); document.getElementById('timer').innerText = `${m}:${s}`; if (timeLeft <= 0) { clearInterval(timerInterval); submitExam(true); } }, 1000); };
+        const pauseExam = () => { if(!isExamActive) return; clearInterval(timerInterval); document.getElementById('pause-overlay').classList.remove('hide'); isExamActive = false; };
+        const resumeExam = () => { if(isExamActive) return; examEndTime = Date.now() + timeLeft * 1000; startTimer(); document.getElementById('pause-overlay').classList.add('hide'); isExamActive = true; };
+        const buildSubjects = () => { const subjects = [...new Set(questionsData.map(q => q.subject))]; const container = document.getElementById('subject-tabs'); container.innerHTML = ''; subjects.forEach(sub => { const btn = document.createElement('button'); btn.className = `px-4 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-800`; btn.innerText = sub; btn.onclick = () => loadQuestion(questionsData.findIndex(q => q.subject === sub)); container.appendChild(btn); }); };
+        const buildPalette = () => { const container = document.getElementById('palette-grid'); container.innerHTML = ''; questionsData.forEach((_, idx) => { const btn = document.createElement('button'); btn.id = `pal-${idx}`; btn.className = `h-10 w-10 rounded border font-medium text-sm`; btn.innerText = idx + 1; btn.onclick = () => loadQuestion(idx); container.appendChild(btn); }); updatePaletteColors(); };
+        
+        const updatePaletteColors = () => { questionsData.forEach((_, idx) => { const btn = document.getElementById(`pal-${idx}`); btn.className = `h-10 w-10 rounded border font-medium text-sm flex items-center justify-center `; if (reviewMode) { const isRight = answers[idx] === questionsData[idx].answer; if (answers[idx] === null) btn.className += 'bg-slate-200 text-slate-600'; else if (isRight) btn.className += 'bg-emerald-500 text-white'; else btn.className += 'bg-rose-500 text-white'; } else { if (markedForReview[idx] && answers[idx] !== null) btn.className += 'bg-sky-600 text-white'; else if (markedForReview[idx] && answers[idx] === null) btn.className += 'bg-sky-100 text-sky-700'; else if (answers[idx] !== null) btn.className += 'bg-emerald-500 text-white'; else if (visited[idx]) btn.className += 'bg-rose-500 text-white'; else btn.className += 'bg-white text-slate-600'; } if (idx === currentQIndex) btn.className += ' ring-2 ring-sky-500'; });             const answeredCount = answers.filter(a => a !== null).length; document.getElementById('exam-progress').style.width = `${(answeredCount / Math.max(1, questionsData.length)) * 100}%`; };
+        
+        const loadQuestion = (idx) => { currentQIndex = idx; visited[idx] = true; const q = questionsData[idx]; document.getElementById('q-num').innerText = idx + 1; document.getElementById('q-text').innerHTML = q.text; const oc = document.getElementById('options-container'); oc.innerHTML = ''; q.options.forEach((opt, oIdx) => { const isSel = answers[idx] === oIdx; const isCor = q.answer === oIdx; const div = document.createElement('div'); let divClass = 'p-4 border rounded-lg flex items-center gap-3 '; if (reviewMode) { if (isCor) divClass += 'border-emerald-500 bg-emerald-50'; else if (isSel && !isCor) divClass += 'border-rose-500 bg-rose-50'; else divClass += 'bg-white opacity-50'; } else { divClass += `cursor-pointer ${isSel ? 'border-sky-500 bg-sky-50' : 'bg-white hover:bg-slate-50'}`; div.onclick = () => { answers[currentQIndex] = oIdx; loadQuestion(currentQIndex); }; } div.className = divClass; div.innerHTML = `<span class="${isSel||(reviewMode&&isCor)?'font-bold':'font-normal'}">${opt}</span>`; oc.appendChild(div); }); updatePaletteColors(); };
+
+        const clearSelection = () => { answers[currentQIndex] = null; loadQuestion(currentQIndex); };
+        const markForReview = () => { markedForReview[currentQIndex] = true; if (currentQIndex < questionsData.length - 1) { loadQuestion(currentQIndex + 1); } else { updatePaletteColors(); } };
+        const saveAndNext = () => { if(!reviewMode) markedForReview[currentQIndex] = false; if (currentQIndex < questionsData.length - 1) { loadQuestion(currentQIndex + 1); } else { updatePaletteColors(); } };
+        const prevQuestion = () => { if(currentQIndex>0) loadQuestion(currentQIndex - 1); };
+        
+        // Simple Calc
+        const toggleCalculator = () => document.getElementById('virtual-calculator').classList.toggle('hide');
+        const calcPress = (v) => { const d = document.getElementById('calc-display'); if(v==='C') d.value='0'; else if(v==='=') { try { d.value=eval(d.value); }catch(e){ d.value='Error'; } } else { d.value = d.value==='0'?v:d.value+v; } };
+        
+        const submitExam = (isAuto = false) => {
+            clearInterval(timerInterval);
+            if (!isAuto && !reviewMode && !confirm("Submit JEE Mains mock test?")) { startTimer(); return; }
+            isExamActive = false; document.getElementById('view-exam').classList.add('hide'); document.getElementById('view-results').classList.remove('hide');
+            let cor = 0, incor = 0, un = 0, tot = 0;
+            let subScores = { 'Mathematics': 0, 'Physics': 0, 'Chemistry': 0 };
+            answers.forEach((ans, i) => { const q = questionsData[i]; if (ans === null) un++; else if (ans === q.answer) { cor++; tot += 4; subScores[q.subject] += 4; } else { incor++; tot -= 1; subScores[q.subject] -= 1; } });
+            const results = getMockTestResults(); results[currentTestId] = { score: tot, answers, correct: cor, incorrect: incor, unattempted: un, subjectScores: subScores };
+            try { localStorage.setItem('jeeMockResults', JSON.stringify(results)); } catch(e) {}
+            document.getElementById('result-score').innerText = tot; document.getElementById('res-unattempted').innerText = un; document.getElementById('res-correct').innerText = cor; document.getElementById('res-incorrect').innerText = incor;
+            drawRadarChart(subScores);
+        };
+
+        // Override the result saving to save custom tests separately
+        const originalSubmitExam = submitExam;
+        submitExam = function(isAuto) {
+            if (!isCustomTest) {
+                return originalSubmitExam(isAuto);
+            }
+            
+            clearInterval(timerInterval);
+            if (!isAuto && !reviewMode && !confirm("Submit custom test?")) { startTimer(); return; }
+            
+            if (isExamActive) timeSpent[currentQIndex] += (Date.now() - lastQStartTime) / 1000;
+            isExamActive = false;
+            
+            document.getElementById('view-exam').classList.add('hide');
+            document.getElementById('view-results').classList.remove('hide');
+            
+            let cor = 0, incor = 0, un = 0, tot = 0;
+            let subScores = {};
+            let incTopics = {};
+            
+            questionsData.forEach((q, i) => {
+                const ans = answers[i];
+                const sub = q.subject;
+                if (!subScores[sub]) subScores[sub] = 0;
+                
+                if (ans === null) un++;
+                else if (ans === q.answer) { cor++; tot += 1; subScores[sub] += 1; }
+                else {
+                    incor++; tot -= 0.25;
+                    subScores[sub] -= 0.25;
+                    const key = sub + '|' + (q.chapter || 'General');
+                    if (!incTopics[key]) incTopics[key] = new Set();
+                    incTopics[key].add(q.topic || 'General');
+                }
+            });
+            
+            const serTopics = {};
+            for (const k in incTopics) serTopics[k] = Array.from(incTopics[k]);
+            
+            // Save custom test results
+            try {
+                const key = 'customTestResults_jee';
+                const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                existing.push({
+                    timestamp: new Date().toISOString(),
+                    score: Math.round(tot * 10) / 10,
+                    correct: cor,
+                    incorrect: incor,
+                    unattempted: un,
+                    totalQ: questionsData.length,
+                    subjectScores: subScores,
+                    incorrectTopics: serTopics,
+                    answers: answers
+                });
+                localStorage.setItem(key, JSON.stringify(existing));
+            } catch(e) {}
+            
+            document.getElementById('result-score').innerText = Math.round(tot);
+            document.getElementById('res-unattempted').innerText = un;
+            document.getElementById('res-correct').innerText = cor;
+            document.getElementById('res-incorrect').innerText = incor;
+            drawRadarChart(subScores);
+        };
+
+        const drawRadarChart = (scores) => {
+            if (typeof Chart === 'undefined') return;
+            const ctx = document.getElementById('subjectChart').getContext('2d'); if (radarChartInst) radarChartInst.destroy();
+            const pct = [Math.max(0,scores['Mathematics']||0)/120*100, Math.max(0,scores['Physics']||0)/120*100, Math.max(0,scores['Chemistry']||0)/120*100];
+            radarChartInst = new Chart(ctx, { type: 'radar', data: { labels: ['Math', 'Physics', 'Chem'], datasets: [{ data: pct, backgroundColor: 'rgba(14, 165, 233, 0.2)', borderColor: 'rgba(14, 165, 233, 1)', borderWidth: 2 }] }, options: { scales: { r: { min: 0, max: 100, ticks: { display: false } } }, plugins: { legend: { display: false } } } });
+        };
+
+        const reviewAnswers = () => { reviewMode = true; document.getElementById('view-results').classList.add('hide'); document.getElementById('view-exam').classList.remove('hide'); document.getElementById('timer-display').classList.add('hide'); document.getElementById('submit-btn').classList.add('hide'); document.getElementById('exit-review-btn').classList.remove('hide'); document.getElementById('clear-btn').classList.add('hide'); document.getElementById('mark-review-btn').classList.add('hide'); document.getElementById('next-btn').innerText = 'Next'; buildSubjects(); buildPalette(); loadQuestion(0); };
+        const exitReview = () => { reviewMode = false; document.getElementById('view-exam').classList.add('hide'); document.getElementById('view-results').classList.remove('hide'); document.getElementById('timer-display').classList.remove('hide'); document.getElementById('submit-btn').classList.remove('hide'); document.getElementById('exit-review-btn').classList.add('hide'); document.getElementById('clear-btn').classList.remove('hide'); document.getElementById('mark-review-btn').classList.remove('hide'); document.getElementById('next-btn').innerText = 'Save & Next'; };
+        const viewPastResults = (id) => { const results = getMockTestResults(); const p = results[id]; if (!p) return; currentTestId = id; questionsData = generateQuestionsForTest(id); const n = questionsData.length || 90; answers = p.answers || new Array(n).fill(null); timeSpent = new Array(n).fill(0); markedForReview = new Array(n).fill(false); visited = new Array(n).fill(true); document.getElementById('view-dashboard').classList.add('hide'); document.getElementById('view-results').classList.remove('hide'); document.getElementById('result-score').innerText = p.score; document.getElementById('res-unattempted').innerText = p.unattempted; document.getElementById('res-correct').innerText = p.correct; document.getElementById('res-incorrect').innerText = p.incorrect; drawRadarChart(p.subjectScores || { 'Mathematics': 0, 'Physics': 0, 'Chemistry': 0 }); };
+        const clearMockData = () => { if (confirm("Clear all your JEE mock test results?")) { try { localStorage.removeItem('jeeMockResults'); } catch(e) {} renderDashboard(); } };
+
+        function openCustomModal() {
+            const dummyQuestions = generateQuestionsForTest(99999, true); // fetchAll
+            CUSTOM_CONFIG = {};
+            dummyQuestions.forEach(q => {
+                if (!CUSTOM_CONFIG[q.subject]) {
+                    CUSTOM_CONFIG[q.subject] = { selected: true, chapters: {} };
+                }
+                if (q.chapter) {
+                    CUSTOM_CONFIG[q.subject].chapters[q.chapter] = true;
+                }
+            });
+
+            const container = document.getElementById('custom-subjects');
+            if (!container) { alert('Custom modal not found'); return; }
+            container.innerHTML = '';
+            
+            Object.keys(CUSTOM_CONFIG).forEach(sub => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm';
+                
+                const subHeader = document.createElement('div');
+                subHeader.className = 'flex items-center justify-between p-3 bg-slate-100 border-b border-slate-200';
+                const accentClass = 'accent-sky-600'; 
+                subHeader.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800">
+                        <input type="checkbox" checked class="w-4 h-4 ${accentClass} sub-cb" data-subj="${sub}">
+                        ${CUSTOM_SUBJECT_LABELS[sub] || sub}
+                    </label>
+                    <button class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2 py-1 bg-white rounded border border-slate-200 toggle-chaps">▼</button>
+                `;
+                
+                const chapsDiv = document.createElement('div');
+                chapsDiv.className = 'p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 hide'; 
+                
+                const subCb = subHeader.querySelector('.sub-cb');
+                
+                Object.keys(CUSTOM_CONFIG[sub].chapters).forEach(chap => {
+                    const chapLabel = document.createElement('label');
+                    chapLabel.className = 'flex items-center gap-2 cursor-pointer text-sm text-slate-600 hover:text-slate-900 transition';
+                    chapLabel.innerHTML = `<input type="checkbox" checked class="w-3.5 h-3.5 ${accentClass} chap-cb" data-subj="${sub}" data-chap="${chap}"> <span class="truncate" title="${chap}">${chap}</span>`;
+                    
+                    const chapCb = chapLabel.querySelector('input');
+                    chapCb.addEventListener('change', (e) => {
+                        CUSTOM_CONFIG[sub].chapters[chap] = e.target.checked;
+                        const anyChecked = Object.values(CUSTOM_CONFIG[sub].chapters).some(v => v);
+                        subCb.checked = anyChecked;
+                        CUSTOM_CONFIG[sub].selected = anyChecked;
+                    });
+                    chapsDiv.appendChild(chapLabel);
+                });
+                
+                subCb.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    CUSTOM_CONFIG[sub].selected = isChecked;
+                    Object.keys(CUSTOM_CONFIG[sub].chapters).forEach(c => {
+                        CUSTOM_CONFIG[sub].chapters[c] = isChecked;
+                    });
+                    chapsDiv.querySelectorAll('.chap-cb').forEach(cb => cb.checked = isChecked);
+                });
+                
+                subHeader.querySelector('.toggle-chaps').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    chapsDiv.classList.toggle('hide');
+                    e.target.innerText = chapsDiv.classList.contains('hide') ? '▼' : '▲';
+                });
+
+                subDiv.appendChild(subHeader);
+                subDiv.appendChild(chapsDiv);
+                container.appendChild(subDiv);
+            });
+            const qtyEl = document.getElementById('custom-qty');
+            const qtyVal = document.getElementById('custom-qty-val');
+            const timeEl = document.getElementById('custom-time');
+            const timeVal = document.getElementById('custom-time-val');
+            if (qtyEl) qtyEl.value = 60;
+            if (qtyVal) qtyVal.innerText = '60';
+            if (timeEl) timeEl.value = 60;
+            if (timeVal) timeVal.innerText = '60';
+            const modal = document.getElementById('custom-modal');
+            if (modal) modal.classList.remove('hide');
+        }
+
+        function closeCustomModal() {
+            const modal = document.getElementById('custom-modal');
+            if (modal) modal.classList.add('hide');
+        }
+
+        function closeHistoryModal() {
+            const modal = document.getElementById('custom-history-modal');
+            if (modal) modal.classList.add('hide');
+        }
+
+        function openHistoryModal() {
+            const key = 'customTestResults_jee';
+            const entries = JSON.parse(localStorage.getItem(key) || '[]').slice().reverse();
+            const list = document.getElementById('custom-history-list');
+            if (!list) return;
+            list.innerHTML = '';
+            if (entries.length === 0) {
+                list.innerHTML = '<p class="text-sm text-slate-500">No custom test history available yet.</p>';
+            } else {
+                entries.forEach((entry, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-50 rounded-2xl border border-slate-200 p-4 shadow-sm';
+                    const timestamp = new Date(entry.timestamp).toLocaleString('en-IN', { hour12: false });
+                    const subjects = entry.subjectScores ? Object.entries(entry.subjectScores).map(([sub, score]) => `<div class="flex justify-between gap-4"><span>${sub}</span><span>${score}</span></div>`).join('') : '';
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-slate-500 text-xs uppercase tracking-[0.18em]">Attempt ${entries.length - index}</p>
+                                <h4 class="text-lg font-semibold text-slate-800">${entry.totalQ} Questions</h4>
+                                <p class="text-slate-500 text-sm">${timestamp}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-extrabold text-sky-600">${entry.score}</p>
+                                <p class="text-xs text-slate-500">Score</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 mt-4 text-center text-slate-700 text-sm font-medium">
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.correct}</div><div class="text-slate-500">Correct</div></div>
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.incorrect}</div><div class="text-slate-500">Incorrect</div></div>
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.unattempted}</div><div class="text-slate-500">Unattempted</div></div>
+                        </div>
+                        ${subjects ? `<div class="mt-4 text-sm text-slate-600"><div class="font-semibold mb-2">Subject scores</div>${subjects}</div>` : ''}
+                    `;
+                    list.appendChild(card);
+                });
+            }
+            const modal = document.getElementById('custom-history-modal');
+            if (modal) modal.classList.remove('hide');
+        }
+
+        function startCustomTest() {
+            closeCustomModal();
+            
+            const qtyEl = document.getElementById('custom-qty');
+            const timeEl = document.getElementById('custom-time');
+            const totalQ = qtyEl ? parseInt(qtyEl.value) : 60;
+            const totalMinutes = timeEl ? parseInt(timeEl.value) : 60;
+            const totalSeconds = totalMinutes * 60;
+
+            isCustomTest = true;
+            let allQuestions = generateQuestionsForTest(99999, true); // all from JEE json
+            
+            questionsData = allQuestions.filter(q => {
+                const subCfg = CUSTOM_CONFIG[q.subject];
+                if (!subCfg || !subCfg.selected) return false;
+                if (!q.chapter) return true;
+                return subCfg.chapters[q.chapter];
+            });
+
+            questionsData = questionsData.sort(() => Math.random() - 0.5);
+            questionsData = questionsData.slice(0, Math.min(totalQ, questionsData.length));
+            
+            if (questionsData.length === 0) {
+                alert('No questions found for the selected subjects and chapters. Please select more options.');
+                isCustomTest = false;
+                return;
+            }
+            
+            const n = questionsData.length;
+            answers = new Array(n).fill(null);
+            timeSpent = new Array(n).fill(0);
+            markedForReview = new Array(n).fill(false);
+            visited = new Array(n).fill(false);
+            
+            const titleEl = document.getElementById('exam-title');
+            if (titleEl) titleEl.innerText = 'Custom Test (' + totalQ + ' Q, ' + totalMinutes + ' min)';
+            
+            currentQIndex = 0;
+            timeLeft = totalSeconds;
+            examEndTime = Date.now() + totalSeconds * 1000;
+            reviewMode = false;
+            isExamActive = true;
+            lastQStartTime = Date.now();
+            const calc = document.getElementById('virtual-calculator');
+            if (calc) calc.classList.add('hide');
+            
+            document.getElementById('view-dashboard').classList.add('hide');
+            document.getElementById('view-instructions').classList.add('hide');
+            document.getElementById('view-exam').classList.remove('hide');
+            document.getElementById('view-results').classList.add('hide');
+            
+            const timerEl = document.getElementById('timer');
+            if (timerEl) {
+                const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+                const s = (totalSeconds % 60).toString().padStart(2, '0');
+                timerEl.innerText = m + ':' + s;
+            }
+            
+            startTimer();
+            if (typeof buildSubjects === 'function') buildSubjects();
+            if (typeof buildPalette === 'function') buildPalette();
+            if (typeof loadQuestion === 'function') loadQuestion(0);
+            
+            if (window.innerWidth < 1024) {
+                const pal = document.getElementById('question-palette');
+                const back = document.getElementById('palette-backdrop');
+                if (pal) pal.classList.add('translate-x-full');
+                if (back) back.classList.add('hide');
+            }
+        }
+
+        const syncPurchases = () => {
+            const email = localStorage.getItem('user_email');
+            if (!email) { renderDashboard(); return; }
+            fetch(`api.php?action=get_purchases&email=${encodeURIComponent(email)}`, {credentials: 'include'})
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.purchases) {
+                        data.purchases.forEach(plan => {
+                            if (plan === 'combo') {
+                                ['met', 'vit', 'srm', 'bitsat', 'gitam', 'amrita', 'jee'].forEach(exam => {
+                                    localStorage.setItem(`${exam}_all_tests_unlocked`, 'true');
+                                });
+                            } else {
+                                localStorage.setItem(`${plan}_all_tests_unlocked`, 'true');
+                            }
+                        });
+                    }
+                    renderDashboard();
+                }).catch(() => renderDashboard());
+        };
+
+        window.addEventListener('beforeunload', (e) => { if (isExamActive) { e.preventDefault(); e.returnValue = ''; } });
+        syncPurchases();
+    </script>
+</body>
+</html>

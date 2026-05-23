@@ -1,0 +1,1500 @@
+<?php
+session_start();
+if (empty($_COOKIE['session_token'])) {
+    header("Location: login.html");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VITEEE Premium Mock Test Series</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+        .q-palette::-webkit-scrollbar { width: 6px; }
+        .q-palette::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme canvas, html.dark-theme img { filter: invert(1) hue-rotate(180deg); }
+    </style>
+    <script>
+        try {
+            if (!localStorage.getItem('user_email')) {
+window.location.href = 'login.html?redirect=viteee-mock-tests.html';
+            }
+            if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+        } catch(e) {}
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+    
+    <div id="view-dashboard" class="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">VITEEE <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">Mock Test Series</span></h1>
+                <p class="text-slate-500 mt-1">Practice with 25 full-length papers mirroring the exact VITEEE 2026 pattern.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <button onclick="toggleDarkMode()" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition px-2 flex items-center gap-1.5" title="Toggle Theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <span id="theme-text">Dark</span>
+                </button>
+                <button onclick="openPurchaseModal('all')" class="px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">Unlock All Exams (₹1500)</button>
+                <button onclick="openCustomModal()" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">🎯 Custom Test</button>
+                <button onclick="openHistoryModal()" class="px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">📚 History</button>
+                <button onclick="clearMockData()" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Clear Data</button>
+                <a href="index.html" class="px-4 py-2 bg-blue-50 text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition shadow-sm">Back to Home</a>
+            </div>
+        </header>
+        <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-2">
+            <!-- Stats will be generated here by JS -->
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="test-grid"></div>
+    </div>
+
+    <div id="view-instructions" class="hide max-w-4xl mx-auto p-4 md:p-8 space-y-6 mt-6">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-blue-600 p-6 text-white">
+                <h2 class="text-2xl font-bold" id="instructions-title">Instructions for VITEEE Mock Test</h2>
+            </div>
+            <div class="p-8 space-y-6 text-slate-700">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Exam Pattern & Weightage</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Total Duration:</strong> 150 Minutes (2 hours 30 mins)</li>
+                        <li><strong>Total Questions:</strong> 125 Questions</li>
+                        <li><strong>Mathematics / Biology:</strong> 40 Questions</li>
+                        <li><strong>Physics & Chemistry:</strong> 35 Questions each</li>
+                        <li><strong>Aptitude:</strong> 10 Questions</li>
+                        <li><strong>English:</strong> 5 Questions</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Marking Scheme</h3>
+                    <p>+4 for correct answer, <span class="text-rose-600 font-bold">-1 for incorrect answer</span>.</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3 mt-4">
+                    <input type="checkbox" id="gadget-checkbox" class="mt-1 w-5 h-5 accent-blue-600 cursor-pointer shrink-0" onchange="toggleProceedBtn()">
+                    <label for="gadget-checkbox" class="text-sm font-medium text-amber-900 cursor-pointer select-none">I confirm that I will attempt this test with strict honesty.</label>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-4">
+                <button onclick="backToDashboard()" class="px-6 py-2 bg-white border text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition shadow-sm">Cancel</button>
+                <button id="proceed-btn" disabled onclick="proceedToExam()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg opacity-50 cursor-not-allowed transition shadow-md">Proceed to Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-exam" class="hide h-screen flex flex-col bg-slate-100 relative">
+        <div id="pause-overlay" class="hide absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-white">
+            <h2 class="text-4xl font-extrabold mb-4">Exam Paused</h2>
+            <p class="text-lg text-slate-200 mb-8 text-center max-w-md">Your timer is stopped and your progress is safely saved. The question paper is hidden to maintain test integrity.</p>
+            <button onclick="resumeExam()" class="px-8 py-3 bg-blue-600 font-bold rounded-xl hover:bg-blue-700 shadow-lg transition text-lg">Resume Exam</button>
+        </div>
+        <header class="bg-white shadow-sm border-b border-slate-200 z-10 shrink-0 flex flex-col">
+            <div class="px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-xl font-bold text-slate-800" id="exam-title">Mock Test</h2>
+                    <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold uppercase tracking-wide">VITEEE Pattern</span>
+                </div>
+                <div id="exam-controls" class="flex flex-wrap justify-center items-center gap-2 md:gap-4">
+                    <button onclick="toggleCalculator()" class="px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="14.01"></line><line x1="16" y1="10" x2="16" y2="10.01"></line><line x1="16" y1="18" x2="16" y2="18.01"></line><line x1="12" y1="14" x2="12" y2="14.01"></line><line x1="12" y1="10" x2="12" y2="10.01"></line><line x1="12" y1="18" x2="12" y2="18.01"></line><line x1="8" y1="14" x2="8" y2="14.01"></line><line x1="8" y1="10" x2="8" y2="10.01"></line><line x1="8" y1="18" x2="8" y2="18.01"></line></svg>
+                        <span class="hidden sm:inline">Calculator</span>
+                    </button>
+                    <button onclick="togglePalette()" class="lg:hidden px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2" title="View Questions">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        <span class="hidden sm:inline">Questions</span>
+                    </button>
+                    <button id="pause-btn" onclick="pauseExam()" class="px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2" title="Pause Exam">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                        <span class="hidden sm:inline">Pause</span>
+                    </button>
+                    <div id="timer-display" class="flex items-center gap-2 text-rose-600 font-bold bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span id="timer">150:00</span>
+                    </div>
+                    <button id="submit-btn" onclick="submitExam()" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 shadow-md transition">Submit Test</button>
+                </div>
+                <button id="exit-review-btn" onclick="exitReview()" class="hide px-6 py-2 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-900 shadow-md transition flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Exit Review</button>
+            </div>
+            <div class="w-full bg-slate-100 h-1">
+                <div id="exam-progress" class="bg-blue-500 h-1 transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </header>
+        <!-- VIRTUAL CALCULATOR -->
+        <div id="virtual-calculator" class="hide absolute top-20 right-2 sm:right-6 z-50 w-80 max-w-[95vw] bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col cursor-move">
+            <div id="calc-header" class="bg-slate-900 p-3 flex justify-between items-center select-none">
+                <span class="text-white font-bold text-sm tracking-wider pointer-events-none">SCIENTIFIC CALC</span>
+                <button onclick="toggleCalculator()" class="text-slate-400 hover:text-white transition cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <div class="p-4">
+                <input type="text" id="calc-display" class="w-full bg-slate-100 text-right text-xl p-2 rounded mb-3 font-mono font-bold text-slate-800 h-12 outline-none focus:ring-2 focus:ring-blue-500 cursor-text" value="0">
+                <div class="grid grid-cols-5 gap-2 text-sm [&>button]:cursor-pointer">
+                    <button onclick="calcPress('sin()')" class="bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-600 transition">sin</button>
+                    <button onclick="calcPress('cos()')" class="bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-600 transition">cos</button>
+                    <button onclick="calcPress('tan()')" class="bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-600 transition">tan</button>
+                    <button onclick="calcPress('(')" class="bg-blue-500 text-white font-bold py-2 rounded hover:bg-blue-400 transition">(</button>
+                    <button onclick="calcPress(')')" class="bg-blue-500 text-white font-bold py-2 rounded hover:bg-blue-400 transition">)</button>
+                    <button onclick="calcPress('log()')" class="bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-600 transition">log</button>
+                    <button onclick="calcPress('ln()')" class="bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-600 transition">ln</button>
+                    <button onclick="calcPress('sqrt()')" class="bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-600 transition">&radic;</button>
+                    <button onclick="calcPress('^')" class="bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-600 transition">^</button>
+                    <button onclick="calcPress('π')" class="bg-blue-500 text-white font-bold py-2 rounded hover:bg-blue-400 transition">&pi;</button>
+                    <button onclick="calcPress('7')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">7</button>
+                    <button onclick="calcPress('8')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">8</button>
+                    <button onclick="calcPress('9')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">9</button>
+                    <button onclick="calcPress('C')" class="bg-rose-500 text-white font-bold py-2 rounded hover:bg-rose-600 transition">C</button>
+                    <button onclick="calcPress('&#8592;')" class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&#8592;</button>
+                    <button onclick="calcPress('4')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">4</button>
+                    <button onclick="calcPress('5')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">5</button>
+                    <button onclick="calcPress('6')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">6</button>
+                    <button onclick="calcPress('*')" class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&times;</button>
+                    <button onclick="calcPress('/')" class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&divide;</button>
+                    <button onclick="calcPress('1')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">1</button>
+                    <button onclick="calcPress('2')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">2</button>
+                    <button onclick="calcPress('3')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">3</button>
+                    <button onclick="calcPress('+')" class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">+</button>
+                    <button onclick="calcPress('-')" class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&minus;</button>
+                    <button onclick="calcPress('0')" class="col-span-2 bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">0</button>
+                    <button onclick="calcPress('.')" class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">.</button>
+                    <button onclick="calcPress('E')" class="bg-blue-500 text-white font-bold py-2 rounded hover:bg-blue-400 transition">E</button>
+                    <button onclick="calcPress('=')" class="bg-emerald-500 text-white font-bold py-2 rounded hover:bg-emerald-600 transition">=</button>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col lg:flex-row flex-1 lg:overflow-hidden">
+            <div class="flex-1 flex flex-col p-3 md:p-6 lg:overflow-y-auto">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col max-w-4xl w-full mx-auto">
+                    <div class="flex flex-wrap border-b p-2 gap-2 bg-slate-50/50 rounded-t-xl" id="subject-tabs"></div>
+                    <div class="p-4 md:p-8 flex-1">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start md:items-center gap-3 mb-6">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <h3 class="text-lg font-bold text-slate-800">Question <span id="q-num">1</span></h3>
+                                <span id="q-type-badge" class="px-2 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded uppercase"></span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span id="q-time-spent" class="hide text-sm font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-1 rounded flex items-center gap-1.5 shadow-sm"></span>
+                                <span class="text-sm font-medium text-slate-500 bg-slate-100 border px-2 py-1 rounded shadow-sm">Marking: +4 / -1</span>
+                            </div>
+                        </div>
+                        <p class="text-lg md:text-xl text-slate-700 mb-6" id="q-text">Loading question...</p>
+                        <div class="space-y-3" id="options-container"></div>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <button onclick="prevQuestion()" class="w-full sm:w-auto px-4 py-2 bg-white border border-slate-300 text-slate-700 font-medium rounded hover:bg-slate-50 transition shadow-sm text-sm">Previous</button>
+                        <div class="flex w-full sm:w-auto justify-center items-center gap-2">
+                            <button id="clear-btn" onclick="clearSelection()" class="flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-300 text-slate-600 font-medium rounded hover:bg-slate-50 transition shadow-sm text-sm">Clear</button>
+                            <button id="mark-review-btn" onclick="markForReview()" class="flex-1 sm:flex-none px-4 py-2 bg-purple-50 border border-purple-200 text-purple-700 font-medium rounded hover:bg-purple-100 transition shadow-sm text-sm">Mark for Review</button>
+                        </div>
+                        <button id="next-btn" onclick="saveAndNext()" class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition shadow-sm text-sm">Save & Next</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile Palette Backdrop -->
+            <div id="palette-backdrop" class="hide fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden" onclick="togglePalette()"></div>
+
+            <!-- Right: Question Palette -->
+            <div id="question-palette" class="fixed lg:static inset-y-0 right-0 z-40 w-[85vw] sm:w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 transform translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-2xl lg:shadow-none h-[100dvh] lg:h-auto lg:overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0 flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-slate-800 mb-3">Questions (125)</h3>
+                        <div class="grid grid-cols-2 gap-2 text-[10px] sm:text-xs font-medium text-slate-600">
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-emerald-500"></div> Answered</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-rose-500"></div> Not Answered</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded border border-slate-300 bg-white"></div> Not Visited</div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-purple-100 border border-purple-400"></div> Marked</div>
+                            <div class="flex items-center gap-1.5 col-span-2"><div class="w-3 h-3 rounded bg-purple-600 border border-purple-700"></div> Ans & Marked</div>
+                        </div>
+                    </div>
+                    <button onclick="togglePalette()" class="lg:hidden text-slate-500 hover:text-slate-800 p-1 -mt-1 -mr-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto q-palette grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-5 gap-2 content-start" id="palette-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-results" class="hide max-w-4xl mx-auto p-4 md:p-8 space-y-8 mt-10">
+        <div class="bg-white rounded-2xl shadow-xl border overflow-hidden text-center">
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-8 text-white">
+                <h2 class="text-3xl font-extrabold mb-2">Test Submitted Successfully</h2>
+                <p class="text-blue-100 font-medium text-lg">Here is your VITEEE performance analysis</p>
+            </div>
+            <div class="p-8 flex flex-col md:flex-row items-center justify-around gap-8">
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <p class="text-slate-500 font-semibold uppercase tracking-wider mb-2">Your VITEEE Score</p>
+                        <p class="text-6xl font-black text-slate-800"><span id="result-score">0</span> <span class="text-2xl text-slate-400 font-medium">/ 500</span></p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 font-semibold uppercase tracking-wider mb-2">Estimated Rank</p>
+                        <p class="text-5xl font-black text-blue-600">#<span id="result-rank">0</span></p>
+                    </div>
+                </div>
+                <div class="w-full md:w-64 h-64"><canvas id="subjectChart"></canvas></div>
+                <div class="border-l h-32 hidden md:block"></div>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4 text-left">
+                    <div><p class="text-slate-500 text-sm font-medium">Unattempted</p><p class="text-xl font-bold text-slate-800" id="res-unattempted">0</p></div>
+                    <div><p class="text-slate-500 text-sm font-medium">Correct</p><p class="text-xl font-bold text-emerald-600" id="res-correct">0</p></div>
+                    <div><p class="text-slate-500 text-sm font-medium">Incorrect</p><p class="text-xl font-bold text-rose-600" id="res-incorrect">0</p></div>
+                </div>
+            </div>
+            <div class="mt-8 border-t pt-8 text-left w-full">
+                <div class="flex items-center gap-3 mb-6 pl-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    <h3 class="text-2xl font-bold text-slate-800">Revision Insights</h3>
+                </div>
+                <div id="revision-insights" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-8 pb-8"></div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex flex-wrap justify-center gap-4">
+                <button onclick="window.print()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition shadow-sm flex items-center gap-2 print:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Save as PDF
+                </button>
+                <button onclick="location.reload()" class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Try Another Test
+                </button>
+                <button id="review-mistakes-btn" onclick="reviewAnswers()" class="px-6 py-2.5 bg-white border border-blue-200 text-blue-700 font-bold rounded-lg hover:bg-blue-50 transition shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    Review Mistakes
+                </button>
+                <a href="index.html" class="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                    Back to Home
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class PRNG {
+            constructor(seed) { this.seed = seed; }
+            next() {
+                let t = this.seed += 0x6D2B79F5;
+                t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+            nextInt(min, max) { return Math.floor(this.next() * (max - min + 1)) + min; }
+            pick(arr) { return arr[this.nextInt(0, arr.length - 1)]; }
+        }
+
+        const generateQuestionsForTest = (testId) => {
+            const rng = new PRNG(testId * 9876);
+            let id = 0; const q = [];
+            // Difficulty scaling: dynamically scale ranges via testId for extreme variance
+            const diff = Math.ceil(testId / 2) + 2 + testId; 
+            
+            // Helper to render beautiful mathematical matrices dynamically
+            const mx = (rows) => '<table class="inline-block align-middle mx-1 border-l-2 border-r-2 border-slate-800 text-center text-sm font-bold" style="border-collapse: separate; border-spacing: 0.5rem 0.2rem;">' + rows.map(r => '<tr>' + r.map(c => `<td>${c}</td>`).join('') + '</tr>').join('') + '</table>';
+
+            // EXPANDED TEMPLATE BANK: 40+ Math, 35+ Physics, 35+ Chem to ensure no repeats in a single test.
+            const mathTmpls = [
+                // Original 10, slightly tweaked for new difficulty
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Limits', text: `Evaluate &lim;<sub>x&rarr;0</sub> (1 - cos(${n}x)) / x<sup>2</sup>.`, options: [`${(n*n)/2}`, `${n*n}`, `${n/2}`, `${n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,4)*diff; return { chapter: 'Matrices', topic: 'Adjoint Properties', text: `If A is a 3&times;3 matrix and |A| = ${n}, then |adj(A)| is equal to:`, options: [`${n*n}`, `${n*n*n}`, `${n}`, `1/${n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,4)*diff; return { chapter: 'Matrices', topic: 'Matrix Multiplication', text: `If A = ${mx([[1, n], [0, 1]])}, then A<sup>3</sup> is:`, options: [mx([[1, 3*n], [0, 1]]), mx([[1, n*n*n], [0, 1]]), mx([[3, 3*n], [0, 3]]), mx([[1, n], [0, 1]])], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,6)*diff; return { chapter: 'Differential Equations', topic: 'Integrating Factor', text: `The integrating factor of the differential equation x(dy/dx) + ${n}y = x<sup>2</sup> is:`, options: [`x<sup>${n}</sup>`, `e<sup>${n}x</sup>`, `nx`, `x<sup>2</sup>`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Complex Numbers', topic: 'Cube Roots of Unity', text: `If &omega; is a complex cube root of unity, then the value of (1 - &omega; + &omega;<sup>2</sup>)<sup>${n}</sup> is:`, options: [`(-2&omega;)<sup>${n}</sup>`, `(2&omega;)<sup>${n}</sup>`, `(-&omega;)<sup>${n}</sup>`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Conic Sections', topic: 'Ellipse Properties', text: `The distance between the foci of an ellipse is ${2*n} and its minor axis is ${2*n}. The eccentricity is:`, options: ['1/&radic;2', '1/2', '&radic;3/2', '1/3'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Calculus', topic: 'Definite Integration', text: `The value of &int;<sub>0</sub><sup>&pi;/2</sup> (sin<sup>${n}</sup>x) / (sin<sup>${n}</sup>x + cos<sup>${n}</sup>x) dx is:`, options: ['&pi;/4', '&pi;/2', '&pi;/8', '0'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,4)*diff; return { chapter: 'Vector Algebra', topic: 'Cross Product', text: `If |a|=${n}, |b|=${n+1}, and a&middot;b=${n}, find |a &times; b|:`, options: [`&radic;${(n*n*(n+1)*(n+1)) - n*n}`, `${n*n*(n+1)}`, `${n*(n+1)}`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,6); return { chapter: 'Probability', topic: 'Conditional Probability', text: `P(A)=0.5, P(B)=0.4, P(A &cap; B)=0.2. What is P(A|B')?`, options: ['0.5', '0.3', '0.2', '0.4'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Maxima and Minima', text: `The minimum value of f(x) = x<sup>2</sup> + ${n*n}/x<sup>2</sup> for x > 0 is:`, options: [`${2*n}`, `${n}`, `${n*n}`, `${4*n}`], answer: 0 }; },
+                // New templates start here
+                (r) => { let n=r.nextInt(3,7); return { chapter: 'Permutations & Combinations', topic: 'Circular Permutations', text: `The number of ways in which ${n} persons can be seated at a round table is:`, options: [`(${n-1})!`, `${n}!`, `${n}!/2`, `(${n})!/2`], answer: 0 }; },
+                (r) => { let n=r.nextInt(4,8); return { chapter: 'Binomial Theorem', topic: 'General Term', text: `The number of terms in the expansion of (x + y + z)<sup>${n}</sup> is:`, options: [`(${(n+2)*(n+1)/2})`, `${n+1}`, `${n+2}`, `${n*n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(5,10)*diff; return { chapter: 'Statistics', topic: 'Variance', text: `The variance of the first ${n} natural numbers is:`, options: [`(${n*n - 1})/12`, `(${n*n + 1})/12`, `(${n*n - 1})/6`, `(${n*n + 1})/6`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: '3D Geometry', topic: 'Direction Cosines', text: `If a line makes angles 90&deg;, 135&deg;, 45&deg; with the x, y, z axes respectively, its direction cosines are:`, options: [`0, -1/&radic;2, 1/&radic;2`, `0, 1/&radic;2, 1/&radic;2`, `1, 0, 0`, `0, -1/&radic;2, -1/&radic;2`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Area under Curve', text: `The area bounded by the curve y = x<sup>2</sup>, the x-axis, and the lines x=0 and x=${n} is:`, options: [`${n*n*n}/3`, `${n*n}/2`, `${n*n*n}`, `${n*n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(3,6); return { chapter: 'Probability', topic: 'Binomial Distribution', text: `A coin is tossed ${n} times. The probability of getting exactly 2 heads is:`, options: [`${n*(n-1)/2}/(2**${n})`, `${n}/(2**${n})`, `1/(2**${n})`, `1/2`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Trigonometry', topic: 'Inverse Functions', text: `The principal value of sin<sup>-1</sup>(sin(${n}&pi; - &pi;/3)) is:`, options: [`-&pi;/3`, `&pi;/3`, `2&pi;/3`, `4&pi;/3`], answer: (n%2 === 0) ? 0 : 1 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Vector Algebra', topic: 'Scalar Triple Product', text: `The volume of the parallelepiped whose edges are i, i+j, and i+j+${n}k is:`, options: [`${n}`, `1`, `0`, `${n+1}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(3,7); return { chapter: 'Sets, Relations & Functions', topic: 'Types of Functions', text: `Let f: R &rarr; R be defined by f(x) = ${n}x + 5. Then f is:`, options: ['One-one and onto', 'One-one but not onto', 'Onto but not one-one', 'Neither one-one nor onto'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Quadratic Equations', topic: 'Nature of Roots', text: `If the roots of the equation x<sup>2</sup> - ${2*n}x + k = 0 are real and equal, then k is:`, options: [`${n*n}`, `-${n*n}`, `${2*n}`, `-${2*n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(3,6); return { chapter: 'Sequences and Series', topic: 'Geometric Progression', text: `The sum of an infinite GP is ${n*n} and its first term is ${n}. The common ratio is:`, options: [`${(n-1)/n}`, `1/${n}`, `${n/(n-1)}`, `${n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Continuity', text: `The function f(x) = |x - ${n}| is:`, options: ['Continuous but not differentiable at x='+n, 'Differentiable at x='+n, 'Discontinuous at x='+n, 'Neither continuous nor differentiable'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: '3D Geometry', topic: 'Plane Equation', text: `The equation of the plane with intercepts ${n}, ${n*2}, ${n*3} on the x, y, z axes is:`, options: [`6x + 3y + 2z = ${6*n}`, `x + 2y + 3z = ${n}`, `x/${n} + y/${n*2} + z/${n*3} = 0`, `3x + 2y + z = ${6*n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Differential Equations', topic: 'Order and Degree', text: `The order and degree of the differential equation (d<sup>2</sup>y/dx<sup>2</sup>)<sup>3</sup> + (dy/dx)<sup>${n}</sup> = 0 are:`, options: ['2, 3', '2, '+n, '1, '+n, '3, 2'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Probability', topic: 'Independent Events', text: `If A and B are independent events with P(A)=1/${n} and P(B)=1/${n+1}, then P(A &cup; B) is:`, options: [`${(2*n)}/(${n*(n+1)})`, `1/(${n*(n+1)})`, `(2n+1)/(${n*(n+1)})`, `2/(${2*n+1})`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Trigonometry', topic: 'General Solutions', text: `The general solution of tan(x) = &radic;3 is:`, options: [`n&pi; + &pi;/3`, `2n&pi; &pm; &pi;/3`, `n&pi; + &pi;/6`, `n&pi; &pm; &pi;/3`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Rolle\'s Theorem', text: `For f(x) = x(x-${n}) on [0, ${n}], Rolle's theorem is applicable. The value of c is:`, options: [`${n/2}`, `${n}`, `0`, `${n/3}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Matrices', topic: 'Symmetric/Skew-Symmetric', text: `If A is a square matrix, then A - A' is a:`, options: ['Skew-symmetric matrix', 'Symmetric matrix', 'Identity matrix', 'Zero matrix'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Vector Algebra', topic: 'Projection', text: `The projection of vector a = 2i+3j+2k on vector b = i+2j+k is:`, options: ['10/&radic;6', '10/&radic;17', '6/&radic;10', '17/&radic;10'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Binomial Theorem', topic: 'Middle Term', text: `The middle term in the expansion of (x + 1/x)<sup>${2*n}</sup> is:`, options: [`<sup>${2*n}</sup>C<sub>${n}</sub>`, `<sup>${2*n}</sup>C<sub>${n-1}</sub>`, `<sup>${2*n}</sup>C<sub>${n+1}</sub>`, `x<sup>${n}</sup>`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Conic Sections', topic: 'Parabola Properties', text: `The length of the latus rectum of the parabola y<sup>2</sup> = ${4*n}x is:`, options: [`${4*n}`, `${2*n}`, `${n}`, `16${n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Statistics', topic: 'Mean Deviation', text: `The sum of deviations of a set of n values from their mean is always:`, options: ['0', '1', 'Minimum', 'Maximum'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Complex Numbers', topic: 'Polar Form', text: `The polar form of the complex number 1 + i is:`, options: ['&radic;2(cos(&pi;/4) + isin(&pi;/4))', '&radic;2(cos(&pi;/3) + isin(&pi;/3))', '2(cos(&pi;/4) + isin(&pi;/4))', 'cos(&pi;/4) + isin(&pi;/4)'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Chain Rule', text: `If y = sin(x<sup>${n}</sup>), then dy/dx is:`, options: [`${n}x<sup>${n-1}</sup>cos(x<sup>${n}</sup>)`, `cos(x<sup>${n}</sup>)`, `-cos(x<sup>${n}</sup>)`, `${n}cos(x<sup>${n}</sup>)`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: '3D Geometry', topic: 'Angle between lines', text: `The angle between the lines with direction ratios (1,1,2) and (&radic;3-1, -&radic;3-1, 4) is:`, options: ['60&deg;', '30&deg;', '45&deg;', '90&deg;'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Permutations & Combinations', topic: 'Combinations', text: `A committee of 3 is to be formed from ${n+3} people. How many ways can this be done?`, options: [`<sup>${n+3}</sup>C<sub>3</sub>`, `<sup>${n+3}</sup>P<sub>3</sub>`, `${(n+3)}!`, `3!`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Sets, Relations & Functions', topic: 'Domain and Range', text: `The domain of the function f(x) = &radic;(${n*n} - x<sup>2</sup>) is:`, options: [`[-${n}, ${n}]`, `(-${n}, ${n})`, `[0, ${n}]`, `R - [-${n}, ${n}]`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Sequences and Series', topic: 'Arithmetic Progression', text: `The ${n+1}th term of an AP is twice the ${n}th term. If the first term is 2, the common difference is:`, options: [`2`, `1`, `3`, `4`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Trigonometry', topic: 'Identities', text: `The value of tan(75&deg;) - cot(75&deg;) is:`, options: ['2&radic;3', '2+&radic;3', '2-&radic;3', '4'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Implicit Differentiation', text: `If x<sup>2</sup> + y<sup>2</sup> = ${n*n}, then dy/dx is:`, options: ['-x/y', 'x/y', '-y/x', 'y/x'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,6)*diff; return { chapter: 'Calculus', topic: 'Limits', text: `Evaluate &lim;<sub>x&rarr;0</sub> (e<sup>${n}x</sup> - 1) / x.`, options: [`${n}`, `1/${n}`, `${n*n}`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,8)*diff; return { chapter: 'Coordinate Geometry', topic: 'Circles', text: `The center of the circle x<sup>2</sup> + y<sup>2</sup> - ${2*n}x + ${4*n}y + 1 = 0 is:`, options: [`(${n}, -${2*n})`, `(-${n}, ${2*n})`, `(${2*n}, -${n})`, `(-${2*n}, ${n})`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Algebra', topic: 'Complex Numbers', text: `The modulus of ${n} + ${n}i is:`, options: [`${n}&radic;2`, `${2*n}`, `${n}`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,6); return { chapter: 'Probability', topic: 'Dice', text: `Two dice are thrown. The probability of getting a sum of ${n+2} is:`, options: [`${n+1}/36`, `${n}/36`, `${(n+2)}/36`, `1/6`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,6)*diff; return { chapter: 'Algebra', topic: 'AP/GP', text: `The sum of the first ${n} terms of the series 1, 2, 3... is:`, options: [`${n*(n+1)/2}`, `${n*(n-1)/2}`, `${n*n}`, `${n*(n+1)}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Integration', text: `The value of &int; ${n}x e<sup>x<sup>2</sup></sup> dx is:`, options: [`${n/2} e<sup>x<sup>2</sup></sup> + C`, `${n} e<sup>x<sup>2</sup></sup> + C`, `e<sup>x<sup>2</sup></sup> + C`, `${2*n} e<sup>x<sup>2</sup></sup> + C`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Algebra', topic: 'Quadratic Equations', text: `If &alpha;, &beta; are roots of x<sup>2</sup> - ${n}x + ${n+1} = 0, then &alpha;+&beta; is:`, options: [`${n}`, `-${n}`, `${n+1}`, `-${n+1}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Algebra', topic: 'Determinants', text: `If |A| = ${n}, then |A<sup>-1</sup>| is:`, options: [`1/${n}`, `${n}`, `-${n}`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Coordinate Geometry', topic: 'Straight Lines', text: `The distance of the point (${n}, ${n}) from the origin is:`, options: [`${n}&radic;2`, `${2*n}`, `${n}`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Vector Algebra', topic: 'Dot Product', text: `If a = ${n}i + j and b = i - ${n}j, then a &middot; b is:`, options: [`0`, `${n}`, `-${n}`, `1`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: '3D Geometry', topic: 'Planes', text: `The distance of the plane 2x - y + 2z + ${3*n} = 0 from the origin is:`, options: [`${n}`, `${3*n}`, `${n/3}`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Trigonometry', topic: 'Heights and Distances', text: `The angle of elevation of a tower of height ${n}m from a point ${n}m away is:`, options: [`45&deg;`, `30&deg;`, `60&deg;`, `90&deg;`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Calculus', topic: 'Derivatives', text: `If y = log(${n}x), then dy/dx is:`, options: [`1/x`, `1/${n}x`, `${n}/x`, `x/${n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(3,6)*diff; return { chapter: 'Algebra', topic: 'Binomial Theorem', text: `The coefficient of x in (1 + x)<sup>${n}</sup> is:`, options: [`${n}`, `1`, `${n*(n-1)/2}`, `${n+1}`], answer: 0 }; }
+            ];
+            
+            const phyTmpls = [
+                // Original 10
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Rotational Mechanics', topic: 'Rolling Motion', text: `A solid sphere of mass M and radius R rolls down an incline of height h. Its velocity at the bottom is proportional to &radic;(gh). The proportionality constant is:`, options: ['&radic;(10/7)', '&radic;(4/3)', '&radic;(2)', '&radic;(5/3)'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Wave Optics', topic: 'YDSE', text: `In YDSE, the ratio of slit widths is 1:${n*n}. The ratio of maximum to minimum intensity in the interference pattern is:`, options: [`${((n+1)/(n-1))**2}`, `${((n+1)/n)**2}`, `${n*n}`, `${n+1}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Modern Physics', topic: 'Bohr Model', text: `The ratio of the speed of an electron in the ground state of Hydrogen to the speed of light is approximately:`, options: ['1/137', '1/274', '1/100', '1/10'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Electromagnetism', topic: 'Magnetic Field', text: `A long straight wire carries current I. The magnetic field at distance r is B. At distance r/${n}, the field is:`, options: [`${n}B`, `B/${n}`, `${n*n}B`, `B/${n*n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Thermodynamics', topic: 'Adiabatic Process', text: `For a diatomic gas, the relation between P and T in an adiabatic process is P &propto; T<sup>x</sup>. The value of x is:`, options: ['3.5', '2.5', '1.5', '1.67'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Gravitation', topic: 'Escape Velocity', text: `If the radius of the earth shrinks by ${n}% (mass remaining same), the escape velocity will:`, options: [`Increase by approx ${n/2}%`, `Decrease by approx ${n/2}%`, `Increase by ${n}%`, `Decrease by ${n}%`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Electrostatics', topic: 'Dielectrics', text: `A parallel plate capacitor has capacitance C. A dielectric slab of constant K=${n} fills half the space between plates. New capacitance is:`, options: [`C(${n}+1)/2`, `2C${n}/(${n}+1)`, `${n}C`, `C/${n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'SHM', topic: 'Springs', text: `Two springs of constants k and ${n}k are in series. The effective spring constant is:`, options: [`${n}k/(${n}+1)`, `${n+1}k`, `${n}k`, `k/(${n}+1)`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Modern Physics', topic: 'Radioactivity', text: `Activity of a sample drops to 1/${Math.pow(2, n)} of its original value in ${n*10} days. Its half-life is:`, options: ['10 days', `${n} days`, `${n*10} days`, `20 days`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Mechanics', topic: 'Work Power Energy', text: `A particle of mass m moves under a force F = cx. The work done in moving from x=0 to x=${n} is:`, options: [`c${n*n}/2`, `c${n}`, `c${n*n}`, `c${n*n*n}/3`], answer: 0 }; },
+                // New templates
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Properties of Matter', topic: 'Surface Tension', text: `The work done in blowing a soap bubble of radius R is W. The work done to increase its radius to 2R is:`, options: ['3W', 'W', '2W', '4W'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Optics', topic: 'Lens Maker\'s Formula', text: `A biconvex lens has radii of curvature ${n*10}cm each. If the refractive index of the material is 1.5, its focal length is:`, options: [`${n*10} cm`, `${n*5} cm`, `${n*20} cm`, `Infinity`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Dual Nature of Radiation', topic: 'de Broglie Wavelength', text: `An electron is accelerated through a potential difference of ${n*n*100} V. Its de Broglie wavelength is approximately:`, options: [`1.227/${n} &Aring;`, `12.27/${n} &Aring;`, `0.1227/${n} &Aring;`, `${n} &Aring;`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Atoms & Nuclei', topic: 'Binding Energy', text: `The binding energy per nucleon is maximum for:`, options: ['Iron (Fe)', 'Uranium (U)', 'Helium (He)', 'Hydrogen (H)'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Semiconductor Devices', topic: 'Transistors', text: `In a common emitter transistor amplifier, the input and output voltages are:`, options: ['Out of phase by 180&deg;', 'In phase', 'Out of phase by 90&deg;', 'Out of phase by 270&deg;'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Current Electricity', topic: 'Kirchhoff\'s Laws', text: `Kirchhoff's first law (junction rule) is a statement of conservation of:`, options: ['Charge', 'Energy', 'Momentum', 'Mass'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Mechanics', topic: 'Collisions', text: `In a perfectly inelastic collision, which of the following is conserved?`, options: ['Momentum only', 'Kinetic energy only', 'Both momentum and KE', 'Neither momentum nor KE'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Electromagnetism', topic: 'Motional EMF', text: `A conducting rod of length L moves with velocity v perpendicular to a magnetic field B. The induced emf is:`, options: ['BLv', 'B/Lv', 'Lv/B', 'BLv sin(&theta;)'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Thermodynamics', topic: 'Carnot Engine', text: `The efficiency of a Carnot engine working between T1 (source) and T2 (sink) is:`, options: ['1 - T2/T1', '1 - T1/T2', 'T2/T1', 'T1/T2'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Gravitation', topic: 'Orbital Velocity', text: `The orbital velocity of a satellite close to the Earth's surface is approximately:`, options: ['8 km/s', '11.2 km/s', '1 km/s', '30 km/s'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Properties of Matter', topic: 'Elasticity', text: `The dimensional formula for Young's modulus is:`, options: ['ML<sup>-1</sup>T<sup>-2</sup>', 'MLT<sup>-2</sup>', 'ML<sup>-1</sup>T<sup>-1</sup>', 'ML<sup>-2</sup>T<sup>-2</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Optics', topic: 'Polarization', text: `The phenomenon which proves that light waves are transverse is:`, options: ['Polarization', 'Interference', 'Diffraction', 'Refraction'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Modern Physics', topic: 'X-Rays', text: `The production of continuous X-rays is a result of:`, options: ['Inverse photoelectric effect', 'Compton effect', 'Pair production', 'Raman effect'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Semiconductor Devices', topic: 'Logic Gates', text: `Which of the following is a universal logic gate?`, options: ['NAND', 'AND', 'OR', 'XOR'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Electrostatics', topic: 'Gauss\'s Law', text: `The total electric flux through a closed surface enclosing a charge q is:`, options: ['q/&epsilon;<sub>0</sub>', 'q&epsilon;<sub>0</sub>', '0', '&infin;'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Current Electricity', topic: 'Resistivity', text: `The resistivity of a wire depends on its:`, options: ['Material', 'Length', 'Cross-sectional area', 'Mass'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Mechanics', topic: 'Friction', text: `The coefficient of static friction is generally:`, options: ['Greater than the coefficient of kinetic friction', 'Less than the coefficient of kinetic friction', 'Equal to the coefficient of kinetic friction', 'Zero'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Electromagnetism', topic: 'Lenz\'s Law', text: `Lenz's law is a consequence of the law of conservation of:`, options: ['Energy', 'Charge', 'Momentum', 'Mass'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Thermodynamics', topic: 'Specific Heat', text: `For a gas, the ratio of specific heats &gamma; = C<sub>p</sub>/C<sub>v</sub> is always:`, options: ['> 1', '< 1', '= 1', '= 0'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'SHM', topic: 'Simple Pendulum', text: `The time period of a simple pendulum of length L is proportional to:`, options: ['&radic;L', 'L', '1/&radic;L', 'L<sup>2</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Wave Optics', topic: 'Diffraction', text: `The bending of light around the corners of an obstacle is called:`, options: ['Diffraction', 'Refraction', 'Interference', 'Polarization'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Rotational Mechanics', topic: 'Moment of Inertia', text: `The moment of inertia of a thin circular ring of mass M and radius R about its diameter is:`, options: ['MR<sup>2</sup>/2', 'MR<sup>2</sup>', '2/5 MR<sup>2</sup>', '3/2 MR<sup>2</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Properties of Matter', topic: 'Viscosity', text: `The SI unit of coefficient of viscosity is:`, options: ['Poiseuille (Pa.s)', 'Poise', 'Stoke', 'Dyne/cm<sup>2</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Atoms & Nuclei', topic: 'Nuclear Fission', text: `In nuclear fission, the process involves:`, options: ['Splitting of a heavy nucleus into lighter nuclei', 'Combining of light nuclei to form a heavy nucleus', 'Emission of an electron from the nucleus', 'Emission of a photon'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Electrostatics', topic: 'Capacitors', text: `Three capacitors of ${n} &mu;F each are in series. The equivalent capacitance is:`, options: [`${n/3} &mu;F`, `${3*n} &mu;F`, `${n} &mu;F`, `3/${n} &mu;F`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Kinematics', topic: 'Stopping Distance', text: `A car moving with velocity v stops in distance d. If velocity is ${n}v, stopping distance is:`, options: [`${n*n}d`, `${n}d`, `${2*n}d`, `d/${n}`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Work Power Energy', topic: 'Power', text: `A pump delivers ${n} kg of water per second to a height of 10m. Power is (g=10):`, options: [`${n*100} W`, `${n*10} W`, `${n} W`, `${n*1000} W`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Rotational', topic: 'Angular Momentum', text: `Angular momentum of a particle of mass ${n}kg moving with v=2m/s at distance r=3m is:`, options: [`${n*6} kg m<sup>2</sup>/s`, `${n*3} kg m<sup>2</sup>/s`, `${n*2} kg m<sup>2</sup>/s`, `0`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Gravitation', topic: 'Gravity at Center', text: `The weight of a body at the center of the earth is:`, options: ['Zero', 'Infinite', 'Same as on surface', 'Half of surface'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Properties of Matter', topic: 'Soap Bubble', text: `Excess pressure inside a soap bubble of radius R and surface tension T is:`, options: ['4T/R', '2T/R', 'T/R', '8T/R'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Thermodynamics', topic: 'Processes', text: `In an isobaric process, the constant parameter is:`, options: ['Pressure', 'Volume', 'Temperature', 'Heat'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'SHM', topic: 'Velocity', text: `Maximum velocity of a particle in SHM with amplitude A and angular frequency &omega; is:`, options: ['A&omega;', 'A&omega;<sup>2</sup>', 'A<sup>2</sup>&omega;', 'Zero'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Waves', topic: 'Sound Speed', text: `Speed of sound is maximum in:`, options: ['Solids', 'Liquids', 'Gases', 'Vacuum'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Electrostatics', topic: 'Infinite Sheet', text: `Electric field outside an infinite charged conducting plate with surface charge density &sigma; is:`, options: ['&sigma;/&epsilon;<sub>0</sub>', '&sigma;/(2&epsilon;<sub>0</sub>)', '0', '&infin;'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Capacitors', topic: 'Energy Stored', text: `Energy stored in a capacitor C charged to V is:`, options: ['(1/2)CV<sup>2</sup>', 'CV<sup>2</sup>', '(1/2)C<sup>2</sup>V', 'CV'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Magnetism', topic: 'Magnetic Force', text: `Force on a charge q moving with v parallel to B is:`, options: ['Zero', 'qvB', 'q/vB', 'vB/q'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'EMI', topic: 'Solenoid', text: `Self-inductance of a long solenoid is proportional to:`, options: ['N<sup>2</sup>', 'N', '1/N', '1/N<sup>2</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'AC', topic: 'Resistive Circuit', text: `In a purely resistive AC circuit, current and voltage are:`, options: ['In phase', 'Out of phase by 90&deg;', 'Out of phase by 180&deg;', 'Out of phase by 45&deg;'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Optics', topic: 'Lens Power', text: `Power of a convex lens of focal length 25cm is:`, options: ['+4 D', '-4 D', '+2.5 D', '-2.5 D'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Modern Physics', topic: 'Isotopes', text: `Isotopes have the same number of:`, options: ['Protons', 'Neutrons', 'Nucleons', 'Electrons'], answer: 0 }; }
+            ];
+            
+            const chemTmpls = [
+                // Original 10
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Organic Chemistry', topic: 'Mechanisms', text: `Which of the following alkyl halides undergoes SN1 reaction most rapidly?`, options: ['Tertiary butyl chloride', 'Isopropyl chloride', 'Ethyl chloride', 'Methyl chloride'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Organic Chemistry', topic: 'Name Reactions', text: `Treatment of benzaldehyde with concentrated NaOH yields benzyl alcohol and sodium benzoate. This is:`, options: ['Cannizzaro reaction', 'Aldol condensation', 'Perkin reaction', 'Sandmeyer reaction'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Chemical Bonding', topic: 'MOT', text: `According to Molecular Orbital Theory, which of the following species is paramagnetic?`, options: ['O<sub>2</sub>', 'N<sub>2</sub>', 'C<sub>2</sub>', 'F<sub>2</sub>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Electrochemistry', topic: 'Nernst Equation', text: `For the reaction M<sup>${n}+</sup> + ${n}e<sup>-</sup> &rarr; M, a 10-fold increase in [M<sup>${n}+</sup>] changes the reduction potential by:`, options: [`+0.059/${n} V`, `-0.059/${n} V`, `+0.059 V`, `-0.059 V`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Chemical Kinetics', topic: 'Arrhenius Equation', text: `A plot of ln(k) vs 1/T gives a straight line with slope equal to:`, options: ['-E<sub>a</sub>/R', 'E<sub>a</sub>/R', 'R/E<sub>a</sub>', '-R/E<sub>a</sub>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Coordination Chemistry', topic: 'CFT', text: `The crystal field stabilization energy (CFSE) for a high-spin d<sup>4</sup> octahedral complex is:`, options: ['-0.6 &Delta;<sub>o</sub>', '-1.6 &Delta;<sub>o</sub>', '-0.4 &Delta;<sub>o</sub>', '0.0 &Delta;<sub>o</sub>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Thermodynamics', topic: 'Entropy', text: `For an isolated system, the condition for a spontaneous process is:`, options: ['&Delta;S > 0', '&Delta;H < 0', '&Delta;G < 0', '&Delta;U = 0'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Equilibrium', topic: 'Solubility Product', text: `If the solubility of AB<sub>${n}</sub> is S, its solubility product K<sub>sp</sub> is:`, options: [`${Math.pow(n,n)}S<sup>${n+1}</sup>`, `S<sup>${n+1}</sup>`, `${n}S<sup>${n}</sup>`, `${Math.pow(n,n)}S<sup>${n}</sup>`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Organic Chemistry', topic: 'Aromaticity', text: `Which of the following is an anti-aromatic species?`, options: ['Cyclobutadiene', 'Benzene', 'Cyclopentadienyl anion', 'Tropylium cation'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Physical Chemistry', topic: 'Solutions', text: `A solution shows positive deviation from Raoult's law if:`, options: ['A-B interactions are weaker than A-A and B-B', 'A-B interactions are stronger', 'Volume change is negative', 'Enthalpy change is negative'], answer: 0 }; },
+                // New templates
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'd and f Block Elements', topic: 'Lanthanide Contraction', text: `Lanthanide contraction is due to the poor shielding of:`, options: ['4f electrons', '5d electrons', '6s electrons', '5p electrons'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Biomolecules', topic: 'Carbohydrates', text: `Which of the following is a non-reducing sugar?`, options: ['Sucrose', 'Glucose', 'Maltose', 'Fructose'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Polymers', topic: 'Types of Polymers', text: `Which of the following is a natural polymer?`, options: ['Cellulose', 'PVC', 'Teflon', 'Nylon-6,6'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Chemistry in Everyday Life', topic: 'Drugs', text: `Aspirin is chemically known as:`, options: ['Acetylsalicylic acid', 'Salicylic acid', 'Methyl salicylate', 'Phenyl salicylate'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Solid State', topic: 'Crystal Defects', text: `Schottky defect in crystals is observed when:`, options: ['Equal number of cations and anions are missing', 'An ion leaves its normal site and occupies an interstitial site', 'Density of the crystal is increased', 'An electron is trapped in an anionic site'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Surface Chemistry', topic: 'Colloids', text: `The zig-zag motion of colloidal particles is known as:`, options: ['Brownian movement', 'Tyndall effect', 'Electrophoresis', 'Coagulation'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'p-Block Elements', topic: 'Interhalogen Compounds', text: `Which of the following interhalogen compounds is not possible?`, options: ['ClF<sub>3</sub>', 'BrF<sub>5</sub>', 'ICl<sub>7</sub>', 'FCl<sub>3</sub>'], answer: 3 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Organic Chemistry', topic: 'Isomerism', text: `Which type of isomerism is exhibited by CH<sub>3</sub>-O-C<sub>3</sub>H<sub>7</sub> and C<sub>2</sub>H<sub>5</sub>-O-C<sub>2</sub>H<sub>5</sub>?`, options: ['Metamerism', 'Tautomerism', 'Position isomerism', 'Functional isomerism'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Chemical Bonding', topic: 'Hybridization', text: `The hybridization of the central atom in XeF<sub>4</sub> is:`, options: ['sp<sup>3</sup>d<sup>2</sup>', 'sp<sup>3</sup>d', 'sp<sup>3</sup>', 'dsp<sup>2</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Electrochemistry', topic: 'Faraday\'s Laws', text: `The mass of a substance deposited during electrolysis is directly proportional to:`, options: ['Quantity of electricity passed', 'Current strength', 'Time', 'Electrochemical equivalent'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Chemical Kinetics', topic: 'Order of Reaction', text: `For a first-order reaction, the half-life is independent of:`, options: ['Initial concentration', 'Rate constant', 'Temperature', 'Catalyst'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Coordination Chemistry', topic: 'Isomerism', text: `[Co(NH<sub>3</sub>)<sub>5</sub>SO<sub>4</sub>]Br and [Co(NH<sub>3</sub>)<sub>5</sub>Br]SO<sub>4</sub> are examples of:`, options: ['Ionization isomerism', 'Linkage isomerism', 'Coordination isomerism', 'Hydrate isomerism'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Thermodynamics', topic: 'Gibbs Free Energy', text: `A reaction is spontaneous at all temperatures if:`, options: ['&Delta;H < 0 and &Delta;S > 0', '&Delta;H > 0 and &Delta;S < 0', '&Delta;H < 0 and &Delta;S < 0', '&Delta;H > 0 and &Delta;S > 0'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Equilibrium', topic: 'Le Chatelier\'s Principle', text: `For the reaction N<sub>2</sub>(g) + 3H<sub>2</sub>(g) &harr; 2NH<sub>3</sub>(g), &Delta;H < 0, high yield of ammonia is favored by:`, options: ['High pressure and low temperature', 'High pressure and high temperature', 'Low pressure and high temperature', 'Low pressure and low temperature'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Organic Chemistry', topic: 'Acidity', text: `Which of the following is the strongest acid?`, options: ['Formic acid', 'Acetic acid', 'Propanoic acid', 'Benzoic acid'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Biomolecules', topic: 'Proteins', text: `The primary structure of a protein refers to its:`, options: ['Sequence of amino acids', 'Helical structure', 'Three-dimensional shape', 'Subunit arrangement'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Polymers', topic: 'Monomers', text: `The monomer of natural rubber is:`, options: ['Isoprene', 'Styrene', 'Butadiene', 'Propene'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Solid State', topic: 'Unit Cells', text: `The number of atoms per unit cell in a body-centered cubic (BCC) lattice is:`, options: ['2', '1', '4', '8'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Surface Chemistry', topic: 'Adsorption', text: `Physisorption (physical adsorption) is:`, options: ['Reversible and non-specific', 'Irreversible and specific', 'Reversible and specific', 'Irreversible and non-specific'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'p-Block Elements', topic: 'Allotropes', text: `Which allotrope of carbon has a cage-like molecule?`, options: ['Fullerene', 'Diamond', 'Graphite', 'Carbon black'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Chemical Bonding', topic: 'VSEPR Theory', text: `The geometry of the SF<sub>6</sub> molecule is:`, options: ['Octahedral', 'Trigonal bipyramidal', 'Square planar', 'Tetrahedral'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Organic Chemistry', topic: 'Reagents', text: `Lucas reagent is used to distinguish between:`, options: ['Primary, secondary, and tertiary alcohols', 'Aldehydes and ketones', 'Alkanes and alkenes', 'Phenols and alcohols'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'd and f Block Elements', topic: 'Oxidation States', text: `The most common oxidation state of lanthanides is:`, options: ['+3', '+2', '+4', '+1'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Chemistry in Everyday Life', topic: 'Soaps', text: `Soaps are sodium or potassium salts of:`, options: ['Long-chain fatty acids', 'Sulphonic acids', 'Alcohols', 'Phenols'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5); return { chapter: 'Equilibrium', topic: 'pH Calculation', text: `The pH of a 0.001 M HCl solution is:`, options: ['3', '2', '4', '11'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Atomic Structure', topic: 'Bohr Radius', text: `The radius of the first Bohr orbit of Hydrogen is approximately:`, options: ['0.529 &Aring;', '1.058 &Aring;', '2.116 &Aring;', '0.264 &Aring;'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Periodic Table', topic: 'Electronegativity', text: `Which of the following has the highest electronegativity?`, options: ['F', 'Cl', 'O', 'N'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Chemical Bonding', topic: 'Dipole Moment', text: `The dipole moment of BeCl<sub>2</sub> is:`, options: ['Zero', 'Greater than 0', 'Negative', 'Infinite'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'States of Matter', topic: 'RMS Speed', text: `RMS speed of a gas is proportional to:`, options: ['&radic;T', 'T', 'T<sup>2</sup>', '1/&radic;T'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Equilibrium', topic: 'Conjugate Base', text: `Conjugate base of H<sub>2</sub>O is:`, options: ['OH<sup>-</sup>', 'H<sub>3</sub>O<sup>+</sup>', 'O<sup>2-</sup>', 'H<sup>+</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Redox', topic: 'Oxidation State', text: `Oxidation state of Mn in KMnO<sub>4</sub> is:`, options: ['+7', '+6', '+5', '+4'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Kinetics', topic: 'Rate Constant', text: `Unit of rate constant for a zero-order reaction is:`, options: ['mol L<sup>-1</sup> s<sup>-1</sup>', 's<sup>-1</sup>', 'L mol<sup>-1</sup> s<sup>-1</sup>', 'mol<sup>-1</sup> L s<sup>-1</sup>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Metallurgy', topic: 'Froth Flotation', text: `Froth flotation is mainly used for:`, options: ['Sulphide ores', 'Oxide ores', 'Carbonate ores', 'Nitrate ores'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'p-Block', topic: 'Shapes', text: `Shape of XeF<sub>2</sub> is:`, options: ['Linear', 'Bent', 'V-shape', 'Tetrahedral'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'd-Block', topic: 'Magnetic Moment', text: `Magnetic moment of a transition metal ion with ${n} unpaired electrons is:`, options: [`&radic;(${n*(n+2)}) BM`, `${n} BM`, `&radic;${n} BM`, `${n+2} BM`], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Coordination', topic: 'Ligands', text: `Ligand EDTA is:`, options: ['Hexadentate', 'Bidentate', 'Tridentate', 'Monodentate'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Organic Basic', text: `General formula of alkynes is:`, options: ['C<sub>n</sub>H<sub>2n-2</sub>', 'C<sub>n</sub>H<sub>2n</sub>', 'C<sub>n</sub>H<sub>2n+2</sub>', 'C<sub>n</sub>H<sub>2n-4</sub>'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Amines', topic: 'Basicity', text: `Most basic amine in aqueous solution among methylamines is:`, options: ['Secondary', 'Primary', 'Tertiary', 'Ammonia'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Aldehydes', topic: 'Aldol Condensation', text: `Aldol condensation is given by aldehydes containing:`, options: ['&alpha;-hydrogen', 'no &alpha;-hydrogen', '&beta;-hydrogen', '&gamma;-hydrogen'], answer: 0 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Alcohols', topic: 'Denatured Alcohol', text: `Denatured alcohol is ethanol mixed with:`, options: ['Methanol and Pyridine', 'Water', 'Acid', 'Base'], answer: 0 }; }
+            ];
+            
+            const engTmpls = [
+                (r) => { return { chapter: 'Vocabulary', topic: 'Synonyms', text: `Choose the synonym for "VIGILANT":`, options: ['Careless', 'Watchful', 'Lazy', 'Tired'], answer: 1 }; },
+                (r) => { return { chapter: 'Grammar', topic: 'Prepositions', text: `He is addicted ___ his smartphone.`, options: ['with', 'for', 'to', 'on'], answer: 2 }; },
+                (r) => { return { chapter: 'Vocabulary', topic: 'Antonyms', text: `Find the antonym for "MITIGATE":`, options: ['Alleviate', 'Aggravate', 'Soothe', 'Relieve'], answer: 1 }; },
+                (r) => { return { chapter: 'Grammar', topic: 'Voice', text: `Passive voice of "The chef cooked a meal":`, options: ['A meal is cooked by the chef.', 'A meal was cooked by the chef.', 'A meal has been cooked by the chef.', 'The chef is cooking a meal.'], answer: 1 }; },
+                (r) => { return { chapter: 'Grammar', topic: 'Error Spotting', text: `Spot the error: "One of the boys have lost his bag."`, options: ['One of', 'the boys', 'have lost', 'his bag'], answer: 2 }; },
+                (r) => { return { chapter: 'Vocabulary', topic: 'Idioms', text: `What does the idiom "bite the bullet" mean?`, options: ['To eat something hard', 'To endure a difficult situation', 'To get injured', 'To make a mistake'], answer: 1 }; },
+                (r) => { return { chapter: 'Grammar', topic: 'Tenses', text: `Choose the correct verb form: "By next year, I ___ my degree."`, options: ['will complete', 'will have completed', 'completed', 'am completing'], answer: 1 }; },
+                (r) => { return { chapter: 'Vocabulary', topic: 'Spelling', text: `Select the correctly spelled word:`, options: ['Accommodate', 'Acommodate', 'Accomodate', 'Acomodate'], answer: 0 }; },
+                (r) => { return { chapter: 'Vocabulary', topic: 'Idioms', text: `Meaning of "A piece of cake":`, options: ['Very easy', 'Very difficult', 'A sweet dessert', 'A small portion'], answer: 0 }; },
+                (r) => { return { chapter: 'Grammar', topic: 'Articles', text: `He is ___ honest man.`, options: ['an', 'a', 'the', 'no article'], answer: 0 }; },
+                (r) => { return { chapter: 'Vocabulary', topic: 'One Word Substitution', text: `A person who loves books:`, options: ['Bibliophile', 'Philanthropist', 'Misogynist', 'Optometrist'], answer: 0 }; },
+                (r) => { return { chapter: 'Grammar', topic: 'Conjunctions', text: `He ran fast lest he ___ miss the train.`, options: ['should', 'would', 'will', 'can'], answer: 0 }; },
+                (r) => { return { chapter: 'Vocabulary', topic: 'Synonyms', text: `Synonym for "LUCID":`, options: ['Clear', 'Confusing', 'Dark', 'Heavy'], answer: 0 }; },
+                (r) => { return { chapter: 'Vocabulary', topic: 'Antonyms', text: `Antonym for "TRANSIENT":`, options: ['Permanent', 'Temporary', 'Short', 'Brief'], answer: 0 }; },
+                (r) => { return { chapter: 'Grammar', topic: 'Error Spotting', text: `Find the error: "He is taller then me."`, options: ['then me', 'He is', 'taller', 'no error'], answer: 0 }; }
+            ];
+            
+            const lrTmpls = [
+                (r) => { let d = r.nextInt(5, 20)*diff; return { chapter: 'Aptitude', topic: 'Direction Sense', text: `A person walks ${d}m North, turns right and walks ${d}m, then turns right again and walks ${d}m. How far is he from the starting point?`, options: [`${d}m`, `${d*2}m`, `0m`, `${Math.round(d*1.41)}m`], answer: 0 }; },
+                (r) => { let s = r.nextInt(1, 3); const t = 'MANGO'.split('').map(c => String.fromCharCode(c.charCodeAt(0) + s)).join(''); return { chapter: 'Aptitude', topic: 'Coding-Decoding', text: `If APPLE is coded as ${'APPLE'.split('').map(c => String.fromCharCode(c.charCodeAt(0) + s)).join('')}, how is MANGO coded?`, options: [t, 'MANGO'.split('').map(c => String.fromCharCode(c.charCodeAt(0) - s)).join(''), t.split('').reverse().join(''), 'NBMHP'], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Classification', text: `Find the odd one out:`, options: ['Square', 'Rectangle', 'Triangle', 'Cube'], answer: 3 }; },
+                (r) => { let b = r.nextInt(2, 5)*diff; return { chapter: 'Aptitude', topic: 'Number Series', text: `Find the next number in the series: ${b}, ${b*2}, ${b*4}, ${b*8}, ...`, options: [`${b*16}`, `${b*12}`, `${b*10}`, `${b*20}`], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Analogy', text: `Doctor : Hospital :: Teacher : ?`, options: ['School', 'Student', 'Book', 'Classroom'], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Blood Relations', text: `Pointing to a man, a woman said "He is the brother of my mother's mother". How is he related to the woman?`, options: ['Grand Uncle', 'Grandfather', 'Uncle', 'Cousin'], answer: 0 }; },
+                (r) => { let h=r.nextInt(2,10); return { chapter: 'Aptitude', topic: 'Clocks', text: `Angle between hands of a clock at ${h}:00 is:`, options: [`${Math.min(h*30, 360-h*30)}&deg;`, `${h*15}&deg;`, `${h*10}&deg;`, `${h*5}&deg;`], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Syllogism', text: `All A are B. Some B are C. Conclusion: Some A are C.`, options: ['False', 'True', 'Cannot be determined', 'Either True or False'], answer: 2 }; },
+                (r) => { let n=r.nextInt(2,5); let a=r.nextInt(5,10)*diff; return { chapter: 'Aptitude', topic: 'Ages', text: `Father is ${n} times son's age. After ${a} years, he will be ${n-1} times. Son's present age?`, options: [`${a* (n-1) / (n - (n-1)) - a}`, `${a* (n-1) / (n - (n-1))}`, `${a}`, `${a*n}`], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Venn Diagram', text: `Which represents: Cars, Vehicles, Bicycles?`, options: ['Two separate circles inside one big circle', 'Three intersecting circles', 'Three separate circles', 'Concentric circles'], answer: 0 }; },
+                (r) => { let n=r.nextInt(3,6); return { chapter: 'Aptitude', topic: 'Data Interpretation', text: `A pie chart shows ${n*10}% for Rent. What is the central angle for the Rent sector?`, options: [`${n*36}&deg;`, `${n*18}&deg;`, `${n*10}&deg;`, `360&deg;`], answer: 0 }; },
+                (r) => { let n=r.nextInt(3,6)*diff; return { chapter: 'Aptitude', topic: 'Time and Work', text: `A can do a job in ${n} days and B in ${n*2} days. How long will they take together?`, options: [`${(n*2)/3} days`, `${n} days`, `${n*1.5} days`, `${n*3} days`], answer: 0 }; },
+                (r) => { let s=r.nextInt(2,5); return { chapter: 'Aptitude', topic: 'Number Series', text: `Complete the series: ${s*s}, ${(s+1)*(s+1)}, ${(s+2)*(s+2)}, ?`, options: [`${(s+3)*(s+3)}`, `${(s+3)*(s+3)+1}`, `${(s+4)*(s+4)}`, `${(s+2)*(s+2)+s}`], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Analogy', text: `Thermometer : Temperature :: Barometer : ?`, options: ['Pressure', 'Humidity', 'Rainfall', 'Wind'], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Odd One Out', text: `Find the odd one out:`, options: ['Iron', 'Copper', 'Aluminum', 'Mercury'], answer: 3 }; },
+                (r) => { let n=r.nextInt(2,5)*diff; return { chapter: 'Aptitude', topic: 'Time and Distance', text: `A train covers ${n*100} km in ${n} hours. Its speed is:`, options: ['100 km/h', '50 km/h', '200 km/h', '150 km/h'], answer: 0 }; },
+                (r) => { let p=r.nextInt(20,50)*10; return { chapter: 'Aptitude', topic: 'Profit and Loss', text: `An article is bought for Rs. ${p} and sold for Rs. ${p*1.2}. The profit percentage is:`, options: ['20%', '10%', '25%', '30%'], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Coding-Decoding', text: `If A=1, B=2, C=3, then ACE is:`, options: ['135', '123', '315', '153'], answer: 0 }; },
+                (r) => { return { chapter: 'Aptitude', topic: 'Seating Arrangement', text: `A, B, C, D are sitting in a circle. A is opposite C, B is opposite D. Who is to the right of A?`, options: ['Cannot be determined', 'B', 'D', 'C'], answer: 0 }; },
+                (r) => { let n=r.nextInt(5,15); return { chapter: 'Aptitude', topic: 'Averages', text: `The average of 3 numbers is ${n}. If two of them are ${n-2} and ${n+1}, the third is:`, options: [`${n+1}`, `${n}`, `${n-1}`, `${n+2}`], answer: 0 }; }
+            ];
+
+            const addQ = (sub, tmpls, count) => {
+                let available = [...tmpls];
+                // Shuffle the templates array using the test-specific RNG to ensure variety across tests
+                for (let i = available.length - 1; i > 0; i--) {
+                    const j = rng.nextInt(0, i);
+                    [available[i], available[j]] = [available[j], available[i]];
+                }
+
+                // Pick the first 'count' templates from the shuffled list.
+                // This ensures no repeats if available.length >= count.
+for(let i=0; i<count; i++) {
+                    // Deterministic template selection to avoid repeating the same pattern across tests
+                    const tmplFn = available[i % available.length];
+                    let generated;
+                    try { generated = tmplFn(rng); } catch(e) { generated = { chapter: 'General', topic: 'Default', text: 'Default question?', options: ['A', 'B', 'C', 'D'], answer: 0 }; }
+                    
+                    let items = generated.options.map((opt, idx) => ({ opt, isAns: idx === generated.answer }));
+                    for (let k = items.length - 1; k > 0; k--) {
+                        const j = rng.nextInt(0, k);
+                        [items[k], items[j]] = [items[j], items[k]];
+                    }
+                    generated.options = items.map(x => x.opt);
+                    generated.answer = items.findIndex(x => x.isAns);
+                    
+                    q.push({ id: id++, subject: sub, ...generated });
+                }
+            };
+
+            addQ('Mathematics', mathTmpls, 40);
+            addQ('Physics', phyTmpls, 35);
+            addQ('Chemistry', chemTmpls, 35);
+            addQ('Aptitude', lrTmpls, 10);
+            addQ('English', engTmpls, 5); 
+            
+            return q;
+        };
+
+        let currentTestId = null;
+        let currentQIndex = 0;
+        let questionsData = [];
+        let answers = [];
+        let markedForReview = [];
+        let visited = [];
+        let timerInterval;
+        let timeLeft = 9000; // 150 mins
+        let examEndTime = 0;
+        let reviewMode = false;
+        let radarChartInst = null;
+        let isExamActive = false;
+        let timeSpent = [];
+        let lastQStartTime = Date.now();
+        
+        const getMockTestResults = () => {
+            try {
+                const data = localStorage.getItem('viteeeMockResults');
+                const res = data ? JSON.parse(data) : {};
+                return (res && typeof res === 'object' && !Array.isArray(res)) ? res : {};
+            } catch (e) { return {}; }
+        };
+
+        const getEstimatedRank = (score) => {
+            const pts = [
+                {s: 500, r: 1}, {s: 472, r: 250}, {s: 452, r: 500}, {s: 360, r: 2500},
+                {s: 324, r: 5000}, {s: 288, r: 6500}, {s: 240, r: 20000}, {s: 172, r: 60000},
+                {s: 80, r: 100000}, {s: 40, r: 130000}, {s: 0, r: 150000}, {s: -125, r: 250000}
+            ];
+            if (score >= 500) return 1;
+            if (score <= -125) return 250000; // Max possible rank
+            for (let i = 0; i < pts.length - 1; i++) {
+                if (score <= pts[i].s && score >= pts[i+1].s) {
+                    const fraction = (score - pts[i+1].s) / (pts[i].s - pts[i+1].s);
+                    return Math.round(pts[i+1].r + fraction * (pts[i].r - pts[i+1].r));
+                }
+            }
+            return 250000;
+        };
+
+        const renderDashboard = () => {
+            const elGrid = document.getElementById('test-grid');
+            elGrid.innerHTML = '';
+            const results = getMockTestResults();
+            
+            const validResults = Object.values(results).filter(r => r && typeof r === 'object' && r.score !== undefined);
+            const resultValues = validResults.map(r => r.score);
+            const totalAttempts = resultValues.length;
+            const avgScore = totalAttempts ? Math.round(resultValues.reduce((a, b) => a + b, 0) / totalAttempts) : 0;
+            const highScore = totalAttempts ? Math.max(...resultValues) : 0;
+
+            document.getElementById('dashboard-stats').innerHTML = `
+                <div class="bg-blue-600 text-white rounded-xl p-6 shadow-md flex justify-between">
+                    <div><p class="text-blue-200 text-sm font-bold uppercase mb-1">Tests Attempted</p><p class="text-4xl font-black">${totalAttempts} <span class="text-lg font-medium text-blue-300">/ 25</span></p></div>
+                </div>
+                <div class="bg-white border rounded-xl p-6 shadow-sm flex justify-between">
+                    <div><p class="text-slate-500 text-sm font-bold uppercase mb-1">Average Score</p><p class="text-4xl font-black text-slate-800">${avgScore}</p></div>
+                </div>
+                <div class="bg-white border rounded-xl p-6 shadow-sm flex justify-between">
+                    <div><p class="text-slate-500 text-sm font-bold uppercase mb-1">Highest Score</p><p class="text-4xl font-black text-emerald-600">${highScore}</p></div>
+                </div>
+            `;
+
+            for (let i = 1; i <= 25; i++) {
+                let isUnlocked = false;
+                try {
+                    isUnlocked = localStorage.getItem('vit_all_tests_unlocked') === 'true' || localStorage.getItem(`vit_test_${i}_unlocked`) === 'true';
+                } catch(e) {}
+                
+                const pastResult = results[i];
+                const card = document.createElement('div');
+                card.className = `bg-white border ${isUnlocked ? (pastResult ? 'border-blue-200 border-b-4' : 'border-emerald-200 border-b-4') : 'border-slate-200'} rounded-xl p-6 shadow-sm flex flex-col h-full relative overflow-hidden`;
+                card.innerHTML = `
+                    ${isUnlocked && i===1 && !pastResult ? '<div class="absolute -right-8 top-3 bg-blue-500 text-white text-[10px] font-bold py-1 px-8 rotate-45 uppercase tracking-widest">New</div>' : ''}
+                    <div class="flex justify-between mb-4">
+                        <h3 class="font-bold text-xl text-slate-800">VITEEE Mock Test ${i}</h3>
+                        ${isUnlocked ? (pastResult ? '<span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-[10px] font-bold border border-blue-100 uppercase">Completed</span>' : '') : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'}
+                    </div>
+                    ${pastResult ? `
+                    <div class="mb-4 space-y-2">
+                        <div class="p-3 bg-slate-50 border border-slate-100 rounded-lg flex justify-between items-center">
+                            <span class="text-sm font-semibold text-slate-600">Previous Score:</span><span class="text-lg font-black text-blue-600">${pastResult.score} <span class="text-xs text-slate-400">/ 500</span></span>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-lg flex justify-between items-center">
+                            <span class="text-sm font-semibold text-emerald-700">Expected Rank:</span><span class="text-lg font-black text-emerald-600">#${pastResult.rank ? pastResult.rank.toLocaleString() : getEstimatedRank(pastResult.score).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${!pastResult ? `
+                        <div class="text-sm text-slate-500 mb-6 space-y-1">
+                            <p>• 125 MCQs (Math, Phy, Chem, Aptitude, Eng)</p>
+                            <p>• 150 Minutes Duration</p>
+                            <p>• Based on Latest 2026 Syllabus</p>
+                        </div>
+                    ` : ''}
+                    <div class="mt-auto flex gap-2 w-full">
+                        <button onclick="${isUnlocked ? `startTest(${i})` : `openPurchaseModal('single')`}" class="flex-1 py-2.5 rounded-lg font-semibold transition ${
+                            isUnlocked ? (pastResult ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200' : 'bg-slate-900 text-white hover:bg-slate-800') : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                        }">${isUnlocked ? (pastResult ? 'Reattempt' : 'Start Test') : '🔒 Unlock All (₹500)'}</button>
+                        ${pastResult ? `<button onclick="viewPastResults(${i})" title="View Results" class="flex items-center justify-center px-4 py-2.5 rounded-lg font-semibold transition bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>` : ''}
+                    </div>
+                `;
+                elGrid.appendChild(card);
+            }
+        };
+
+        const openPurchaseModal = (plan) => {
+            window.location.href = `payments.html?plan=${plan === 'all' ? 'combo' : 'vit'}`;
+        };
+
+        // Auto-refresh dashboard when tab becomes active
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && document.getElementById('view-dashboard')?.style.display !== 'none') {
+                renderDashboard();
+            }
+        });
+        window.addEventListener('focus', () => {
+            if (document.getElementById('view-dashboard')?.style.display !== 'none') {
+                renderDashboard();
+            }
+        });
+
+        const clearMockData = () => {
+            if (confirm("Clear all your VITEEE mock test results?")) {
+                try { localStorage.removeItem('viteeeMockResults'); } catch(e) {}
+                renderDashboard();
+            }
+        };
+
+        const viewPastResults = (id) => {
+            const results = getMockTestResults();
+            const pastResult = results[id];
+            if (!pastResult) return;
+            
+            currentTestId = id;
+            questionsData = generateQuestionsForTest(id);
+            answers = pastResult.answers || new Array(125).fill(null);
+            timeSpent = pastResult.timeSpent || new Array(125).fill(0);
+            markedForReview = new Array(125).fill(false);
+            visited = new Array(125).fill(true);
+            
+            document.getElementById('view-dashboard').classList.add('hide');
+            document.getElementById('view-results').classList.remove('hide');
+            document.getElementById('result-score').innerText = pastResult.score !== undefined ? pastResult.score : 0;
+            document.getElementById('result-rank').innerText = pastResult.rank !== undefined ? pastResult.rank.toLocaleString() : getEstimatedRank(pastResult.score || 0).toLocaleString();
+            document.getElementById('res-unattempted').innerText = pastResult.unattempted !== undefined ? pastResult.unattempted : '-';
+            document.getElementById('res-correct').innerText = pastResult.correct !== undefined ? pastResult.correct : '-';
+            document.getElementById('res-incorrect').innerText = pastResult.incorrect !== undefined ? pastResult.incorrect : '-';
+            drawRadarChart(pastResult.subjectScores || { 'Mathematics': 0, 'Physics': 0, 'Chemistry': 0, 'Aptitude': 0, 'English': 0 });
+            
+            const btnReview = document.getElementById('review-mistakes-btn');
+            if (btnReview) {
+                if (pastResult.answers) btnReview.classList.remove('hide');
+                else btnReview.classList.add('hide');
+            }
+
+            const insightsContainer = document.getElementById('revision-insights');
+            insightsContainer.innerHTML = '';
+            
+            if (!pastResult.incorrectTopics) {
+                insightsContainer.innerHTML = `
+                    <div class="col-span-full p-6 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-center shadow-sm">
+                        <p class="font-bold mb-1">Detailed Analytics Not Available</p>
+                        <p class="text-sm">Since this test was attempted before the detailed analytics feature was added, only your total score was saved. Any new attempts will save your complete analysis.</p>
+                    </div>
+                `;
+            } else {
+                populateRevisionInsights(pastResult.incorrectTopics);
+            }
+        };
+
+        const startTest = (id) => {
+            currentTestId = id;
+            document.getElementById('view-dashboard').classList.add('hide');
+            document.getElementById('view-instructions').classList.remove('hide');
+            document.getElementById('instructions-title').innerText = `Instructions for VITEEE Mock Test ${id}`;
+            document.getElementById('gadget-checkbox').checked = false;
+            toggleProceedBtn();
+        };
+
+        const toggleProceedBtn = () => {
+            const btn = document.getElementById('proceed-btn');
+            if (document.getElementById('gadget-checkbox').checked) {
+                btn.disabled = false; btn.classList.remove('opacity-50', 'cursor-not-allowed'); btn.classList.add('hover:bg-blue-700');
+            } else {
+                btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed'); btn.classList.remove('hover:bg-blue-700');
+            }
+        };
+        
+        const backToDashboard = () => {
+            document.getElementById('view-instructions').classList.add('hide');
+            document.getElementById('view-dashboard').classList.remove('hide');
+        };
+
+        const togglePalette = () => {
+            const palette = document.getElementById('question-palette');
+            const backdrop = document.getElementById('palette-backdrop');
+            palette.classList.toggle('translate-x-full');
+            backdrop.classList.toggle('hide');
+        };
+
+        const proceedToExam = () => {
+            document.getElementById('view-instructions').classList.add('hide');
+            document.getElementById('view-exam').classList.remove('hide');
+            
+            // Initialize calculator position
+            const calcEl = document.getElementById('virtual-calculator');
+            if (calcEl) {
+                calcEl.style.top = '80px';
+                calcEl.style.right = '24px'; // Default right position
+                calcEl.style.left = 'auto'; // Clear left to ensure right positioning
+            }
+            questionsData = generateQuestionsForTest(currentTestId);
+            answers = new Array(125).fill(null);
+            markedForReview = new Array(125).fill(false);
+            visited = new Array(125).fill(false);
+            timeSpent = new Array(125).fill(0);
+            document.getElementById('exam-title').innerText = `Mock Test ${currentTestId}`;
+            
+            currentQIndex = 0; timeLeft = 9000; examEndTime = Date.now() + 9000 * 1000;
+            reviewMode = false; isExamActive = true;
+            lastQStartTime = Date.now();
+            startTimer(); buildSubjects(); buildPalette(); loadQuestion(0);
+            
+            if (window.innerWidth < 1024) {
+                document.getElementById('question-palette').classList.add('translate-x-full');
+                document.getElementById('palette-backdrop').classList.add('hide');
+            }
+        };
+
+        const startTimer = () => {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft = Math.max(0, Math.ceil((examEndTime - Date.now()) / 1000));
+                const m = Math.floor(timeLeft / 60).toString().padStart(3, '0');
+                const s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+                if (timeLeft <= 0) { clearInterval(timerInterval); submitExam(true); }
+            }, 1000);
+        };
+
+        const pauseExam = () => { if(!isExamActive) return; clearInterval(timerInterval); document.getElementById('pause-overlay').dataset.remaining = examEndTime - Date.now(); document.getElementById('pause-overlay').classList.remove('hide'); isExamActive = false; };
+        const resumeExam = () => { if(isExamActive) return; examEndTime = Date.now() + parseInt(document.getElementById('pause-overlay').dataset.remaining || (timeLeft * 1000)); startTimer(); lastQStartTime = Date.now(); document.getElementById('pause-overlay').classList.add('hide'); isExamActive = true; };
+
+        const buildSubjects = () => {
+            const subjects = [...new Set(questionsData.map(q => q.subject))];
+            const container = document.getElementById('subject-tabs'); container.innerHTML = '';
+            subjects.forEach(sub => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-800 transition`;
+                btn.innerText = sub;
+                btn.onclick = () => loadQuestion(questionsData.findIndex(q => q.subject === sub));
+                container.appendChild(btn);
+            });
+        };
+
+        const buildPalette = () => {
+            const container = document.getElementById('palette-grid'); container.innerHTML = '';
+            questionsData.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `pal-${idx}`;
+                btn.className = `h-10 w-10 rounded border font-medium text-sm transition hover:bg-slate-200`;
+                btn.innerText = idx + 1; btn.onclick = () => {
+                    loadQuestion(idx);
+                    if (window.innerWidth < 1024) {
+                        const palette = document.getElementById('question-palette');
+                        if (!palette.classList.contains('translate-x-full')) togglePalette();
+                    }
+                };
+                container.appendChild(btn);
+            });
+            updatePaletteColors();
+        };
+
+        const updatePaletteColors = () => {
+            questionsData.forEach((_, idx) => {
+                const btn = document.getElementById(`pal-${idx}`);
+                btn.className = `h-10 w-10 rounded border font-medium text-sm flex items-center justify-center transition `;
+                if (reviewMode) {
+                    const isRight = answers[idx] === questionsData[idx].answer;
+                    if (answers[idx] === null) btn.className += 'bg-slate-200 border-slate-300 text-slate-600';
+                    else if (isRight) btn.className += 'bg-emerald-500 border-emerald-600 text-white';
+                    else btn.className += 'bg-rose-500 border-rose-600 text-white';
+                } else {
+                    if (markedForReview[idx] && answers[idx] !== null) btn.className += 'bg-purple-600 border-purple-700 text-white';
+                    else if (markedForReview[idx] && answers[idx] === null) btn.className += 'bg-purple-100 border-purple-400 text-purple-700';
+                    else if (answers[idx] !== null) btn.className += 'bg-emerald-500 border-emerald-600 text-white';
+                    else if (visited[idx]) btn.className += 'bg-rose-500 border-rose-600 text-white';
+                    else btn.className += 'bg-white border-slate-300 text-slate-600';
+                }
+                if (idx === currentQIndex) btn.className += ' ring-2 ring-blue-500 ring-offset-2';
+            });
+            
+            const answeredCount = answers.filter(a => a !== null).length;
+            const progBar = document.getElementById('exam-progress');
+            if (progBar) progBar.style.width = `${(answeredCount / questionsData.length) * 100}%`;
+            
+            const curSub = questionsData[currentQIndex].subject;
+            for (let t of document.getElementById('subject-tabs').children) {
+                t.className = t.innerText === curSub ? 'px-4 py-2 text-sm font-bold rounded-lg bg-white text-blue-600 shadow-sm border border-slate-200' : 'px-4 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-800 transition';
+            }
+        };
+
+        const loadQuestion = (idx) => {
+            if (isExamActive && currentQIndex !== null && currentQIndex !== undefined) {
+                const now = Date.now();
+                timeSpent[currentQIndex] += (now - lastQStartTime) / 1000;
+                lastQStartTime = now;
+            }
+            currentQIndex = idx; visited[idx] = true; const q = questionsData[idx];
+            document.getElementById('q-num').innerText = idx + 1;
+            document.getElementById('q-text').innerHTML = q.text;
+            document.getElementById('q-type-badge').innerText = 'Multiple Choice (MCQ)'; // VITEEE is all MCQs
+            
+            const elTimeSpent = document.getElementById('q-time-spent');
+            if (reviewMode && timeSpent[idx] !== undefined) {
+                const totalSecs = Math.floor(timeSpent[idx]);
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                elTimeSpent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${mins > 0 ? mins + 'm ' : ''}${secs}s`;
+                elTimeSpent.classList.remove('hide');
+            } else {
+                elTimeSpent.classList.add('hide');
+            }
+
+            const oc = document.getElementById('options-container'); oc.innerHTML = '';
+            q.options.forEach((opt, oIdx) => {
+                const isSel = answers[idx] === oIdx; const isCor = q.answer === oIdx;
+                const div = document.createElement('div');
+                let divClass = 'p-4 border rounded-lg flex items-center gap-3 transition ';
+                if (reviewMode) {
+                    if (isCor) divClass += 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500';
+                    else if (isSel && !isCor) divClass += 'border-rose-500 bg-rose-50';
+                    else divClass += 'border-slate-200 bg-white opacity-50';
+                } else {
+                    divClass += `cursor-pointer ${isSel ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'}`;
+                    div.onclick = () => { answers[currentQIndex] = oIdx; loadQuestion(currentQIndex); };
+                }
+                div.className = divClass;
+                div.innerHTML = `
+                    <div class="h-5 w-5 rounded-full border flex items-center justify-center shrink-0 ${isSel || (reviewMode && isCor) ? (reviewMode && isCor ? 'border-emerald-600' : (reviewMode && isSel ? 'border-rose-600' : 'border-blue-600')) : 'border-slate-400'}">
+                        ${isSel || (reviewMode && isCor) ? `<div class="h-2.5 w-2.5 rounded-full ${reviewMode && isCor ? 'bg-emerald-600' : (reviewMode && isSel ? 'bg-rose-600' : 'bg-blue-600')}"></div>` : ''}
+                    </div>
+                    <span class="${isSel || (reviewMode && isCor) ? 'font-semibold text-slate-900' : 'text-slate-700'}">${opt}</span>
+                `;
+                oc.appendChild(div);
+            });
+            updatePaletteColors();
+            document.getElementById(`pal-${idx}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+
+        const clearSelection = () => { answers[currentQIndex] = null; loadQuestion(currentQIndex); };
+        const markForReview = () => { markedForReview[currentQIndex] = true; if(currentQIndex < questionsData.length - 1) loadQuestion(currentQIndex + 1); else updatePaletteColors(); };
+        const saveAndNext = () => { if(!reviewMode) markedForReview[currentQIndex] = false; if(currentQIndex < questionsData.length - 1) loadQuestion(currentQIndex + 1); else updatePaletteColors(); };
+        const prevQuestion = () => { if(currentQIndex>0) loadQuestion(currentQIndex - 1); };
+
+        // --- VIRTUAL CALCULATOR LOGIC ---
+        const toggleCalculator = () => {
+            document.getElementById('virtual-calculator').classList.toggle('hide');
+        };
+        
+        const calcPress = (val) => {
+            const display = document.getElementById('calc-display');
+            
+            if (display.value === 'Error') {
+                display.value = '0';
+            }
+            if ((display.value === '0') && val !== '\u2190' && val !== '=' && val !== 'C' && val !== '.') {
+                display.value = '';
+            }
+            
+            if (val === 'C') {
+                display.value = '0';
+            } else if (val === '=') {
+                try {
+                    let expr = display.value;
+                    expr = expr.replace(/(\d)(\s*)([a-zA-Z\(π])/g, '$1*$3');
+                    expr = expr.replace(/\)([\d\(a-zA-Zπ])/g, ')*$1');
+
+                    let evalExpr = expr
+                        .replace(/sin\(/g, 'sinDeg(')
+                        .replace(/cos\(/g, 'cosDeg(')
+                        .replace(/tan\(/g, 'tanDeg(')
+                        .replace(/log\(/g, 'Math.log10(')
+                        .replace(/ln\(/g, 'Math.log(')
+                        .replace(/sqrt\(/g, 'Math.sqrt(')
+                        .replace(/π/g, 'Math.PI')
+                        .replace(/E/g, 'Math.E')
+                        .replace(/\^/g, '**');
+                        
+                    const sinDeg = (deg) => Math.sin(deg * Math.PI / 180);
+                    const cosDeg = (deg) => Math.cos(deg * Math.PI / 180);
+                    const tanDeg = (deg) => Math.tan(deg * Math.PI / 180);
+                        
+                    let result = eval(evalExpr);
+                    if (result === undefined || isNaN(result) || !isFinite(result)) throw new Error("Invalid");
+                    display.value = parseFloat(Number(result).toPrecision(12)).toString();
+                } catch (e) {
+                    display.value = 'Error';
+                }
+            } else if (val === '\u2190') {
+                let start = typeof display.selectionStart === 'number' ? display.selectionStart : display.value.length;
+                let end = typeof display.selectionEnd === 'number' ? display.selectionEnd : display.value.length;
+                if (start === end && start > 0) {
+                    display.value = display.value.substring(0, start - 1) + display.value.substring(end);
+                    display.setSelectionRange(start - 1, start - 1);
+                } else if (start !== end) {
+                    display.value = display.value.substring(0, start) + display.value.substring(end);
+                    display.setSelectionRange(start, start);
+                }
+                if (display.value === '') display.value = '0';
+            } else {
+                let start = typeof display.selectionStart === 'number' ? display.selectionStart : display.value.length;
+                let end = typeof display.selectionEnd === 'number' ? display.selectionEnd : display.value.length;
+                
+                if (val.endsWith('()')) {
+                    display.value = display.value.substring(0, start) + val + display.value.substring(end);
+                    let newCursorPos = start + val.length - 1;
+                    display.setSelectionRange(newCursorPos, newCursorPos);
+                } else {
+                    display.value = display.value.substring(0, start) + val + display.value.substring(end);
+                    let newCursorPos = start + val.length;
+                    display.setSelectionRange(newCursorPos, newCursorPos);
+                }
+            }
+            display.focus();
+        };
+
+        // --- DRAGGABLE CALCULATOR ---
+        // This script block was missing entirely
+        const calcEl = document.getElementById("virtual-calculator");
+        
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (calcEl) { calcEl.onmousedown = dragMouseDown; calcEl.ontouchstart = dragMouseDown; }
+
+        function dragMouseDown(e) { e = e || window.event; const tag = e.target.tagName ? e.target.tagName.toLowerCase() : ''; if (tag === 'button' || e.target.closest('button') || tag === 'input') return; pos3 = e.clientX || (e.touches && e.touches[0].clientX); pos4 = e.clientY || (e.touches && e.touches[0].clientY); document.onmouseup = closeDragElement; document.onmousemove = elementDrag; document.ontouchend = closeDragElement; document.ontouchmove = elementDrag; }
+
+        function elementDrag(e) { e = e || window.event; let clientX = e.clientX || (e.touches && e.touches[0].clientX); let clientY = e.clientY || (e.touches && e.touches[0].clientY); pos1 = pos3 - clientX; pos2 = pos4 - clientY; pos3 = clientX; pos4 = clientY; calcEl.style.top = (calcEl.offsetTop - pos2) + "px"; calcEl.style.left = (calcEl.offsetLeft - pos1) + "px"; calcEl.style.right = 'auto'; }
+
+        function closeDragElement() { document.onmouseup = null; document.onmousemove = null; document.ontouchend = null; document.ontouchmove = null; }
+
+        const submitExam = (isAuto = false) => {
+            clearInterval(timerInterval);
+            if (!isAuto && !reviewMode && !confirm("Submit VITEEE mock test?")) { startTimer(); return; }
+            
+            if (isExamActive) timeSpent[currentQIndex] += (Date.now() - lastQStartTime) / 1000;
+
+            isExamActive = false; document.getElementById('view-exam').classList.add('hide'); document.getElementById('view-results').classList.remove('hide');
+            
+            let cor = 0, incor = 0, un = 0, tot = 0;
+            let subScores = { 'Mathematics': 0, 'Physics': 0, 'Chemistry': 0, 'Aptitude': 0, 'English': 0 };
+            let incTopics = {};
+            
+            answers.forEach((ans, i) => {
+                const q = questionsData[i];
+                if (ans === null) un++;
+                else if (ans === q.answer) { cor++; tot += 4; subScores[q.subject] += 4; } // +4 Marks
+                else { // Incorrect answer
+                    incor++; tot -= 1; subScores[q.subject] -= 1; // -1 Negative marking
+                    const key = `${q.subject}|${q.chapter}`;
+                    if(!incTopics[key]) incTopics[key] = new Set();
+                    incTopics[key].add(q.topic);
+                }
+            });
+            
+            const scaled = tot;
+            const estRank = getEstimatedRank(scaled);
+            const serTopics = {}; for (const k in incTopics) serTopics[k] = Array.from(incTopics[k]);
+            const results = getMockTestResults();
+            results[currentTestId] = { score: scaled, rank: estRank, answers, correct: cor, incorrect: incor, unattempted: un, subjectScores: subScores, incorrectTopics: serTopics, timeSpent };
+            try {
+                localStorage.setItem('viteeeMockResults', JSON.stringify(results));
+                localStorage.setItem('vitRank', estRank);
+                localStorage.setItem('vitScore', scaled);
+            } catch(e) {}
+            
+            document.getElementById('result-score').innerText = scaled;
+            document.getElementById('result-rank').innerText = estRank.toLocaleString();
+            document.getElementById('res-unattempted').innerText = un;
+            document.getElementById('res-correct').innerText = cor;
+            document.getElementById('res-incorrect').innerText = incor;
+            
+            drawRadarChart(subScores);
+            populateRevisionInsights(serTopics);
+            
+            const btnReview = document.getElementById('review-mistakes-btn');
+            if (btnReview) {
+                btnReview.classList.remove('hide');
+            }
+            if (scaled > 300 && typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#3b82f6', '#0ea5e9', '#6366f1', '#a855f7'] }); // Good score (e.g., > 60%)
+            if (scaled > 400 && typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 90, origin: { y: 0.7 }, colors: ['#3b82f6', '#0ea5e9', '#6366f1', '#a855f7'] }); // Excellent score (e.g., > 80%)
+        };
+
+        const drawRadarChart = (scores) => {
+            if (typeof Chart === 'undefined') return;
+            const ctx = document.getElementById('subjectChart').getContext('2d');
+            if (radarChartInst) radarChartInst.destroy();
+            const pct = [Math.max(0,scores['Mathematics']||0)/160*100, Math.max(0,scores['Physics']||0)/140*100, Math.max(0,scores['Chemistry']||0)/140*100, Math.max(0,scores['Aptitude']||0)/40*100, Math.max(0,scores['English']||0)/20*100];
+            radarChartInst = new Chart(ctx, { type: 'radar', data: { labels: ['Math', 'Physics', 'Chem', 'Aptitude', 'English'], datasets: [{ data: pct, backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 2 }] }, options: { scales: { r: { min: 0, max: 100, ticks: { display: false } } }, plugins: { legend: { display: false } } } });
+        };
+
+        const populateRevisionInsights = (topics) => {
+            const cont = document.getElementById('revision-insights'); cont.innerHTML = '';
+            const keys = Object.keys(topics);
+            if (keys.length === 0) cont.innerHTML = '<div class="col-span-full p-6 bg-emerald-50 text-emerald-800 rounded-xl text-center">Excellent work! No mistakes found. 🎉</div>';
+            else keys.forEach(k => {
+                const [s, c] = k.split('|');
+                cont.innerHTML += `<div class="p-5 bg-rose-50 border rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase">${s}</div><div class="text-lg font-bold text-slate-800 mb-3">${c}</div><div class="text-sm bg-white p-3 rounded-lg"><span class="font-bold">Needs Review:</span><ul class="list-disc pl-4">${topics[k].map(t=>`<li>${t}</li>`).join('')}</ul></div></div>`;
+            });
+        };
+
+        const reviewAnswers = () => {
+            reviewMode = true; document.getElementById('view-results').classList.add('hide'); document.getElementById('view-exam').classList.remove('hide');
+            document.getElementById('timer-display').classList.add('hide'); document.getElementById('submit-btn').classList.add('hide'); document.getElementById('exit-review-btn').classList.remove('hide');
+            document.getElementById('clear-btn').classList.add('hide'); document.getElementById('mark-review-btn').classList.add('hide'); document.getElementById('next-btn').innerText = 'Next';
+            buildSubjects(); buildPalette(); loadQuestion(0);
+            
+            if (window.innerWidth < 1024) {
+                document.getElementById('question-palette').classList.add('translate-x-full');
+                document.getElementById('palette-backdrop').classList.add('hide');
+            }
+        };
+
+        const exitReview = () => {
+            reviewMode = false; document.getElementById('view-exam').classList.add('hide'); document.getElementById('view-results').classList.remove('hide');
+            document.getElementById('timer-display').classList.remove('hide'); document.getElementById('submit-btn').classList.remove('hide'); document.getElementById('exit-review-btn').classList.add('hide');
+            document.getElementById('clear-btn').classList.remove('hide'); document.getElementById('mark-review-btn').classList.remove('hide'); document.getElementById('next-btn').innerText = 'Save & Next';
+        };
+
+        const toggleDarkMode = () => {
+            document.documentElement.classList.toggle('dark-theme');
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            try {
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            } catch(e) {}
+            const el = document.getElementById('theme-text');
+            if (el) el.innerText = isDark ? 'Light' : 'Dark';
+        };
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                const el = document.getElementById('theme-text');
+                if (el) el.innerText = 'Light';
+            }
+        } catch(e) {}
+
+        // Global Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (!isExamActive && !reviewMode) return;
+            if (e.target.tagName && e.target.tagName.toLowerCase() === 'input') return;
+            
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (currentQIndex < questionsData.length - 1) loadQuestion(currentQIndex + 1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevQuestion();
+            } else if (e.key.toLowerCase() === 'c' && document.getElementById('virtual-calculator')) {
+                e.preventDefault();
+                toggleCalculator();
+            }
+        });
+
+        // Prevent accidental tab closure during an active exam
+        window.addEventListener('beforeunload', (e) => {
+            if (isExamActive) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        const syncPurchases = () => {
+            const email = localStorage.getItem('user_email');
+            if (!email) { renderDashboard(); return; }
+            fetch(`api.php?action=get_purchases&email=${encodeURIComponent(email)}`, {credentials: 'include'})
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.purchases) {
+                        data.purchases.forEach(plan => {
+                            if (plan === 'combo') {
+                                ['met', 'vit', 'srm', 'bitsat', 'gitam', 'amrita', 'jee'].forEach(exam => {
+                                    localStorage.setItem(`${exam}_all_tests_unlocked`, 'true');
+                                });
+                            } else {
+                                localStorage.setItem(`${plan}_all_tests_unlocked`, 'true');
+                            }
+                        });
+                    }
+                    renderDashboard();
+                }).catch(() => renderDashboard());
+        };
+
+        syncPurchases();
+        const email = localStorage.getItem('user_email');
+        const token = localStorage.getItem('session_token');
+        if (email) {
+            fetch(`api.php?action=get_purchases&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.purchases && data.purchases.length > 0) {
+                        data.purchases.forEach(plan => {
+                            if (plan === 'combo') {
+                                ['met', 'vit', 'srm', 'bitsat', 'gitam', 'amrita'].forEach(exam => {
+                                    localStorage.setItem(`${exam}_all_tests_unlocked`, 'true');
+                                });
+                            } else {
+                                localStorage.setItem(`${plan}_all_tests_unlocked`, 'true');
+                            }
+                        });
+                    }
+                    renderDashboard();
+                })
+                .catch(err => {
+                    console.error('Purchase restore error:', err);
+                    renderDashboard();
+                });
+        } else {
+            renderDashboard();
+        }
+    
+        // === CUSTOM TEST GENERATOR ===
+                const CUSTOM_SUBJECTS = { 'Mathematics': true, 'Physics': true, 'Chemistry': true, 'English': true, 'Aptitude': true };
+
+        const CUSTOM_SUBJECT_LABELS = {
+            'Mathematics': '🧮 Math',
+            'Physics': '⚡ Physics',
+            'Chemistry': '🔬 Chemistry',
+            'English': '📖 English',
+            'Logical Reasoning': '🧠 Reasoning',
+            'Aptitude': '🧠 Aptitude'
+        };
+
+        let isCustomTest = false;
+        let customPreviousTimeLeft = 10800;
+        let CUSTOM_CONFIG = {}; 
+
+        function openCustomModal() {
+            const dummyQuestions = generateQuestionsForTest(1);
+            CUSTOM_CONFIG = {};
+            dummyQuestions.forEach(q => {
+                if (!CUSTOM_CONFIG[q.subject]) {
+                    CUSTOM_CONFIG[q.subject] = { selected: true, chapters: {} };
+                }
+                if (q.chapter) {
+                    CUSTOM_CONFIG[q.subject].chapters[q.chapter] = true;
+                }
+            });
+
+            const container = document.getElementById('custom-subjects');
+            container.innerHTML = '';
+            
+            Object.keys(CUSTOM_CONFIG).forEach(sub => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm';
+                
+                const subHeader = document.createElement('div');
+                subHeader.className = 'flex items-center justify-between p-3 bg-slate-100 border-b border-slate-200';
+                const accentClass = 'accent-blue-600'; 
+                subHeader.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800">
+                        <input type="checkbox" checked class="w-4 h-4 ${accentClass} sub-cb" data-subj="${sub}">
+                        ${CUSTOM_SUBJECT_LABELS[sub] || sub}
+                    </label>
+                    <button class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2 py-1 bg-white rounded border border-slate-200 toggle-chaps">▼</button>
+                `;
+                
+                const chapsDiv = document.createElement('div');
+                chapsDiv.className = 'p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 hide'; 
+                
+                const subCb = subHeader.querySelector('.sub-cb');
+                
+                Object.keys(CUSTOM_CONFIG[sub].chapters).forEach(chap => {
+                    const chapLabel = document.createElement('label');
+                    chapLabel.className = 'flex items-center gap-2 cursor-pointer text-sm text-slate-600 hover:text-slate-900 transition';
+                    chapLabel.innerHTML = `<input type="checkbox" checked class="w-3.5 h-3.5 ${accentClass} chap-cb" data-subj="${sub}" data-chap="${chap}"> <span class="truncate" title="${chap}">${chap}</span>`;
+                    
+                    const chapCb = chapLabel.querySelector('input');
+                    chapCb.addEventListener('change', (e) => {
+                        CUSTOM_CONFIG[sub].chapters[chap] = e.target.checked;
+                        const anyChecked = Object.values(CUSTOM_CONFIG[sub].chapters).some(v => v);
+                        subCb.checked = anyChecked;
+                        CUSTOM_CONFIG[sub].selected = anyChecked;
+                    });
+                    chapsDiv.appendChild(chapLabel);
+                });
+                
+                subCb.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    CUSTOM_CONFIG[sub].selected = isChecked;
+                    Object.keys(CUSTOM_CONFIG[sub].chapters).forEach(c => {
+                        CUSTOM_CONFIG[sub].chapters[c] = isChecked;
+                    });
+                    chapsDiv.querySelectorAll('.chap-cb').forEach(cb => cb.checked = isChecked);
+                });
+                
+                subHeader.querySelector('.toggle-chaps').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    chapsDiv.classList.toggle('hide');
+                    e.target.innerText = chapsDiv.classList.contains('hide') ? '▼' : '▲';
+                });
+
+                subDiv.appendChild(subHeader);
+                subDiv.appendChild(chapsDiv);
+                container.appendChild(subDiv);
+            });
+            document.getElementById('custom-qty').value = 60;
+            document.getElementById('custom-qty-val').innerText = '60';
+            document.getElementById('custom-time').value = 60;
+            document.getElementById('custom-time-val').innerText = '60';
+            document.getElementById('custom-modal').classList.remove('hide');
+        }
+
+        function closeCustomModal() {
+            document.getElementById('custom-modal').classList.add('hide');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('custom-history-modal').classList.add('hide');
+        }
+
+        function openHistoryModal() {
+            const key = 'customTestResults_viteee';
+            const entries = JSON.parse(localStorage.getItem(key) || '[]').slice().reverse();
+            const list = document.getElementById('custom-history-list');
+            list.innerHTML = '';
+            if (entries.length === 0) {
+                list.innerHTML = '<p class="text-sm text-slate-500">No custom test history available yet.</p>';
+            } else {
+                entries.forEach((entry, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-50 rounded-2xl border border-slate-200 p-4 shadow-sm';
+                    const timestamp = new Date(entry.timestamp).toLocaleString('en-IN', { hour12: false });
+                    const subjects = entry.subjectScores ? Object.entries(entry.subjectScores).map(([sub, score]) => `<div class="flex justify-between gap-4"><span>${sub}</span><span>${score}</span></div>`).join('') : '';
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-slate-500 text-xs uppercase tracking-[0.18em]">Attempt ${entries.length - index}</p>
+                                <h4 class="text-lg font-semibold text-slate-800">${entry.totalQ} Questions</h4>
+                                <p class="text-slate-500 text-sm">${timestamp}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-extrabold text-orange-600">${entry.score}</p>
+                                <p class="text-xs text-slate-500">Score</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 mt-4 text-center text-slate-700 text-sm font-medium">
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.correct}</div><div class="text-slate-500">Correct</div></div>
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.incorrect}</div><div class="text-slate-500">Incorrect</div></div>
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.unattempted}</div><div class="text-slate-500">Unattempted</div></div>
+                        </div>
+                        ${subjects ? `<div class="mt-4 text-sm text-slate-600"><div class="font-semibold mb-2">Subject scores</div>${subjects}</div>` : ''}
+                    `;
+                    list.appendChild(card);
+                });
+            }
+            document.getElementById('custom-history-modal').classList.remove('hide');
+        }
+
+        function startCustomTest() {
+            closeCustomModal();
+            
+            const totalQ = parseInt(document.getElementById('custom-qty').value);
+            const totalMinutes = parseInt(document.getElementById('custom-time').value);
+            const totalSeconds = totalMinutes * 60;
+
+            isCustomTest = true;
+            let allQuestions = [];
+            const baseSeed = 99999 + Date.now() % 99999;
+            for(let i=0; i<8; i++) {
+                allQuestions = allQuestions.concat(generateQuestionsForTest(baseSeed + i));
+            }
+            
+            questionsData = allQuestions.filter(q => {
+                const subCfg = CUSTOM_CONFIG[q.subject];
+                if (!subCfg || !subCfg.selected) return false;
+                if (!q.chapter) return true;
+                return subCfg.chapters[q.chapter];
+            });
+
+            questionsData = questionsData.sort(() => Math.random() - 0.5);
+            questionsData = questionsData.slice(0, Math.min(totalQ, questionsData.length));
+            
+            if (questionsData.length === 0) {
+                alert('No questions found for the selected subjects and chapters. Please select more options.');
+                isCustomTest = false;
+                return;
+            }
+            
+            // Trim arrays
+            const n = questionsData.length;
+            answers = new Array(n).fill(null);
+            timeSpent = new Array(n).fill(0);
+            markedForReview = new Array(n).fill(false);
+            visited = new Array(n).fill(false);
+            
+            document.getElementById('exam-title').innerText = 'Custom Test (' + totalQ + ' Q, ' + totalMinutes + ' min)';
+            
+            currentQIndex = 0;
+            timeLeft = totalSeconds;
+            examEndTime = Date.now() + totalSeconds * 1000;
+            reviewMode = false;
+            isExamActive = true;
+            lastQStartTime = Date.now();
+            document.getElementById('virtual-calculator').classList.add('hide');
+            
+            document.getElementById('view-dashboard').classList.add('hide');
+            document.getElementById('view-instructions').classList.add('hide');
+            document.getElementById('view-exam').classList.remove('hide');
+            document.getElementById('view-results').classList.add('hide');
+            
+            // Update timer display format
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = m + ':' + s;
+            
+            startTimer();
+            buildSubjects();
+            buildPalette();
+            loadQuestion(0);
+            
+            if (window.innerWidth < 1024) {
+                document.getElementById('question-palette').classList.add('translate-x-full');
+                document.getElementById('palette-backdrop').classList.add('hide');
+            }
+        }
+
+        // Override the result saving to save custom tests separately
+        const originalSubmitExam = submitExam;
+        submitExam = function(isAuto) {
+            if (!isCustomTest) {
+                return originalSubmitExam(isAuto);
+            }
+            
+            clearInterval(timerInterval);
+            if (!isAuto && !reviewMode && !confirm("Submit custom test?")) { startTimer(); return; }
+            
+            if (isExamActive) timeSpent[currentQIndex] += (Date.now() - lastQStartTime) / 1000;
+            isExamActive = false;
+            
+            document.getElementById('view-exam').classList.add('hide');
+            document.getElementById('view-results').classList.remove('hide');
+            
+            let cor = 0, incor = 0, un = 0, tot = 0;
+            let subScores = {};
+            let incTopics = {};
+            
+            questionsData.forEach((q, i) => {
+                const ans = answers[i];
+                const sub = q.subject;
+                if (!subScores[sub]) subScores[sub] = 0;
+                
+                if (ans === null) un++;
+                else if (ans === q.answer) { cor++; tot += 1; subScores[sub] += 1; }
+                else {
+                    incor++; tot -= 0.25;
+                    subScores[sub] -= 0.25;
+                    const key = sub + '|' + (q.chapter || 'General');
+                    if (!incTopics[key]) incTopics[key] = new Set();
+                    incTopics[key].add(q.topic || 'General');
+                }
+            });
+            
+            const serTopics = {};
+            for (const k in incTopics) serTopics[k] = Array.from(incTopics[k]);
+            
+            // Save custom test results
+            try {
+                const key = 'customTestResults_viteee';
+                const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                existing.push({
+                    timestamp: new Date().toISOString(),
+                    score: Math.round(tot * 10) / 10,
+                    correct: cor,
+                    incorrect: incor,
+                    unattempted: un,
+                    totalQ: questionsData.length,
+                    subjectScores: subScores,
+                    incorrectTopics: serTopics,
+                    answers: answers
+                });
+                localStorage.setItem(key, JSON.stringify(existing));
+            } catch(e) {}
+            
+            document.getElementById('result-score').innerText = Math.round(tot);
+            document.getElementById('res-unattempted').innerText = un;
+            document.getElementById('res-correct').innerText = cor;
+            document.getElementById('res-incorrect').innerText = incor;
+            
+            drawRadarChart(subScores);
+            populateRevisionInsights(serTopics);
+            
+            if (typeof confetti !== 'undefined' && tot >= questionsData.length * 0.6) {
+                confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
+            }
+            
+            isCustomTest = false;
+        };
+    
+
+</script>
+
+    <!-- CUSTOM TEST GENERATOR MODAL -->
+    <div id="custom-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh]">
+            <header class="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg">🎯 Custom Test Generator</h3>
+                <button onclick="closeCustomModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-4 md:p-5 overflow-y-auto space-y-4">
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Select Subjects:</p>
+                    <div id="custom-subjects" class="space-y-3 max-h-60 overflow-y-auto p-2 border border-slate-200 rounded-lg bg-slate-50/50"></div>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Number of Questions: <span id="custom-qty-val">60</span></p>
+                    <input type="range" id="custom-qty" min="60" max="180" value="60" step="10" class="w-full accent-purple-600" oninput="document.getElementById('custom-qty-val').innerText=this.value">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1"><span>60</span><span>120</span><span>180</span></div>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Time Limit (minutes): <span id="custom-time-val">60</span></p>
+                    <input type="range" id="custom-time" min="30" max="180" value="60" step="5" class="w-full accent-purple-600" oninput="document.getElementById('custom-time-val').innerText=this.value">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1"><span>30</span><span>105</span><span>180</span></div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800">
+                    <strong>Note:</strong> Questions are generated dynamically from the same question bank as regular mock tests, with shuffled options.
+                </div>
+            </div>
+            <footer class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeCustomModal()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition">Cancel</button>
+                <button onclick="startCustomTest()" class="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition shadow-md">Generate & Start</button>
+            </footer>
+        </div>
+    </div>
+    <div id="custom-history-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh]">
+            <header class="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg">📚 Custom Test History</h3>
+                    <p class="text-sm text-slate-200 mt-1">Review your saved custom test attempts and scores.</p>
+                </div>
+                <button onclick="closeHistoryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-4 md:p-5 overflow-y-auto space-y-4">
+                <div id="custom-history-list" class="space-y-4"></div>
+            </div>
+            <footer class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeHistoryModal()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition">Close</button>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

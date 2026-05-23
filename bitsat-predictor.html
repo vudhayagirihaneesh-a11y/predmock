@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BITSAT Score Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme img, html.dark-theme svg { filter: invert(1) hue-rotate(180deg); }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50/50 p-4 md:p-8 space-y-8">
+    <div class="max-w-6xl mx-auto space-y-8">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-orange-100/50 pb-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-tr from-orange-600 to-amber-500 p-3.5 rounded-xl shadow-lg text-white transform transition hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">BITSAT <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500">Predictor</span></h1>
+                    <p class="text-slate-500 font-medium mt-1">Estimate branch probabilities across Pilani, Goa, and Hyderabad.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-orange-600 transition px-2">Home Hub</a>
+                <a href="payments.html?plan=bitsat" class="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-orange-600 rounded-xl text-white shadow-lg shadow-orange-500/30 font-extrabold text-sm transform hover:-translate-y-1 transition-all">Purchase Premium Mock Tests</a>
+                <button onclick="toggleDarkMode()" class="text-sm font-medium text-slate-500 px-2 flex items-center gap-1.5"><span id="theme-text">Dark</span></button>
+                <button onclick="window.print()" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 text-sm font-medium hover:bg-slate-50">Print</button>
+            </div>
+        </header>
+
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-orange-600">Enter Your Details</h3>
+            </div>
+            <div class="p-6 flex flex-col md:flex-row gap-8 items-center">
+                <div class="flex-1 w-full">
+                    <label for="bitsat-score" class="text-lg font-semibold text-slate-700">Total BITSAT Score (out of 390)</label>
+                    <div class="relative mt-2">
+                        <input id="bitsat-score" type="number" placeholder="ex: 280" min="-130" max="430" class="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-2xl font-bold transition-all focus:bg-white focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-xl shadow-sm" />
+                    </div>
+                </div>
+                <div class="flex-1 w-full bg-orange-50 p-6 rounded-xl border border-orange-100 text-center">
+                    <p class="text-orange-600 font-semibold mb-2">Basic Eligibility Rule</p>
+                    <p class="text-slate-700 text-sm">To be eligible for admission, you must have an aggregate of at least <span class="font-bold">75%</span> in Physics, Chemistry, and Math/Biology in your 12th boards, with 60% minimum in each.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-orange-600">Probability Engine</h3>
+                <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
+                    <select id="chance-filter" class="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-orange-500 rounded-lg text-sm font-medium">
+                        <option value="All">All Chances</option>
+                        <option value="Safe">Safe Only</option>
+                        <option value="Possible">Safe + Borderline</option>
+                    </select>
+                    <input id="branch-search" type="text" placeholder="Search branch..." class="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-orange-500 rounded-lg w-48" />
+                    <div id="campus-filters" class="flex gap-2 rounded-md bg-slate-200 p-1"></div>
+                </div>
+            </div>
+            <div class="overflow-x-auto p-0 md:p-6 md:pt-0">
+                <table class="w-full text-left text-sm text-slate-600 border border-slate-200 rounded-lg">
+                    <thead class="bg-slate-100/50 text-slate-700">
+                        <tr class="border-b-2 border-slate-200">
+                            <th class="font-semibold uppercase text-xs py-4 px-4 cursor-pointer hover:bg-slate-200" onclick="handleSort('campus')">Campus <span id="sort-campus" class="text-orange-500"></span></th>
+                            <th class="font-semibold uppercase text-xs py-4 px-4 cursor-pointer hover:bg-slate-200" onclick="handleSort('branch')">Branch <span id="sort-branch" class="text-orange-500"></span></th>
+                            <th class="text-right font-semibold uppercase text-xs py-4 px-4 cursor-pointer hover:bg-slate-200" onclick="handleSort('score')">Approx. Cutoff <span id="sort-score" class="text-orange-500"></span></th>
+                            <th class="text-center font-semibold uppercase text-xs py-4 px-4">Probability</th>
+                        </tr>
+                    </thead>
+                    <tbody id="probability-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cutoffData = [
+            { campus: "Pilani", branch: "Computer Science (CSE)", score: 331 },
+            { campus: "Pilani", branch: "Electronics & Comm (ECE)", score: 296 },
+            { campus: "Pilani", branch: "Electrical & Electronics (EEE)", score: 285 },
+            { campus: "Pilani", branch: "Electronics & Instru (ENI)", score: 266 },
+            { campus: "Pilani", branch: "Mechanical Engineering", score: 244 },
+            { campus: "Pilani", branch: "Chemical Engineering", score: 224 },
+            { campus: "Pilani", branch: "Civil Engineering", score: 213 },
+            { campus: "Pilani", branch: "Manufacturing Engineering", score: 220 },
+            { campus: "Pilani", branch: "B.Pharm", score: 153 },
+            { campus: "Pilani", branch: "M.Sc. Economics", score: 257 },
+            { campus: "Pilani", branch: "M.Sc. Mathematics", score: 254 },
+            { campus: "Pilani", branch: "M.Sc. Physics", score: 235 },
+            { campus: "Pilani", branch: "M.Sc. Chemistry", score: 213 },
+            { campus: "Pilani", branch: "M.Sc. Biological Sciences", score: 204 },
+
+            { campus: "Goa", branch: "Computer Science (CSE)", score: 295 },
+            { campus: "Goa", branch: "Electronics & Comm (ECE)", score: 267 },
+            { campus: "Goa", branch: "Electrical & Electronics (EEE)", score: 251 },
+            { campus: "Goa", branch: "Electronics & Instru (ENI)", score: 244 },
+            { campus: "Goa", branch: "Mechanical Engineering", score: 223 },
+            { campus: "Goa", branch: "Chemical Engineering", score: 211 },
+            { campus: "Goa", branch: "M.Sc. Economics", score: 242 },
+            { campus: "Goa", branch: "M.Sc. Mathematics", score: 236 },
+            { campus: "Goa", branch: "M.Sc. Physics", score: 222 },
+            { campus: "Goa", branch: "M.Sc. Chemistry", score: 205 },
+            { campus: "Goa", branch: "M.Sc. Biological Sciences", score: 204 },
+
+            { campus: "Hyderabad", branch: "Computer Science (CSE)", score: 284 },
+            { campus: "Hyderabad", branch: "Electronics & Comm (ECE)", score: 261 },
+            { campus: "Hyderabad", branch: "Electrical & Electronics (EEE)", score: 242 },
+            { campus: "Hyderabad", branch: "Electronics & Instru (ENI)", score: 244 },
+            { campus: "Hyderabad", branch: "Mechanical Engineering", score: 218 },
+            { campus: "Hyderabad", branch: "Chemical Engineering", score: 204 },
+            { campus: "Hyderabad", branch: "Civil Engineering", score: 204 },
+            { campus: "Hyderabad", branch: "M.Sc. Economics", score: 236 },
+            { campus: "Hyderabad", branch: "M.Sc. Mathematics", score: 230 },
+            { campus: "Hyderabad", branch: "M.Sc. Physics", score: 219 },
+            { campus: "Hyderabad", branch: "M.Sc. Chemistry", score: 205 },
+            { campus: "Hyderabad", branch: "M.Sc. Biological Sciences", score: 204 }
+        ];
+
+        let bitsatScore = null;
+        let campusFilter = 'All';
+        let chanceFilter = 'All';
+        let branchSearch = '';
+        let sortColumn = 'score';
+        let sortAsc = false; // higher score first
+
+        const getProbabilityBadge = (cutoff) => {
+            if (bitsatScore === null) return `<span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold">Enter Score</span>`;
+            if (bitsatScore >= cutoff + 5) return `<span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold shadow-sm">Safe</span>`;
+            if (bitsatScore >= cutoff - 10) return `<span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold shadow-sm">Borderline</span>`;
+            return `<span class="px-2 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-semibold shadow-sm">Unlikely</span>`;
+        };
+
+        const renderFilters = () => {
+            const el = document.getElementById('campus-filters');
+            el.innerHTML = '';
+            ['All', 'Pilani', 'Goa', 'Hyderabad'].forEach(c => {
+                const b = document.createElement('button');
+                b.innerText = c;
+                b.className = `py-1.5 px-3 rounded-md text-sm font-medium transition ${campusFilter === c ? 'bg-orange-600 text-white shadow' : 'text-slate-600 hover:bg-slate-300'}`;
+                b.onclick = () => { campusFilter = c; renderFilters(); renderTable(); };
+                el.appendChild(b);
+            });
+        };
+
+        const renderTable = () => {
+            const tbody = document.getElementById('probability-table-body');
+            tbody.innerHTML = '';
+
+            const filtered = cutoffData.filter(i => {
+                if (campusFilter !== 'All' && i.campus !== campusFilter) return false;
+                if (!i.branch.toLowerCase().includes(branchSearch.toLowerCase())) return false;
+                if (chanceFilter !== 'All') {
+                    if (bitsatScore === null) return false;
+                    if (chanceFilter === 'Safe' && bitsatScore < i.score + 5) return false;
+                    if (chanceFilter === 'Possible' && bitsatScore < i.score - 10) return false;
+                }
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                const vA = a[sortColumn], vB = b[sortColumn];
+                return sortAsc ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
+            });
+
+            ['campus', 'branch', 'score'].forEach(col => {
+                document.getElementById(`sort-${col}`).innerText = sortColumn === col ? (sortAsc ? ' ↑' : ' ↓') : '';
+            });
+
+            filtered.forEach(i => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-orange-50/50 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-800">${i.campus}</td>
+                    <td class="px-4 py-3 text-slate-700">${i.branch}</td>
+                    <td class="px-4 py-3 text-right font-semibold text-orange-700">${i.score}</td>
+                    <td class="px-4 py-3 text-center">${getProbabilityBadge(i.score)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        const handleSort = (col) => {
+            sortAsc = sortColumn === col ? !sortAsc : (col !== 'score');
+            sortColumn = col;
+            renderTable();
+        };
+
+        const calculate = () => {
+            const val = document.getElementById('bitsat-score').value;
+            bitsatScore = val === '' ? null : Math.max(-130, Math.min(430, Number(val)));
+            if (bitsatScore !== null) localStorage.setItem('bitsatScore', bitsatScore);
+            else localStorage.removeItem('bitsatScore');
+            renderTable();
+        };
+
+        const toggleDarkMode = () => {
+            document.documentElement.classList.toggle('dark-theme');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light');
+            document.getElementById('theme-text').innerText = document.documentElement.classList.contains('dark-theme') ? 'Light' : 'Dark';
+        };
+
+        document.getElementById('bitsat-score').addEventListener('input', calculate);
+        document.getElementById('branch-search').addEventListener('input', e => { branchSearch = e.target.value; renderTable(); });
+        document.getElementById('chance-filter').addEventListener('change', e => { chanceFilter = e.target.value; renderTable(); });
+
+        const saved = localStorage.getItem('bitsatScore');
+        if (saved !== null && saved !== "null") { document.getElementById('bitsat-score').value = saved; bitsatScore = Number(saved); }
+        if (localStorage.getItem('theme') === 'dark') document.getElementById('theme-text').innerText = 'Light';
+
+        renderFilters();
+        renderTable();
+    </script>
+</body>
+</html>

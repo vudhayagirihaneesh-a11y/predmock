@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MET Rank Predictor</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for the trend graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+        /* Dark Mode Magic Filter */
+        html.dark-theme {
+            filter: invert(1) hue-rotate(180deg);
+        }
+        html.dark-theme, html.dark-theme body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        /* Un-invert canvases (charts) so they look normal */
+        html.dark-theme canvas, html.dark-theme img {
+            filter: invert(1) hue-rotate(180deg);
+        }
+    </style>
+    <script>
+        // Apply theme immediately before page renders to prevent white flashes
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/50 p-4 md:p-8 space-y-8 font-sans">
+    
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-indigo-100/50 pb-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-3.5 rounded-xl shadow-lg text-white transform transition hover:scale-105 print:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">MET Rank <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500 print:text-slate-800 print:bg-none">Predictor</span></h1>
+                    <p class="text-slate-500 font-medium mt-1">Estimate your rank and discover your admission probabilities.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 print:hidden">
+                <a href="payments.html?plan=met" target="_blank" rel="noopener noreferrer" class="relative flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 rounded-xl text-white hover:from-amber-500 hover:via-orange-600 hover:to-rose-600 transition-all shadow-lg shadow-orange-500/30 font-extrabold text-sm transform hover:-translate-y-1 hover:shadow-xl group overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-500 -skew-x-12 -translate-x-full z-0"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="z-10"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    <span class="z-10">Purchase Premium Mock Tests</span>
+                    <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                    </span>
+                </a>
+                <button onclick="toggleDarkMode()" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition px-2 flex items-center gap-1.5" title="Toggle Theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <span id="theme-text">Dark</span>
+                </button>
+                <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Home Hub</a>
+                <button onclick="clearInputs()" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Clear Data</button>
+                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition shadow-sm font-medium text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Print Report
+                </button>
+            </div>
+        </header>
+
+        <!-- Alert -->
+        <div class="bg-yellow-100/70 border border-yellow-400/60 text-yellow-900 backdrop-blur-sm p-4 rounded-xl flex gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-800 mt-0.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            <div>
+                <h5 class="font-semibold text-yellow-900 mb-1">Analytical Estimate Only</h5>
+                <div class="text-sm">Final allocation depends on normalization algorithms, 20% JEE Main reservation policies, and dynamic seat matrix changes.</div>
+            </div>
+        </div>
+
+        <!-- Input Matrix -->
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-indigo-600">Enter Your Scores</h3>
+            </div>
+            <div class="p-6 grid md:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div>
+                        <label for="met-score" class="text-lg font-semibold text-slate-700">MET Score (out of 240)</label>
+                        <div class="relative mt-2">
+                            <input id="met-score" type="number" placeholder="ex: 100" min="-60" max="240" class="w-full pl-4 pr-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 text-xl font-medium transition-all focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg shadow-sm" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="board-percentage" class="text-lg font-semibold text-slate-700">12th Board % (PCME/PCMB)</label>
+                        <p class="text-xs text-slate-500 font-medium mt-1 mb-2">Enter your core subjects percentage (Physics, Chemistry, Math, and English/Bio), not your overall aggregate.</p>
+                        <div class="relative">
+                            <input id="board-percentage" type="number" placeholder="ex: 95" min="0" max="100" class="w-full pl-4 pr-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 text-xl font-medium transition-all focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none rounded-lg shadow-sm" />
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row gap-6 justify-around items-center p-8 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 shadow-inner text-white transform transition-all duration-300 hover:shadow-2xl print:bg-none print:bg-slate-50 print:text-slate-900 print:shadow-none print:border print:border-slate-200">
+                    <div class="text-center">
+                        <p class="text-sm text-indigo-100 uppercase tracking-wider font-semibold mb-1 print:text-slate-600">Composite Score</p>
+                        <p id="composite-score" class="text-6xl font-black drop-shadow-sm print:text-indigo-700 print:drop-shadow-none">0.00</p>
+                        <p class="text-sm text-indigo-200 mt-1 font-medium print:text-slate-500">out of 100</p>
+                    </div>
+                    <div class="border-l-2 border-white/20 h-20 hidden md:block print:border-slate-300"></div>
+                    <div class="text-center">
+                        <p class="text-sm text-indigo-100 uppercase tracking-wider font-semibold mb-1 print:text-slate-600">Estimated Rank</p>
+                        <p id="estimated-rank" class="text-6xl font-black text-green-300 drop-shadow-sm print:text-emerald-600 print:drop-shadow-none">---</p>
+                        <p class="text-sm text-indigo-200 mt-1 font-medium print:text-slate-500">approximate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Probability Table -->
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-indigo-600">Admission Probability Engine</h3>
+                <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto print:hidden">
+                    <select id="chance-filter" class="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm rounded-lg text-sm font-medium cursor-pointer">
+                        <option value="All">All Chances</option>
+                        <option value="Safe">Safe Only</option>
+                        <option value="Possible">Safe + Borderline</option>
+                    </select>
+                    <div class="relative flex-1 md:w-48 lg:w-64">
+                        <input 
+                            id="branch-search"
+                            type="text"
+                            placeholder="Search branch..."
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm rounded-lg"
+                        />
+                    </div>
+                    <div id="campus-filters" class="flex flex-wrap items-center gap-2 rounded-md bg-slate-200 p-1">
+                        <!-- Filter buttons generated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="p-0 md:p-6 md:pt-0 overflow-x-auto">
+                <div class="rounded-lg border border-gray-200 overflow-hidden min-w-[700px]">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-100/50 text-slate-700">
+                            <tr class="border-b-2 border-slate-200">
+                                <th class="font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('campus')">Campus <span id="sort-campus" class="text-indigo-500"></span></th>
+                                <th class="font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('branch')">Branch <span id="sort-branch" class="text-indigo-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('r1')">R1 <span id="sort-r1" class="text-indigo-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('r2')">R2 <span id="sort-r2" class="text-indigo-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('r3')">R3 <span id="sort-r3" class="text-indigo-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('last')">Last Round <span id="sort-last" class="text-indigo-500"></span></th>
+                                <th class="text-center font-semibold uppercase tracking-wider text-xs py-4 px-4">Probability</th>
+                            </tr>
+                        </thead>
+                        <tbody id="probability-table-body">
+                            <!-- Rows generated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Chart (Hidden until row clicked) -->
+        <div id="trend-chart-container" class="hide bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden transition-all duration-500">
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-2 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    <h3 class="text-2xl font-bold text-indigo-600">
+                        Counseling Trend: <span id="chart-title-branch" class="text-slate-800"></span>
+                    </h3>
+                </div>
+                <div id="target-insight" class="hidden"></div>
+            </div>
+            <div class="p-6 w-full h-[400px]">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA ---
+        // Sample data embedded directly so we don't need a local server for JSON
+        const cutoffData = [
+            // Manipal Main Campus
+            { campus: "Manipal", branch: "Computer Science and Engg (CSE)", ranks: { r1: 3479, r2: 4484, r3: 5129, last: 5129 } },
+            { campus: "Manipal", branch: "CSE (Artificial Intelligence & Machine Learning)", ranks: { r1: 3650, r2: 4620, r3: 5380, last: 5380 } },
+            { campus: "Manipal", branch: "Computer Science & Financial Technology", ranks: { r1: 3786, r2: 4827, r3: 5521, last: 5521 } },
+            { campus: "Manipal", branch: "Mathematics & Computing", ranks: { r1: 3981, r2: 4932, r3: 5633, last: 5633 } },
+            { campus: "Manipal", branch: "Artificial Intelligence and Robotics", ranks: { r1: 4050, r2: 5100, r3: 5850, last: 5850 } },
+            { campus: "Manipal", branch: "Data Science and Engineering", ranks: { r1: 4100, r2: 5200, r3: 6050, last: 6050 } },
+            { campus: "Manipal", branch: "Information Technology (IT)", ranks: { r1: 4400, r2: 5500, r3: 6250, last: 6250 } },
+            { campus: "Manipal", branch: "Computer and Communication Engg (CCE)", ranks: { r1: 4600, r2: 5800, r3: 6550, last: 6550 } },
+            { campus: "Manipal", branch: "Electronics and Comm. (ECE)", ranks: { r1: 5286, r2: 6107, r3: 6789, last: 6789 } },
+            { campus: "Manipal", branch: "VLSI Design (Electronics)", ranks: { r1: 6808, r2: 7204, r3: 7815, last: 7815 } },
+            { campus: "Manipal", branch: "Electrical and Electronics Engg (EEE)", ranks: { r1: 10742, r2: 12110, r3: 12986, last: 12986 } },
+            { campus: "Manipal", branch: "Electronics & Instrumentation", ranks: { r1: 12383, r2: 13670, r3: 15037, last: 15037 } },
+            { campus: "Manipal", branch: "Aeronautical Engineering", ranks: { r1: 13301, r2: 14646, r3: 15860, last: 15860 } },
+            { campus: "Manipal", branch: "Mechatronics Engineering", ranks: { r1: 13905, r2: 16394, r3: 16835, last: 16835 } },
+            { campus: "Manipal", branch: "Biotechnology", ranks: { r1: 14867, r2: 18143, r3: 19519, last: 19519 } },
+            { campus: "Manipal", branch: "Cyber Physical Systems", ranks: { r1: 15028, r2: 15807, r3: 16896, last: 16896 } },
+            { campus: "Manipal", branch: "Mechanical Engineering", ranks: { r1: 17037, r2: 18450, r3: 19258, last: 19258 } },
+            { campus: "Manipal", branch: "Chemical Engineering", ranks: { r1: 17648, r2: 20878, r3: 21813, last: 21813 } },
+            { campus: "Manipal", branch: "Automobile Engineering", ranks: { r1: 19006, r2: 21610, r3: 22824, last: 22824 } },
+            { campus: "Manipal", branch: "Biomedical Engineering", ranks: { r1: 21136, r2: 23568, r3: 24653, last: 24653 } },
+            { campus: "Manipal", branch: "Industrial Engineering", ranks: { r1: 25392, r2: 26557, r3: 28076, last: 28076 } },
+            { campus: "Manipal", branch: "Civil Engineering", ranks: { r1: 25526, r2: 27202, r3: 29232, last: 29232 } },
+            { campus: "Manipal", branch: "Computer Science and Engg (Dual Degree)", ranks: { r1: 5800, r2: 6900, r3: 7500, last: 7500 } },
+            { campus: "Manipal", branch: "Electronics and Comm. (Dual Degree)", ranks: { r1: 8500, r2: 9600, r3: 10400, last: 10400 } },
+            { campus: "Manipal", branch: "Mechanical Engineering (Dual Degree)", ranks: { r1: 19500, r2: 21500, r3: 23000, last: 23000 } },
+
+            // Bengaluru Campus
+            { campus: "Bengaluru", branch: "Computer Science and Engg (CSE)", ranks: { r1: 9362, r2: 11200, r3: 12751, last: 12751 } },
+            { campus: "Bengaluru", branch: "CSE (Artificial Intelligence & Machine Learning)", ranks: { r1: 10500, r2: 12800, r3: 14500, last: 14500 } },
+            { campus: "Bengaluru", branch: "CSE (Cyber Security)", ranks: { r1: 11500, r2: 13500, r3: 15200, last: 15200 } },
+            { campus: "Bengaluru", branch: "Information Technology (IT)", ranks: { r1: 12000, r2: 14200, r3: 16234, last: 16234 } },
+            { campus: "Bengaluru", branch: "Artificial Intelligence and Robotics", ranks: { r1: 14000, r2: 16500, r3: 18200, last: 18200 } },
+            { campus: "Bengaluru", branch: "Electronics and Comm. (ECE)", ranks: { r1: 16000, r2: 18500, r3: 21000, last: 21000 } },
+
+            // Jaipur Campus
+            { campus: "Jaipur", branch: "Computer Science and Engg (CSE)", ranks: { r1: 33000, r2: 35500, r3: 38000, last: 38000 } },
+            { campus: "Jaipur", branch: "CSE (Artificial Intelligence & Machine Learning)", ranks: { r1: 34000, r2: 36500, r3: 39000, last: 39000 } },
+            { campus: "Jaipur", branch: "Information Technology (IT)", ranks: { r1: 35000, r2: 37500, r3: 40000, last: 40000 } },
+            { campus: "Jaipur", branch: "Electronics and Comm. (ECE)", ranks: { r1: 43000, r2: 45500, r3: 48000, last: 48000 } },
+            { campus: "Jaipur", branch: "Mechanical Engineering", ranks: { r1: 45000, r2: 47500, r3: 50000, last: 50000 } },
+            { campus: "Jaipur", branch: "Civil Engineering", ranks: { r1: 42000, r2: 44500, r3: 47000, last: 47000 } }
+        ];
+
+        // --- STATE ---
+        let metScore = null;
+        let boardPercentage = null;
+        let estimatedRank = 0;
+        let campusFilter = 'All';
+        let chanceFilter = 'All';
+        let branchSearch = '';
+        let selectedBranch = null;
+        let chartInstance = null;
+        let sortColumn = 'last';
+        let sortAsc = true;
+
+        // --- CONSTANTS ---
+        const campuses = ['All', 'Manipal', 'Bengaluru', 'Jaipur'];
+
+        // --- DOM ELEMENTS ---
+        const elMetScore = document.getElementById('met-score');
+        const elBoardPercentage = document.getElementById('board-percentage');
+        const elCompositeScore = document.getElementById('composite-score');
+        const elEstimatedRank = document.getElementById('estimated-rank');
+        const elTableBody = document.getElementById('probability-table-body');
+        const elSearch = document.getElementById('branch-search');
+        const elChanceFilter = document.getElementById('chance-filter');
+        const elFilters = document.getElementById('campus-filters');
+        const elChartContainer = document.getElementById('trend-chart-container');
+        const elChartTitle = document.getElementById('chart-title-branch');
+        const ctx = document.getElementById('trendChart').getContext('2d');
+
+        // --- LOGIC FUNCTIONS ---
+        const getBoardBandScore = (percentage) => {
+            if (percentage >= 95) return 50;
+            if (percentage >= 90) return 45;
+            if (percentage >= 85) return 40;
+            if (percentage >= 80) return 35;
+            if (percentage >= 75) return 30;
+            if (percentage >= 70) return 25;
+            return 20;
+        };
+
+        const getInterpolatedRank = (score) => {
+            const pts = [
+                {s: 100, r: 1}, {s: 95, r: 500}, {s: 90, r: 1500}, {s: 85, r: 3000},
+                {s: 80, r: 5500}, {s: 75, r: 8500}, {s: 70, r: 11500}, {s: 63.54, r: 14700},
+                {s: 60, r: 17500}, {s: 55, r: 22000}, {s: 50, r: 27000}, {s: 40, r: 40000},
+                {s: 30, r: 48000}, {s: 20, r: 55000}, {s: 0, r: 65000}, {s: -15, r: 75000}
+            ];
+            if (score >= 100) return 1;
+            if (score <= -15) return 75000;
+            for (let i = 0; i < pts.length - 1; i++) {
+                if (score <= pts[i].s && score >= pts[i+1].s) {
+                    const fraction = (score - pts[i+1].s) / (pts[i].s - pts[i+1].s);
+                    return Math.round(pts[i+1].r + fraction * (pts[i].r - pts[i+1].r));
+                }
+            }
+            return 75000;
+        };
+
+        const getInterpolatedScore = (rank) => {
+            const pts = [
+                {s: 100, r: 1}, {s: 95, r: 500}, {s: 90, r: 1500}, {s: 85, r: 3000},
+                {s: 80, r: 5500}, {s: 75, r: 8500}, {s: 70, r: 11500}, {s: 63.54, r: 14700},
+                {s: 60, r: 17500}, {s: 55, r: 22000}, {s: 50, r: 27000}, {s: 40, r: 40000},
+                {s: 30, r: 48000}, {s: 20, r: 55000}, {s: 0, r: 65000}, {s: -15, r: 75000}
+            ];
+            if (rank <= 1) return 100;
+            if (rank >= 75000) return -15;
+            for (let i = 0; i < pts.length - 1; i++) {
+                if (rank >= pts[i].r && rank <= pts[i+1].r) {
+                    const fraction = (rank - pts[i].r) / (pts[i+1].r - pts[i].r);
+                    return pts[i].s + fraction * (pts[i+1].s - pts[i].s);
+                }
+            }
+            return 0;
+        };
+
+        const calculateScores = () => {
+            const metInput = elMetScore.value;
+            const boardInput = elBoardPercentage.value;
+
+            // Wait for user to type something before calculating
+            if (metInput === '' || boardInput === '') {
+                metScore = 0;
+                boardPercentage = null;
+                elCompositeScore.innerText = '0.00';
+                elEstimatedRank.innerText = '---';
+                estimatedRank = 0;
+                renderTable(); // Re-render table to show "Enter Scores" badges
+                if (selectedBranch && !elChartContainer.classList.contains('hide')) {
+                    renderChart(selectedBranch, true); // Update target insight live
+                }
+                localStorage.removeItem('metScore');
+                localStorage.removeItem('boardPercentage');
+                return;
+            }
+
+            localStorage.setItem('metScore', metInput);
+            localStorage.setItem('boardPercentage', boardInput);
+
+            metScore = Math.max(-60, Math.min(240, Number(metInput)));
+            boardPercentage = Math.max(0, Math.min(100, Number(boardInput)));
+            
+            const boardBand = getBoardBandScore(boardPercentage);
+            const metWeight = (metScore / 240) * 50;
+            const compositeScore = boardBand + metWeight;
+            
+            let scoreCalc = compositeScore;
+            if (scoreCalc > 100) scoreCalc = 100;
+            
+            estimatedRank = getInterpolatedRank(scoreCalc);
+
+            // Update UI
+            elCompositeScore.innerText = compositeScore.toFixed(2);
+            elEstimatedRank.innerText = '#' + estimatedRank.toLocaleString('en-IN');
+            
+            renderTable(); // Re-render table to update probabilities
+            if (selectedBranch && !elChartContainer.classList.contains('hide')) {
+                renderChart(selectedBranch, true); // Update target insight live without scrolling
+            }
+        };
+
+        const getProbabilityBadgeHtml = (closingRank) => {
+            if (!closingRank) {
+                return `<span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">N/A</span>`;
+            }
+            if (estimatedRank === 0) {
+                return `<span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">Enter Scores</span>`;
+            }
+            if (estimatedRank <= closingRank * 0.85) {
+                return `<span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">Safe</span>`;
+            }
+            if (estimatedRank <= closingRank * 1.15) {
+                return `<span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200 shadow-sm">Borderline</span>`;
+            }
+            return `<span class="px-2 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200 shadow-sm">Unlikely</span>`;
+        };
+
+        const calculateTargetMetScore = (targetRank, currentBoardPercentage) => {
+            if (!targetRank) return null;
+            const safeRank = Math.max(1, Math.floor(targetRank * 0.85));
+            const targetComposite = getInterpolatedScore(safeRank);
+            const boardToUse = (currentBoardPercentage !== null && currentBoardPercentage !== undefined && currentBoardPercentage !== '') ? currentBoardPercentage : 80;
+            const boardBand = getBoardBandScore(boardToUse); 
+            let requiredMetWeight = targetComposite - boardBand;
+            if (requiredMetWeight <= 0) return 0; 
+            if (requiredMetWeight > 50) return '> 240'; 
+            return Math.ceil((requiredMetWeight / 50) * 240);
+        };
+
+        const clearInputs = () => {
+            elMetScore.value = '';
+            elBoardPercentage.value = '';
+            localStorage.removeItem('metScore');
+            localStorage.removeItem('boardPercentage');
+            calculateScores();
+        };
+
+        const handleSort = (column) => {
+            if (sortColumn === column) {
+                sortAsc = !sortAsc;
+            } else {
+                sortColumn = column;
+                sortAsc = true;
+            }
+            renderTable();
+        };
+
+        const renderFilters = () => {
+            elFilters.innerHTML = '';
+            campuses.forEach(campus => {
+                const btn = document.createElement('button');
+                btn.innerText = campus === 'Manipal' ? 'Manipal (Main)' : campus;
+                
+                const baseClasses = "py-1.5 px-3 md:px-4 rounded-md text-sm font-medium transition-all duration-200 ";
+                if (campusFilter === campus) {
+                    btn.className = baseClasses + "bg-indigo-600 text-white shadow";
+                } else {
+                    btn.className = baseClasses + "text-slate-600 hover:bg-slate-300/70 hover:text-slate-900";
+                }
+                
+                btn.onclick = () => {
+                    campusFilter = campus;
+                    renderFilters();
+                    renderTable();
+                };
+                elFilters.appendChild(btn);
+            });
+        };
+
+        const renderTable = () => {
+            elTableBody.innerHTML = '';
+            
+            const filtered = cutoffData.filter(item => {
+                const campusMatch = campusFilter === 'All' || item.campus === campusFilter;
+                const branchMatch = item.branch.toLowerCase().includes(branchSearch.toLowerCase());
+                
+                let chanceMatch = true;
+                if (chanceFilter !== 'All') {
+                    if (estimatedRank === 0 || !item.ranks.last) {
+                        chanceMatch = false; // Exclude N/A or if user hasn't entered scores
+                    } else if (chanceFilter === 'Safe') {
+                        chanceMatch = estimatedRank <= item.ranks.last * 0.85;
+                    } else if (chanceFilter === 'Possible') {
+                        chanceMatch = estimatedRank <= item.ranks.last * 1.15;
+                    }
+                }
+
+                return campusMatch && branchMatch && chanceMatch;
+            });
+
+            filtered.sort((a, b) => {
+                let valA, valB;
+                if (['r1', 'r2', 'r3', 'last'].includes(sortColumn)) {
+                    valA = a.ranks[sortColumn] || Number.MAX_SAFE_INTEGER;
+                    valB = b.ranks[sortColumn] || Number.MAX_SAFE_INTEGER;
+                } else {
+                    valA = String(a[sortColumn] || '').toLowerCase();
+                    valB = String(b[sortColumn] || '').toLowerCase();
+                }
+                if (valA < valB) return sortAsc ? -1 : 1;
+                if (valA > valB) return sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            ['campus', 'branch', 'r1', 'r2', 'r3', 'last'].forEach(col => {
+                const el = document.getElementById(`sort-${col}`);
+                if (el) el.innerText = sortColumn === col ? (sortAsc ? ' ↑' : ' ↓') : '';
+            });
+
+            filtered.forEach((item, index) => {
+                const isSelected = selectedBranch && selectedBranch.campus === item.campus && selectedBranch.branch === item.branch;
+                
+                const tr = document.createElement('tr');
+                tr.className = `border-b border-slate-100 cursor-pointer transition-all duration-200 hover:bg-indigo-50/50 ${isSelected ? 'bg-indigo-50/80' : ''}`;
+                
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-800">${item.campus}</td>
+                    <td class="px-4 py-3 text-slate-700 font-medium">${item.branch}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${item.ranks.r1 ? item.ranks.r1.toLocaleString('en-IN') : '—'}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${item.ranks.r2 ? item.ranks.r2.toLocaleString('en-IN') : '—'}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${item.ranks.r3 ? item.ranks.r3.toLocaleString('en-IN') : '—'}</td>
+                    <td class="px-4 py-3 text-right">
+                        <span class="inline-block font-semibold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-md">
+                            ${item.ranks.last ? item.ranks.last.toLocaleString('en-IN') : '—'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-center">${getProbabilityBadgeHtml(item.ranks.last)}</td>
+                `;
+
+                tr.onclick = () => {
+                    if (isSelected) {
+                        selectedBranch = null;
+                        elChartContainer.classList.add('hide');
+                    } else {
+                        selectedBranch = item;
+                        renderChart(item);
+                    }
+                    renderTable(); // Re-render to highlight selected row
+                };
+
+                elTableBody.appendChild(tr);
+            });
+        };
+
+        const renderChart = (branchData, preventScroll = false) => {
+            elChartContainer.classList.remove('hide');
+            elChartTitle.innerText = `${branchData.branch} (${branchData.campus})`;
+
+            const elTargetInsight = document.getElementById('target-insight');
+            const targetScore = calculateTargetMetScore(branchData.ranks.last, boardPercentage);
+            if (targetScore !== null) {
+                elTargetInsight.classList.remove('hidden');
+                elTargetInsight.innerHTML = `🎯 MET Target for <span class="text-emerald-600 font-bold">Safe</span> Rank: <span class="font-bold text-indigo-700 text-base ml-1">${targetScore}</span>`;
+                let progress = 0;
+                let isAchieved = false;
+                let currentMet = metScore || 0;
+                if (targetScore === '> 240') { progress = (currentMet / 240) * 100; } 
+                else if (targetScore === 0) { progress = 100; isAchieved = true; } 
+                else {
+                    progress = Math.min(100, (currentMet / targetScore) * 100);
+                    isAchieved = currentMet >= targetScore;
+                }
+                
+                const displayTarget = targetScore === '> 240' ? 'Not Possible' : (targetScore === 0 ? 'Any Score' : targetScore);
+                const barColor = isAchieved ? 'from-emerald-400 to-emerald-500' : 'from-indigo-400 to-indigo-500';
+                const shortfallMsg = (targetScore === '> 240') ? 'Unreachable with current Board %' : (isAchieved ? 'Target Reached! 🎉' : `You need ${Math.max(0, targetScore - currentMet)} more marks`);
+                
+                elTargetInsight.innerHTML = `
+                    <div class="flex flex-col w-full">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-sm font-bold text-slate-600">MET Target for <span class="text-emerald-600">Safe</span> Rank: <span class="font-black text-indigo-700 text-lg ml-1">${displayTarget}</span></span>
+                            <span class="text-xs font-semibold ${isAchieved ? 'text-emerald-600' : 'text-slate-500'}">${shortfallMsg}</span>
+                        </div>
+                        <div class="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                            <div class="h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-1000 ease-out" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                `;
+                elTargetInsight.className = 'w-full lg:max-w-md bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm block';
+            } else {
+                elTargetInsight.classList.add('hidden');
+                elTargetInsight.className = 'hidden';
+            }
+
+            const labels = [];
+            const dataPoints = [];
+            
+            if(branchData.ranks.r1) { labels.push('R1'); dataPoints.push(branchData.ranks.r1); }
+            if(branchData.ranks.r2) { labels.push('R2'); dataPoints.push(branchData.ranks.r2); }
+            if(branchData.ranks.r3) { labels.push('R3'); dataPoints.push(branchData.ranks.r3); }
+            
+            // Destroy old chart if exists so it doesn't overlap
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Closing Rank',
+                        data: dataPoints,
+                        borderColor: '#6366F1',
+                        backgroundColor: '#6366F1',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#4338CA',
+                        pointBorderWidth: 2,
+                        tension: 0.2 // Smooth curves
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            reverse: true, // Lower rank is better/higher on chart
+                            grid: { color: '#E2E8F0' },
+                            ticks: { color: '#94A3B8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#1E293B',
+                            bodyColor: '#4338CA',
+                            borderColor: '#E2E8F0',
+                            borderWidth: 1,
+                            displayColors: false,
+                            padding: 10
+                        }
+                    }
+                }
+            });
+            
+            // Scroll down slightly so user sees the chart
+            if (!preventScroll) {
+                elChartContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        };
+
+        // --- EVENT LISTENERS ---
+        elMetScore.addEventListener('input', calculateScores);
+        elBoardPercentage.addEventListener('input', calculateScores);
+        
+        elSearch.addEventListener('input', (e) => {
+            branchSearch = e.target.value;
+            renderTable();
+        });
+
+        elChanceFilter.addEventListener('change', (e) => {
+            chanceFilter = e.target.value;
+            renderTable();
+        });
+        
+        // --- THEME TOGGLE ---
+        const toggleDarkMode = () => {
+            document.documentElement.classList.toggle('dark-theme');
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-text').innerText = isDark ? 'Light' : 'Dark';
+        };
+        if (localStorage.getItem('theme') === 'dark') {
+            const el = document.getElementById('theme-text');
+            if (el) el.innerText = 'Light';
+        }
+
+        // --- INITIALIZE ---
+        const savedMet = localStorage.getItem('metScore');
+        const savedBoard = localStorage.getItem('boardPercentage');
+        if (savedMet !== null) elMetScore.value = savedMet;
+        if (savedBoard !== null) elBoardPercentage.value = savedBoard;
+
+        calculateScores();
+        renderFilters();
+    </script>
+</body>
+</html>

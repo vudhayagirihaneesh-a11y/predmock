@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Prep Hub | BITSAT & MET</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+        /* Consistent Dark Mode Filter */
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme img, html.dark-theme svg { filter: invert(1) hue-rotate(180deg); }
+
+        /* Custom Blob Animations */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+
+        // Check login status and show user info
+        function showUserProfile() {
+            const userEmail = localStorage.getItem('user_email');
+            if (userEmail) {
+                let displayName = 'User';
+                try {
+                    const profileRaw = localStorage.getItem('user_profile');
+                    const profile = profileRaw ? JSON.parse(profileRaw) : null;
+                    if (profile) {
+                        displayName = (profile.name || profile.full_name || profile.username) ? (profile.name || profile.full_name || profile.username) : displayName;
+                    }
+                } catch (e) {}
+
+                const userData = {
+                    displayName,
+                    email: userEmail,
+                    id: localStorage.getItem('user_id'),
+                    verified: localStorage.getItem('user_verified'),
+                    created_at: localStorage.getItem('user_created_at'),
+                    login_time: localStorage.getItem('user_login_time')
+                };
+
+                const profileSection = document.getElementById('user-profile-section');
+                if (profileSection) {
+                    profileSection.innerHTML = `
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-4 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-slate-600">Welcome</p>
+                                <p class="text-lg font-bold text-slate-800">${userData.displayName}</p>
+                                <p class="text-xs text-slate-500 mt-1">ID: ${userData.id || 'N/A'}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="profile.html" class="px-4 py-2 bg-white border border-indigo-200 text-indigo-700 font-semibold rounded-lg hover:bg-indigo-50 transition shadow-sm">Profile</a>
+                                <button onclick="logout()" class="px-4 py-2 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition shadow-md">Logout</button>
+                            </div>
+                        </div>
+                    `;
+                    profileSection.classList.remove('hide');
+                }
+            } else {
+                // user not logged in, profile section hidden
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                fetch('api.php', { method: 'POST', body: new URLSearchParams({action: 'logout'}), credentials: 'include' });
+                localStorage.removeItem('user_email');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_verified');
+                localStorage.removeItem('user_created_at');
+                localStorage.removeItem('user_login_time');
+                localStorage.removeItem('user_profile');
+                localStorage.removeItem('login_timestamp');
+                localStorage.removeItem('pending_payment_order_id');
+                localStorage.removeItem('pending_payment_plan');
+                localStorage.removeItem('pending_payment_amount');
+                localStorage.removeItem('pending_payment_started_at');
+                document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = 'login.html';
+            }
+        }
+
+        const clearPendingPayment = () => {
+            localStorage.removeItem('pending_payment_order_id');
+            localStorage.removeItem('pending_payment_plan');
+            localStorage.removeItem('pending_payment_amount');
+            localStorage.removeItem('pending_payment_started_at');
+        };
+
+        const resumePendingPayment = () => {
+            const pendingOrderId = localStorage.getItem('pending_payment_order_id');
+            const pendingPlan = localStorage.getItem('pending_payment_plan');
+            if (!pendingOrderId || !pendingPlan) return;
+
+            fetch(`api.php?action=check_status&order_id=${encodeURIComponent(pendingOrderId)}`, {credentials: 'include'})
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) return;
+                    if (data.status === 'approved') {
+                        clearPendingPayment();
+                        alert('Your payment is approved and premium mock access has been unlocked.');
+                    } else if (data.status === 'rejected') {
+                        clearPendingPayment();
+                        alert('Your payment was rejected. Please resubmit payment proof.');
+                    } else {
+                        setTimeout(resumePendingPayment, 5000);
+                    }
+                })
+                .catch(() => setTimeout(resumePendingPayment, 10000));
+        };
+
+        window.addEventListener('load', () => {
+            showUserProfile();
+            resumePendingPayment();
+        });
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center p-4 py-12 md:p-8 md:py-20 relative overflow-x-hidden">
+
+    <!-- Background decorative blobs -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+    <div class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+
+    <div class="max-w-7xl w-full space-y-10 z-10">
+        <!-- User Profile Section -->
+        <div id="user-profile-section" class="hide"></div>
+
+        <!-- Header Section -->
+        <header class="text-center space-y-4 mb-12">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight drop-shadow-sm">
+                Entrance Exam Hub
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto font-medium">
+                Choose your target examination below to access premium mock test series and advanced admission predictors.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- JEE Mains Portal Card -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl border border-indigo-100 flex flex-col">
+                <div class="bg-gradient-to-br from-indigo-600 to-blue-600 p-8 text-white text-center">
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">JEE Main 2026</h2>
+                    <p class="text-indigo-100 font-medium text-sm uppercase tracking-widest">Joint Entrance Examination</p>
+                </div>
+                <div class="p-6 md:p-8 space-y-4 bg-indigo-50/30 flex-1 flex flex-col justify-center">
+                    <a href="jee-mock-tests.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-indigo-100 hover:border-indigo-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition">Mock Test Series</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">Full-length papers & PYQs</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- BITSAT Portal Card -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl border border-orange-100 flex flex-col">
+                <div class="bg-gradient-to-br from-orange-500 to-amber-500 p-8 text-white text-center">
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">BITSAT 2026</h2>
+                    <p class="text-orange-100 font-medium text-sm uppercase tracking-widest">Birla Institute of Technology & Science</p>
+                </div>
+                <div class="p-6 md:p-8 space-y-4 bg-orange-50/30 flex-1 flex flex-col justify-center">
+
+                    <!-- Link to Predictor -->
+                    <a href="bitsat-predictor.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-orange-100 hover:border-orange-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-orange-600 transition">Branch Predictor</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">Estimate your campus and branch</p>
+                        </div>
+                    </a>
+
+                    <!-- Link to Mock Tests -->
+                    <a href="bitsat-mock-tests.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-orange-100 hover:border-orange-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-orange-600 transition">Mock Test Series</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">25 Full-length papers (130 Qs)</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MET Portal Card -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl border border-emerald-100 flex flex-col">
+                <div class="bg-gradient-to-br from-emerald-500 to-teal-500 p-8 text-white text-center">
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">MET 2026</h2>
+                    <p class="text-emerald-100 font-medium text-sm uppercase tracking-widest">Manipal Entrance Test</p>
+                </div>
+                <div class="p-6 md:p-8 space-y-4 bg-emerald-50/30 flex-1 flex flex-col justify-center">
+
+                    <!-- Link to Predictor -->
+                    <a href="index-2.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-emerald-600 transition">Rank Predictor</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">Find safe branches with your score</p>
+                        </div>
+                    </a>
+
+                    <!-- Link to Mock Tests -->
+                    <a href="mock-tests.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-emerald-600 transition">Mock Test Series</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">25 Full-length papers (60 Qs)</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- VITEEE Portal Card -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl border border-blue-100 flex flex-col">
+                <div class="bg-gradient-to-br from-blue-500 to-cyan-500 p-8 text-white text-center">
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">VITEEE 2026</h2>
+                    <p class="text-blue-100 font-medium text-sm uppercase tracking-widest">Vellore Institute of Technology</p>
+                </div>
+                <div class="p-6 md:p-8 space-y-4 bg-blue-50/30 flex-1 flex flex-col justify-center">
+
+                    <!-- Link to Predictor -->
+                    <a href="viteee-predictor.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-blue-100 hover:border-blue-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition">Rank Predictor</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">Find safe branches with your rank</p>
+                        </div>
+                    </a>
+
+                    <!-- Link to Mock Tests -->
+                    <a href="viteee-mock-tests.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-blue-100 hover:border-blue-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition">Mock Test Series</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">25 Full-length papers (125 Qs)</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- SRM Portal Card -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl border border-purple-100 flex flex-col">
+                <div class="bg-gradient-to-br from-purple-500 to-fuchsia-500 p-8 text-white text-center">
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">SRMJEEE 2026</h2>
+                    <p class="text-purple-100 font-medium text-sm uppercase tracking-widest">SRM Institute of Science and Technology</p>
+                </div>
+                <div class="p-6 md:p-8 space-y-4 bg-purple-50/30 flex-1 flex flex-col justify-center">
+                    <!-- Link to Predictor -->
+                    <a href="srm-predictor.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-purple-100 hover:border-purple-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-purple-600 transition">Branch Predictor</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">Estimate your campus and branch</p>
+                        </div>
+                    </a>
+                    <!-- Link to Mock Tests -->
+                    <a href="srm-mock-tests.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-purple-100 hover:border-purple-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-purple-600 transition">Mock Test Series</h3>
+                        <p class="text-sm text-slate-500 mt-0.5">25 Full-length papers (125 Qs)</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GITAM Portal Card -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl border border-red-100 flex flex-col">
+                <div class="bg-gradient-to-br from-red-500 to-rose-500 p-8 text-white text-center">
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">GITAM GAT 2026</h2>
+                    <p class="text-red-100 font-medium text-sm uppercase tracking-widest">GITAM University</p>
+                </div>
+                <div class="p-6 md:p-8 space-y-4 bg-red-50/30 flex-1 flex flex-col justify-center">
+                    <!-- Link to Mock Tests -->
+                    <a href="gitam-mock-tests.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-red-100 hover:border-red-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-red-600 transition">Mock Test Series</h3>
+                        <p class="text-sm text-slate-500 mt-0.5">25 Full-length papers (100 Qs)</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- AMRITA Portal Card -->
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden transform transition duration-300 hover:-translate-y-2 hover:shadow-2xl border border-pink-100 flex flex-col">
+                <div class="bg-gradient-to-br from-pink-500 to-pink-600 p-8 text-white text-center">
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">AEEE 2026</h2>
+                    <p class="text-pink-100 font-medium text-sm uppercase tracking-widest">Amrita Vishwa Vidyapeetham</p>
+                </div>
+                <div class="p-6 md:p-8 space-y-4 bg-pink-50/30 flex-1 flex flex-col justify-center">
+
+                    <!-- Link to Predictor -->
+                    <a href="amrita-predictor.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-pink-100 hover:border-pink-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-pink-600 transition">Branch Predictor</h3>
+                            <p class="text-sm text-slate-500 mt-0.5">Estimate your campus and branch</p>
+                        </div>
+                    </a>
+
+                    <!-- Link to Mock Tests -->
+                    <a href="amrita-mock-tests.html" class="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-pink-100 hover:border-pink-400 hover:shadow-md transition-all group">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 group-hover:text-pink-600 transition">Mock Test Series</h3>
+                        <p class="text-sm text-slate-500 mt-0.5">25 Full-length papers (100 Qs)</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <div class="flex justify-center mt-12">
+            <button onclick="document.documentElement.classList.toggle('dark-theme'); localStorage.setItem('theme', document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light');" class="px-6 py-3 bg-white border border-slate-200 text-slate-600 font-semibold rounded-full shadow-sm hover:bg-slate-50 hover:text-indigo-600 transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                Toggle Theme
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

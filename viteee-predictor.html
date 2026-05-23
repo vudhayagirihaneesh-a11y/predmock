@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VITEEE College Predictor</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+        /* Dark Mode Magic Filter */
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme canvas, html.dark-theme img { filter: invert(1) hue-rotate(180deg); }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/50 p-4 md:p-8 space-y-8 font-sans">
+    
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-blue-100/50 pb-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-tr from-blue-600 to-cyan-500 p-3.5 rounded-xl shadow-lg text-white transform transition hover:scale-105 print:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">VITEEE College <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 print:text-slate-800 print:bg-none">Predictor</span></h1>
+                    <p class="text-slate-500 font-medium mt-1">Check branch and fee category cutoffs based on your rank.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 print:hidden">
+                <a href="payments.html?plan=vit" class="relative flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 rounded-xl text-white hover:from-cyan-500 hover:via-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/30 font-extrabold text-sm transform hover:-translate-y-1 hover:shadow-xl group overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-500 -skew-x-12 -translate-x-full z-0"></div>
+                    <span class="z-10">Purchase Premium Mock Tests</span>
+                </a>
+                <button onclick="toggleDarkMode()" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition px-2 flex items-center gap-1.5" title="Toggle Theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <span id="theme-text">Dark</span>
+                </button>
+                <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Home Hub</a>
+                <button onclick="goToMockTests()" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Mock Tests</button>
+                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition shadow-sm font-medium text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Print Report
+                </button>
+            </div>
+        </header>
+
+        <!-- Input Section -->
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-blue-600">Enter Your Details</h3>
+            </div>
+            <div class="p-6 flex flex-col md:flex-row gap-8 items-center">
+                <div class="flex-1 w-full">
+                    <label for="viteee-rank" class="text-lg font-semibold text-slate-700">Estimated VITEEE Rank</label>
+                    <div class="relative mt-2">
+                        <input id="viteee-rank" type="number" placeholder="ex: 15000" min="1" class="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-2xl font-bold transition-all focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-xl shadow-sm" />
+                    </div>
+                </div>
+                <div class="flex-1 w-full bg-blue-50 p-6 rounded-xl border border-blue-100 text-center flex flex-col justify-center">
+                    <p class="text-blue-600 font-semibold mb-2">Counseling Phase</p>
+                    <p id="rank-category" class="text-3xl font-black text-slate-800">---</p>
+                    <p id="rank-range" class="text-sm text-blue-500 mt-1 font-medium">Enter rank to calculate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Probability Table -->
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-blue-600">Admission Probability Engine</h3>
+                <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto print:hidden">
+                    <select id="chance-filter" class="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm rounded-lg text-sm font-medium cursor-pointer">
+                        <option value="All">All Branches</option>
+                        <option value="Available">Available to me</option>
+                    </select>
+                    <select id="category-filter" class="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm rounded-lg text-sm font-medium cursor-pointer">
+                        <option value="All">All Categories</option>
+                        <option value="Cat 1">Cat 1 (Base Fee)</option>
+                        <option value="Cat 2">Cat 2</option>
+                        <option value="Cat 3">Cat 3</option>
+                        <option value="Cat 4">Cat 4</option>
+                        <option value="Cat 5">Cat 5 (Max Fee)</option>
+                    </select>
+                    <div class="relative flex-1 md:w-48 lg:w-64">
+                        <input id="branch-search" type="text" placeholder="Search branch..." class="w-full px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm rounded-lg" />
+                    </div>
+                    <div id="campus-filters" class="flex flex-wrap items-center gap-2 rounded-md bg-slate-200 p-1"></div>
+                </div>
+            </div>
+            <div class="p-0 md:p-6 md:pt-0 overflow-x-auto">
+                <div class="rounded-lg border border-gray-200 overflow-hidden min-w-[900px]">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-100/50 text-slate-700">
+                            <tr class="border-b-2 border-slate-200">
+                                <th class="font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('campus')">Campus <span id="sort-campus" class="text-blue-500"></span></th>
+                                <th class="font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('branch')">Branch <span id="sort-branch" class="text-blue-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('cat1')">Cat 1 <span id="sort-cat1" class="text-blue-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('cat2')">Cat 2 <span id="sort-cat2" class="text-blue-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('cat3')">Cat 3 <span id="sort-cat3" class="text-blue-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('cat4')">Cat 4 <span id="sort-cat4" class="text-blue-500"></span></th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4 cursor-pointer hover:bg-slate-200 transition-colors select-none" onclick="handleSort('cat5')">Cat 5 <span id="sort-cat5" class="text-blue-500"></span></th>
+                                <th class="text-center font-semibold uppercase tracking-wider text-xs py-4 px-4">Best Possible Chance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="probability-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Chart (Hidden until row clicked) -->
+        <div id="trend-chart-container" class="hide bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden transition-all duration-500 mt-8">
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-2 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    <h3 class="text-2xl font-bold text-blue-600">
+                        Fee Category Trend: <span id="chart-title-branch" class="text-slate-800"></span>
+                    </h3>
+                </div>
+            </div>
+            <div class="p-6 w-full h-[400px]">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cutoffData = [
+            // --- VELLORE CAMPUS ---
+            { campus: "Vellore", branch: "Computer Science (CSE)", cat1: 1100, cat2: 3500, cat3: 14000, cat4: 20000, cat5: 24000 },
+            { campus: "Vellore", branch: "CSE (Artificial Intelligence & ML)", cat1: 1800, cat2: 4500, cat3: 15000, cat4: 21000, cat5: 24500 },
+            { campus: "Vellore", branch: "CSE (Data Science)", cat1: 2500, cat2: 6000, cat3: 17000, cat4: 22000, cat5: 25000 },
+            { campus: "Vellore", branch: "CSE (Information Security)", cat1: 3000, cat2: 6500, cat3: 18000, cat4: 23000, cat5: 26000 },
+            { campus: "Vellore", branch: "CSE (Block Chain Technology)", cat1: 3200, cat2: 7000, cat3: 19000, cat4: 24000, cat5: 28000 },
+            { campus: "Vellore", branch: "CSE (Internet of Things)", cat1: 3500, cat2: 7500, cat3: 20000, cat4: 25000, cat5: 30000 },
+            { campus: "Vellore", branch: "CSE (Bioinformatics)", cat1: 4000, cat2: 8500, cat3: 22000, cat4: 27000, cat5: 32000 },
+            { campus: "Vellore", branch: "Information Technology (IT)", cat1: 4500, cat2: 9000, cat3: 20000, cat4: 24000, cat5: 28000 },
+            { campus: "Vellore", branch: "Electronics & Comm (ECE)", cat1: 6000, cat2: 13000, cat3: 23000, cat4: 28000, cat5: 35000 },
+            { campus: "Vellore", branch: "Electrical & Electronics (EEE)", cat1: 10000, cat2: 18000, cat3: 30000, cat4: 40000, cat5: 50000 },
+            { campus: "Vellore", branch: "Electronics & Instrumentation (EIE)", cat1: 12000, cat2: 20000, cat3: 32000, cat4: 45000, cat5: 55000 },
+            { campus: "Vellore", branch: "Mechanical Engineering", cat1: 15000, cat2: 25000, cat3: 40000, cat4: 55000, cat5: 65000 },
+            { campus: "Vellore", branch: "Mechanical (Automotive Engineering)", cat1: 16000, cat2: 26000, cat3: 42000, cat4: 58000, cat5: 68000 },
+            { campus: "Vellore", branch: "Biotechnology", cat1: 16000, cat2: 26000, cat3: 42000, cat4: 58000, cat5: 70000 },
+            { campus: "Vellore", branch: "Chemical Engineering", cat1: 17000, cat2: 27000, cat3: 43000, cat4: 59000, cat5: 72000 },
+            { campus: "Vellore", branch: "Civil Engineering", cat1: 18000, cat2: 28000, cat3: 45000, cat4: 60000, cat5: 75000 },
+            { campus: "Vellore", branch: "Integrated M.Tech CSE (5 Years)", cat1: 15000, cat2: 25000, cat3: 40000, cat4: 55000, cat5: 65000 },
+            { campus: "Vellore", branch: "Integrated M.Tech CSE Data Science (5 Years)", cat1: 16000, cat2: 26000, cat3: 42000, cat4: 58000, cat5: 68000 },
+            { campus: "Vellore", branch: "Integrated M.Tech Software Engg (5 Years)", cat1: 17000, cat2: 27000, cat3: 43000, cat4: 60000, cat5: 70000 },
+            
+            // --- CHENNAI CAMPUS ---
+            { campus: "Chennai", branch: "Computer Science (CSE)", cat1: 8000, cat2: 14000, cat3: 25000, cat4: 32000, cat5: 38000 },
+            { campus: "Chennai", branch: "CSE (Artificial Intelligence & ML)", cat1: 8500, cat2: 14500, cat3: 26000, cat4: 33000, cat5: 40000 },
+            { campus: "Chennai", branch: "CSE (Artificial Intelligence & Robotics)", cat1: 10500, cat2: 16500, cat3: 28000, cat4: 35000, cat5: 44000 },
+            { campus: "Chennai", branch: "CSE (Data Science)", cat1: 10000, cat2: 16000, cat3: 28000, cat4: 35000, cat5: 42000 },
+            { campus: "Chennai", branch: "CSE (Cyber Physical Systems)", cat1: 11000, cat2: 17000, cat3: 29000, cat4: 36000, cat5: 45000 },
+            { campus: "Chennai", branch: "Electronics & Comm (ECE)", cat1: 18000, cat2: 26000, cat3: 38000, cat4: 50000, cat5: 60000 },
+            { campus: "Chennai", branch: "Electrical & Electronics (EEE)", cat1: 20000, cat2: 28000, cat3: 40000, cat4: 55000, cat5: 65000 },
+            { campus: "Chennai", branch: "Mechatronics and Automation", cat1: 25000, cat2: 38000, cat3: 55000, cat4: 70000, cat5: 80000 },
+            { campus: "Chennai", branch: "Mechanical Engineering", cat1: 30000, cat2: 45000, cat3: 65000, cat4: 80000, cat5: 95000 },
+            { campus: "Chennai", branch: "Civil Engineering", cat1: 35000, cat2: 50000, cat3: 70000, cat4: 85000, cat5: 95000 },
+            { campus: "Chennai", branch: "Integrated M.Tech CSE (5 Years)", cat1: 18000, cat2: 28000, cat3: 45000, cat4: 60000, cat5: 75000 },
+            { campus: "Chennai", branch: "Integrated M.Tech CSE Business Analytics (5 Years)", cat1: 19000, cat2: 30000, cat3: 48000, cat4: 65000, cat5: 80000 },
+            { campus: "Chennai", branch: "Integrated M.Tech Software Engg (5 Years)", cat1: 20000, cat2: 32000, cat3: 50000, cat4: 68000, cat5: 85000 },
+            
+            // --- AMRAVATI CAMPUS ---
+            { campus: "Amravati", branch: "Computer Science (CSE)", cat1: 16000, cat2: 28000, cat3: 45000, cat4: 60000, cat5: 75000 },
+            { campus: "Amravati", branch: "CSE (Artificial Intelligence & ML)", cat1: 17000, cat2: 29000, cat3: 46000, cat4: 62000, cat5: 77000 },
+            { campus: "Amravati", branch: "CSE (Data Science)", cat1: 18000, cat2: 30000, cat3: 48000, cat4: 65000, cat5: 80000 },
+            { campus: "Amravati", branch: "CSE (Networking and Security)", cat1: 18500, cat2: 30500, cat3: 49000, cat4: 66000, cat5: 81000 },
+            { campus: "Amravati", branch: "CSE (Software Engineering)", cat1: 19000, cat2: 31000, cat3: 50000, cat4: 68000, cat5: 82000 },
+            { campus: "Amravati", branch: "Electronics & Comm (ECE)", cat1: 25000, cat2: 40000, cat3: 60000, cat4: 80000, cat5: 95000 },
+            { campus: "Amravati", branch: "Mechanical Engineering", cat1: 45000, cat2: 65000, cat3: 85000, cat4: 115000, cat5: 140000 },
+            { campus: "Amravati", branch: "Civil Engineering", cat1: 55000, cat2: 75000, cat3: 95000, cat4: 125000, cat5: 150000 },
+            { campus: "Amravati", branch: "Integrated M.Tech CSE (5 Years)", cat1: 25000, cat2: 40000, cat3: 60000, cat4: 85000, cat5: 105000 },
+            { campus: "Amravati", branch: "Integrated M.Tech Software Engg (5 Years)", cat1: 28000, cat2: 45000, cat3: 65000, cat4: 90000, cat5: 110000 },
+            
+            // --- BHOPAL CAMPUS ---
+            { campus: "Bhopal", branch: "Computer Science (CSE)", cat1: 22000, cat2: 35000, cat3: 55000, cat4: 75000, cat5: 90000 },
+            { campus: "Bhopal", branch: "CSE (Artificial Intelligence & ML)", cat1: 23000, cat2: 36000, cat3: 57000, cat4: 77000, cat5: 92000 },
+            { campus: "Bhopal", branch: "CSE (Cloud Computing & Automation)", cat1: 24000, cat2: 37000, cat3: 58000, cat4: 78000, cat5: 93000 },
+            { campus: "Bhopal", branch: "CSE (Cyber Security)", cat1: 25000, cat2: 38000, cat3: 60000, cat4: 80000, cat5: 95000 },
+            { campus: "Bhopal", branch: "CSE (Gaming Technology)", cat1: 25500, cat2: 38500, cat3: 60000, cat4: 81000, cat5: 96000 },
+            { campus: "Bhopal", branch: "CSE (E-Commerce Technology)", cat1: 26000, cat2: 39000, cat3: 61000, cat4: 82000, cat5: 97000 },
+            { campus: "Bhopal", branch: "CSE (Education Technology)", cat1: 27000, cat2: 40000, cat3: 62000, cat4: 83000, cat5: 98000 },
+            { campus: "Bhopal", branch: "CSE (Health Informatics)", cat1: 28000, cat2: 42000, cat3: 65000, cat4: 85000, cat5: 100000 },
+            { campus: "Bhopal", branch: "Electronics & Comm (ECE)", cat1: 35000, cat2: 55000, cat3: 75000, cat4: 90000, cat5: 110000 },
+            { campus: "Bhopal", branch: "ECE (Artificial Intelligence & Cybernetics)", cat1: 38000, cat2: 58000, cat3: 78000, cat4: 95000, cat5: 115000 },
+            { campus: "Bhopal", branch: "Electrical & Electronics (EEE)", cat1: 30000, cat2: 50000, cat3: 75000, cat4: 110000, cat5: 135000 },
+            { campus: "Bhopal", branch: "Mechanical Engineering", cat1: 45000, cat2: 65000, cat3: 85000, cat4: 120000, cat5: 145000 },
+            { campus: "Bhopal", branch: "Aerospace Engineering", cat1: 32000, cat2: 52000, cat3: 78000, cat4: 115000, cat5: 140000 },
+            { campus: "Bhopal", branch: "Bioengineering", cat1: 40000, cat2: 60000, cat3: 82000, cat4: 120000, cat5: 145000 },
+            { campus: "Bhopal", branch: "Integrated M.Tech CSE (5 Years)", cat1: 35000, cat2: 55000, cat3: 80000, cat4: 110000, cat5: 130000 },
+            { campus: "Bhopal", branch: "Integrated M.Tech CSE AI & ML (5 Years)", cat1: 36000, cat2: 56000, cat3: 82000, cat4: 112000, cat5: 135000 }
+        ];
+
+        let vitRank = null;
+        let campusFilter = 'All';
+        let chanceFilter = 'All';
+        let categoryFilter = 'All';
+        let branchSearch = '';
+        let selectedBranch = null;
+        let chartInstance = null;
+        let sortColumn = 'branch';
+        let sortAsc = true;
+
+        const getRankPhaseDetails = (rank) => {
+            if (!rank) return { phase: '---', range: 'Enter rank to calculate' };
+            if (rank <= 20000) return { phase: 'Phase 1', range: '(Rank 1 - 20,000)' };
+            if (rank <= 45000) return { phase: 'Phase 2', range: '(Rank 20,001 - 45,000)' };
+            if (rank <= 70000) return { phase: 'Phase 3', range: '(Rank 45,001 - 70,000)' };
+            if (rank <= 100000) return { phase: 'Phase 4', range: '(Rank 70,001 - 100,000)' };
+            if (rank <= 150000) return { phase: 'Phase 5', range: '(Rank 100,001 - 150,000)' };
+            return { phase: 'Not Eligible', range: '(Rank > 1.5 Lakh)' };
+        };
+
+        const getBestCategory = (item) => {
+            if (vitRank === null) return `<span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold">Enter Rank</span>`;
+            
+            const categories = [
+                { name: 'Cat 1', cutoff: item.cat1 }, { name: 'Cat 2', cutoff: item.cat2 },
+                { name: 'Cat 3', cutoff: item.cat3 }, { name: 'Cat 4', cutoff: item.cat4 },
+                { name: 'Cat 5', cutoff: item.cat5 }
+            ];
+            
+            for (let cat of categories) {
+                if (categoryFilter !== 'All' && cat.name !== categoryFilter) continue;
+                if (vitRank <= cat.cutoff * 0.9) return `<span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold shadow-sm text-center block whitespace-nowrap">Safe in ${cat.name}</span>`;
+                if (vitRank <= cat.cutoff * 1.1) return `<span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold shadow-sm text-center block whitespace-nowrap">Borderline in ${cat.name}</span>`;
+            }
+            return `<span class="px-2 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-semibold shadow-sm text-center block">Unlikely</span>`;
+        };
+
+        const renderFilters = () => {
+            const elFilters = document.getElementById('campus-filters');
+            elFilters.innerHTML = '';
+            ['All', 'Vellore', 'Chennai', 'Amravati', 'Bhopal'].forEach(campus => {
+                const btn = document.createElement('button');
+                btn.innerText = campus;
+                
+                const baseClasses = "py-1.5 px-3 md:px-4 rounded-md text-sm font-medium transition-all duration-200 ";
+                if (campusFilter === campus) {
+                    btn.className = baseClasses + "bg-blue-600 text-white shadow";
+                } else {
+                    btn.className = baseClasses + "text-slate-600 hover:bg-slate-300/70 hover:text-slate-900";
+                }
+                
+                btn.onclick = () => {
+                    campusFilter = campus;
+                    renderFilters();
+                    renderTable();
+                };
+                elFilters.appendChild(btn);
+            });
+        };
+
+        const renderTable = () => {
+            const tbody = document.getElementById('probability-table-body');
+            tbody.innerHTML = '';
+            
+            const filtered = cutoffData.filter(i => {
+                if (campusFilter !== 'All' && i.campus !== campusFilter) return false;
+                if (!i.branch.toLowerCase().includes(branchSearch.toLowerCase())) return false;
+                
+                if (vitRank !== null && vitRank > 150000) return false;
+                if (vitRank !== null && vitRank > 100000 && (i.campus === 'Vellore' || i.campus === 'Chennai')) return false;
+                
+                if (chanceFilter === 'Available') {
+                    if (vitRank === null) return false;
+                    let targetCutoff = categoryFilter === 'All' ? i.cat5 : i[categoryFilter.toLowerCase().replace(' ', '')];
+                    if (vitRank > targetCutoff * 1.1) return false;
+                }
+                return true;
+            });
+            
+            filtered.sort((a, b) => {
+                let vA = a[sortColumn];
+                let vB = b[sortColumn];
+                
+                if (typeof vA === 'string') {
+                    vA = vA.toLowerCase();
+                    vB = vB.toLowerCase();
+                }
+                
+                if (vA < vB) return sortAsc ? -1 : 1;
+                if (vA > vB) return sortAsc ? 1 : -1;
+                return 0;
+            });
+            
+            ['campus', 'branch', 'cat1', 'cat2', 'cat3', 'cat4', 'cat5'].forEach(col => {
+                const el = document.getElementById(`sort-${col}`);
+                if (el) el.innerText = sortColumn === col ? (sortAsc ? ' ↑' : ' ↓') : '';
+            });
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-500 font-medium">No branches available for the selected criteria. ${vitRank > 150000 ? 'Candidates with rank > 1.5 Lakh are generally not eligible for counseling.' : ''}</td></tr>`;
+                return;
+            }
+            
+            filtered.forEach(i => {
+                const isSelected = selectedBranch && selectedBranch.campus === i.campus && selectedBranch.branch === i.branch;
+                const tr = document.createElement('tr');
+                tr.className = `border-b border-slate-100 cursor-pointer transition-all duration-200 hover:bg-blue-50/50 ${isSelected ? 'bg-blue-50/80' : ''}`;
+                
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-800">${i.campus}</td>
+                    <td class="px-4 py-3 text-slate-700 font-medium">${i.branch}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${i.cat1.toLocaleString('en-IN')}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${i.cat2.toLocaleString('en-IN')}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${i.cat3.toLocaleString('en-IN')}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${i.cat4.toLocaleString('en-IN')}</td>
+                    <td class="px-4 py-3 text-right text-slate-600">${i.cat5.toLocaleString('en-IN')}</td>
+                    <td class="px-4 py-3 text-center">${getBestCategory(i)}</td>
+                `;
+                
+                tr.onclick = () => {
+                    if (isSelected) {
+                        selectedBranch = null;
+                        document.getElementById('trend-chart-container').classList.add('hide');
+                    } else {
+                        selectedBranch = i;
+                        renderChart(i);
+                    }
+                    renderTable();
+                };
+                
+                tbody.appendChild(tr);
+            });
+        };
+
+        const handleSort = (col) => { 
+            sortAsc = sortColumn === col ? !sortAsc : true; 
+            sortColumn = col; 
+            renderTable(); 
+        };
+
+        const renderChart = (branchData) => {
+            const elChartContainer = document.getElementById('trend-chart-container');
+            elChartContainer.classList.remove('hide');
+            document.getElementById('chart-title-branch').innerText = `${branchData.branch} (${branchData.campus})`;
+
+            const labels = ['Cat 1', 'Cat 2', 'Cat 3', 'Cat 4', 'Cat 5'];
+            const dataPoints = [branchData.cat1, branchData.cat2, branchData.cat3, branchData.cat4, branchData.cat5];
+            
+            const ctx = document.getElementById('trendChart').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Closing Rank Cutoff',
+                        data: dataPoints,
+                        borderColor: '#2563EB',
+                        backgroundColor: '#2563EB',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#1D4ED8',
+                        pointBorderWidth: 2,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { reverse: true, grid: { color: '#E2E8F0' }, ticks: { color: '#94A3B8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: 'rgba(255, 255, 255, 0.9)', titleColor: '#1E293B', bodyColor: '#1D4ED8', borderColor: '#E2E8F0', borderWidth: 1, displayColors: false, padding: 10 }
+                    }
+                }
+            });
+            
+            elChartContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+
+        const restorePurchasesFromDB = async () => {
+            const email = localStorage.getItem('user_email');
+            if (!email) return false;
+            
+            try {
+                const res = await fetch(`api.php?action=get_purchases&email=${encodeURIComponent(email)}`, {credentials: 'include'});
+                const data = await res.json();
+                if (data.success && data.purchases && data.purchases.length > 0) {
+                    window.unlockedExams = [];
+                    data.purchases.forEach(plan => {
+                        if (plan === 'combo') {
+                            window.unlockedExams.push('met', 'vit', 'srm', 'bitsat', 'gitam', 'amrita');
+                        } else {
+                            window.unlockedExams.push(plan);
+                        }
+                    });
+                    return true;
+                }
+            } catch (e) {
+                console.error('Error restoring purchases:', e);
+            }
+            return false;
+        };
+
+        const goToMockTests = async () => {
+            // If not logged in, go to login and return back after login.
+            if (!localStorage.getItem('user_email')) {
+window.location.href = 'login.html?redirect=viteee-mock-tests.html';
+                return;
+            }
+            
+            // Restore purchases from database in case localStorage was cleared
+            await restorePurchasesFromDB();
+            
+            // Check if already unlocked in localStorage
+            const isUnlocked = window.unlockedExams && window.unlockedExams.includes('vit');
+
+            if (!isUnlocked) {
+                window.location.href = 'payments.html?plan=vit';
+                return;
+            }
+window.location.href = 'viteee-mock-tests.php';
+        };
+
+        const calculate = () => {
+            const val = document.getElementById('viteee-rank').value;
+            vitRank = val === '' || isNaN(Number(val)) ? null : Math.max(1, Number(val));
+            if (vitRank !== null) localStorage.setItem('vitRank', vitRank);
+            else localStorage.removeItem('vitRank');
+            
+            const phaseInfo = getRankPhaseDetails(vitRank);
+            document.getElementById('rank-category').innerText = phaseInfo.phase;
+            document.getElementById('rank-range').innerText = phaseInfo.range;
+            
+            renderTable();
+        };
+        
+        const toggleDarkMode = () => { 
+            document.documentElement.classList.toggle('dark-theme'); 
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light'); 
+            document.getElementById('theme-text').innerText = isDark ? 'Light' : 'Dark'; 
+        };
+        
+        document.getElementById('viteee-rank').addEventListener('input', calculate);
+        
+        document.getElementById('branch-search').addEventListener('input', e => { 
+            branchSearch = e.target.value; 
+            renderTable(); 
+        });
+        
+        document.getElementById('chance-filter').addEventListener('change', e => { 
+            chanceFilter = e.target.value; 
+            renderTable(); 
+        });
+
+        document.getElementById('category-filter').addEventListener('change', e => { 
+            categoryFilter = e.target.value; 
+            renderTable(); 
+        });
+
+        const saved = localStorage.getItem('vitRank');
+        if (saved !== null && saved !== "null" && !isNaN(Number(saved))) { 
+            document.getElementById('viteee-rank').value = saved; 
+            calculate(); 
+        } else {
+            renderTable();
+        }
+        
+        if (localStorage.getItem('theme') === 'dark') {
+            document.getElementById('theme-text').innerText = 'Light';
+        }
+        
+        renderFilters();
+        
+        window.addEventListener('beforeprint', () => document.documentElement.classList.remove('dark-theme'));
+        window.addEventListener('afterprint', () => { if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme'); });
+    </script>
+</body>
+</html>

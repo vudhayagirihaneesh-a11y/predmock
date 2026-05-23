@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Exam Prep Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white text-center">
+            <h2 class="text-3xl font-extrabold mb-2">Welcome Back</h2>
+            <p class="text-indigo-100 text-sm">Enter your email to access your account and mock tests.</p>
+        </div>
+        
+        <div class="p-8 space-y-6">
+            <div class="text-center">
+                <p class="text-sm text-slate-600">New here?</p>
+                <a href="signup.html" class="text-sm font-bold text-indigo-600 hover:underline">Create an account</a>
+            </div>
+
+            <!-- Email Input -->
+            <div id="email-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                    <input type="email" id="email-input" placeholder="your@email.com" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none">
+                </div>
+                
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-semibold text-slate-700">Password</label>
+                        <a href="#" id="forgot-password-link" class="text-xs font-semibold text-indigo-600 hover:underline">Forgot password?</a>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="password-input" placeholder="••••••••" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none pr-10">
+                        <button type="button" onclick="togglePassword('password-input', this)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="login-btn" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Login</button>
+
+                <!-- Terms / Privacy -->
+                <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-left">
+                    <p class="text-xs text-slate-600 font-semibold uppercase tracking-wider mb-2">Terms, Privacy & Disclaimer</p>
+                    <div class="text-sm text-slate-700 space-y-2">
+                        <p class="text-xs text-slate-600">By continuing, you agree to our <span class="font-semibold">Terms</span> and <span class="font-semibold">Privacy Policy</span>.</p>
+                        <label class="flex items-start gap-3">
+                            <input id="agree-terms" type="checkbox" class="mt-1.5 w-5 h-5 accent-indigo-600 cursor-pointer" />
+                            <span class="text-sm text-slate-700">I agree to the terms and understand this is for mock/test purposes.</span>
+                        </label>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-3 text-xs">
+                        <a href="terms.html" class="text-indigo-600 font-semibold hover:underline">Read Full Terms & Privacy</a>
+                    </div>
+                    <p id="terms-error" class="text-sm text-red-500 mt-2 hide">Please accept the terms to continue.</p>
+                </div>
+                <p id="error-msg" class="text-sm text-red-500 text-center hide"></p>
+            </div>
+
+
+            <!-- Forgot Password Form (Hidden initially) -->
+            <div id="forgot-password-form" class="space-y-4 hide">
+                <h3 class="text-xl font-bold text-slate-800">Reset Password</h3>
+                <p class="text-sm text-slate-600">Enter your email address to receive a verification code.</p>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                    <input type="email" id="fp-email-input" placeholder="your@email.com" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <button id="fp-send-btn" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Send Reset Code</button>
+                <button id="fp-back-btn" class="w-full py-2.5 px-4 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition">Back to Login</button>
+                <p id="fp-error" class="text-sm text-red-500 text-center hide"></p>
+            </div>
+
+            <!-- Forgot Password OTP Verification (Hidden initially) -->
+            <div id="fp-otp-form" class="space-y-4 hide">
+                <h3 class="text-xl font-bold text-slate-800">Verify Code</h3>
+                <p class="text-sm text-slate-600 text-center">Enter the code sent to <strong id="fp-email-display"></strong></p>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Verification Code</label>
+                    <input type="text" id="fp-otp-input" placeholder="000000" maxlength="6" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-center text-2xl tracking-widest">
+                </div>
+                <button id="fp-verify-btn" class="w-full py-2.5 px-4 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Verify & Reset Password</button>
+                <button id="fp-resend-btn" class="w-full py-2.5 px-4 border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition">Resend Code</button>
+                <p id="fp-otp-error" class="text-sm text-red-500 text-center hide"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms & Privacy Modal -->
+    <div id="terms-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <header class="p-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg">Terms, Privacy & Disclaimer</h3>
+                <button onclick="document.getElementById('terms-modal').classList.add('hide')" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-6 overflow-y-auto text-sm text-slate-700 space-y-4">
+                <h4 class="font-bold text-lg text-slate-900">1. Acceptance of Terms</h4>
+                <p>By registering and logging in, you agree to abide by these Terms of Service. These mock tests are designed for practice purposes only.</p>
+                <h4 class="font-bold text-lg text-slate-900">2. Privacy Policy</h4>
+                <p>We collect your email address purely for authentication and sending OTPs. We do not sell your data to third parties. We use secure HttpOnly cookies to maintain your login session.</p>
+                <h4 class="font-bold text-lg text-slate-900">3. Disclaimer</h4>
+                <p>Exam Prep Hub is an independent platform and is NOT officially affiliated with BITS, Manipal, VIT, SRM, Amrita, or GITAM universities. The predicted ranks and mock scores are estimates based on historical data and do not guarantee actual admission.</p>
+                <h4 class="font-bold text-lg text-slate-900">4. Payments</h4>
+                <p>All premium purchases are final. Approval of manual payment proofs may take up to 24 hours.</p>
+            </div>
+            <footer class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 shrink-0">
+                <button onclick="document.getElementById('terms-modal').classList.add('hide')" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md">I Understand</button>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // User authentication utilities
+        const UserAuth = {
+            // Check if user is logged in
+            isLoggedIn() {
+                return !!localStorage.getItem('user_email');
+            },
+            
+            // Get current user's email
+            getCurrentUserEmail() {
+                return localStorage.getItem('user_email');
+            },
+            
+            // Get current user's full profile
+            getCurrentUserProfile() {
+                const profile = localStorage.getItem('user_profile');
+                return profile ? JSON.parse(profile) : null;
+            },
+            
+            // Get all user data stored
+            getAllUserData() {
+                return {
+                    email: localStorage.getItem('user_email'),
+                    id: localStorage.getItem('user_id'),
+                    verified: localStorage.getItem('user_verified'),
+                    created_at: localStorage.getItem('user_created_at'),
+                    login_time: localStorage.getItem('user_login_time'),
+                    login_timestamp: localStorage.getItem('login_timestamp'),
+                    profile: localStorage.getItem('user_profile') ? JSON.parse(localStorage.getItem('user_profile')) : null
+                };
+            },
+            
+            // Logout user
+            logout() {
+                fetch('api.php', { method: 'POST', body: new URLSearchParams({action: 'logout'}), credentials: 'include' });
+                localStorage.removeItem('user_email');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_verified');
+                localStorage.removeItem('user_created_at');
+                localStorage.removeItem('user_login_time');
+                localStorage.removeItem('user_profile');
+                localStorage.removeItem('login_timestamp');
+                localStorage.removeItem('met_all_tests_unlocked');
+                localStorage.removeItem('vit_all_tests_unlocked');
+                localStorage.removeItem('srm_all_tests_unlocked');
+                localStorage.removeItem('bitsat_all_tests_unlocked');
+            }
+        };
+
+        // If already logged in, redirect away
+        if (UserAuth.isLoggedIn()) {
+            const urlParams = new URLSearchParams(window.location.search);
+            window.location.href = urlParams.get('redirect') || 'index.html';
+        }
+
+        const emailForm = document.getElementById('email-form');
+
+        const emailInput = document.getElementById('email-input');
+        const passwordInput = document.getElementById('password-input');
+        const loginBtn = document.getElementById('login-btn');
+        const errorMsg = document.getElementById('error-msg');
+
+        const agreeTermsEl = document.getElementById('agree-terms');
+        const termsErrorEl = document.getElementById('terms-error');
+
+        // Forgot Password Elements
+        const fpForm = document.getElementById('forgot-password-form');
+        const fpOtpForm = document.getElementById('fp-otp-form');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const fpBackBtn = document.getElementById('fp-back-btn');
+        const fpSendBtn = document.getElementById('fp-send-btn');
+        const fpVerifyBtn = document.getElementById('fp-verify-btn');
+        const fpResendBtn = document.getElementById('fp-resend-btn');
+        const fpEmailInput = document.getElementById('fp-email-input');
+        const fpOtpInput = document.getElementById('fp-otp-input');
+        const fpErrorMsg = document.getElementById('fp-error');
+        const fpOtpError = document.getElementById('fp-otp-error');
+        const fpEmailDisplay = document.getElementById('fp-email-display');
+        let resetEmail = '';
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            emailForm.classList.add('hide');
+            fpForm.classList.remove('hide');
+        });
+
+        fpBackBtn.addEventListener('click', () => {
+            fpForm.classList.add('hide');
+            emailForm.classList.remove('hide');
+        });
+
+        fpSendBtn.addEventListener('click', async () => {
+            const email = fpEmailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                fpErrorMsg.textContent = 'Please enter a valid email address';
+                fpErrorMsg.classList.remove('hide');
+                return;
+            }
+            fpErrorMsg.classList.add('hide');
+            fpSendBtn.disabled = true;
+            fpSendBtn.textContent = 'Sending...';
+
+            try {
+                const response = await fetch('api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'send_otp', email: email, type: 'reset_password' })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    resetEmail = email;
+                    fpEmailDisplay.textContent = email;
+                    fpForm.classList.add('hide');
+                    fpOtpForm.classList.remove('hide');
+                    fpOtpInput.focus();
+                } else {
+                    fpErrorMsg.textContent = data.message || 'Failed to send code';
+                    fpErrorMsg.classList.remove('hide');
+                }
+            } catch (error) {
+                fpErrorMsg.textContent = 'Error connecting to server.';
+                fpErrorMsg.classList.remove('hide');
+            } finally {
+                fpSendBtn.disabled = false;
+                fpSendBtn.textContent = 'Send Reset Code';
+            }
+        });
+
+        fpVerifyBtn.addEventListener('click', async () => {
+            const otp = (fpOtpInput.value || '').toString().trim();
+            if (!otp || otp.length < 6) {
+                fpOtpError.textContent = 'Please enter a valid code';
+                fpOtpError.classList.remove('hide');
+                return;
+            }
+            fpOtpError.classList.add('hide');
+            fpVerifyBtn.disabled = true;
+            fpVerifyBtn.textContent = 'Verifying...';
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'verify_otp_reset');
+                formData.append('email', resetEmail);
+                formData.append('otp', otp);
+
+                const response = await fetch('api.php', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                if (data.success && data.reset_token) {
+                    window.location.href = `reset-password.html?email=${encodeURIComponent(resetEmail)}&token=${encodeURIComponent(data.reset_token)}`;
+                } else {
+                    fpOtpError.textContent = data.message || 'Invalid code';
+                    fpOtpError.classList.remove('hide');
+                }
+            } catch (error) {
+                fpOtpError.textContent = 'Error connecting to server.';
+                fpOtpError.classList.remove('hide');
+            } finally {
+                fpVerifyBtn.disabled = false;
+                fpVerifyBtn.textContent = 'Verify & Reset Password';
+            }
+        });
+
+        fpResendBtn.addEventListener('click', async () => {
+            fpResendBtn.disabled = true;
+            fpResendBtn.textContent = 'Resending...';
+            try {
+                const response = await fetch('api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'send_otp', email: resetEmail, type: 'reset_password' })
+                });
+                const data = await response.json();
+                fpOtpError.textContent = data.success ? 'Code sent!' : (data.message || 'Failed to resend');
+                fpOtpError.classList.remove('hide');
+            } catch (error) {
+                fpOtpError.textContent = 'Error connecting to server.';
+                fpOtpError.classList.remove('hide');
+            } finally {
+                fpResendBtn.disabled = false;
+                fpResendBtn.textContent = 'Resend Code';
+            }
+        });
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('svg');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+            }
+        }
+
+        // Agent shortcut: if user types cc012 in the email box, open agent login.
+        const tryOpenAgentLogin = () => {
+            const email = (emailInput.value || '').trim();
+            if (email.toLowerCase() === 'cc012') {
+                window.location.href = 'agent-login.html';
+                return true;
+            }
+            return false;
+        };
+
+        loginBtn.addEventListener('click', async () => {
+            if (tryOpenAgentLogin()) return;
+            // Terms gate
+            if (agreeTermsEl && !agreeTermsEl.checked) {
+                if (termsErrorEl) {
+                    termsErrorEl.textContent = 'Please accept the terms to continue.';
+                    termsErrorEl.classList.remove('hide');
+                }
+                errorMsg.classList.add('hide');
+                return;
+            }
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !email.includes('@')) {
+                errorMsg.textContent = 'Please enter a valid email address';
+                errorMsg.classList.remove('hide');
+                return;
+            }
+            if (!password) {
+                errorMsg.textContent = 'Please enter your password';
+                errorMsg.classList.remove('hide');
+                return;
+            }
+
+            errorMsg.classList.add('hide');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verifying Credentials...';
+
+            try {
+                const response = await fetch('api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', email: email, password: password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('user_email', email);
+                    if (data.user) {
+                        localStorage.setItem('user_id', data.user.id || '');
+                        localStorage.setItem('user_verified', data.user.is_verified || true);
+                        localStorage.setItem('user_created_at', data.user.created_at || new Date().toISOString());
+                        localStorage.setItem('user_login_time', data.user.login_time || new Date().toISOString());
+                        localStorage.setItem('user_profile', JSON.stringify(data.user));
+                        localStorage.setItem('session_token', data.session_token || '');
+                    }
+                    localStorage.setItem('login_timestamp', new Date().toISOString());
+                    
+                    const urlParams = new URLSearchParams(window.location.search);
+                    window.location.href = urlParams.get('redirect') || 'index.html';
+                } else {
+                    errorMsg.textContent = data.message || 'Invalid email or password';
+                    errorMsg.classList.remove('hide');
+                }
+            } catch (error) {
+                errorMsg.textContent = 'Error connecting to server. Try again.';
+                errorMsg.classList.remove('hide');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        });
+
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+    passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loginBtn.click();
+        });
+    </script>
+</body>
+</html>

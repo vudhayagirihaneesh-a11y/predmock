@@ -1,0 +1,2042 @@
+[
+  {
+    "id": 1,
+    "subject": "Physics",
+    "text": "Two masses m and m/2 are connected at the two ends of a massless rigid rod of length l. The rod is suspended by a thin wire of torsional constant k at the centre of mass of the rod-mass system. Because of torsional constant k, the restoring torque is τ = kθ for angular displacement θ. If the rod is rotated by θ0 and released, the tension in it when it passes through its mean position will be:",
+    "options": [
+      "2kθ0^2 / l",
+      "kθ0^2 / l",
+      "3kθ0^2 / l",
+      "kθ0^2 / 2l"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 2,
+    "subject": "Physics",
+    "text": "A current loop, having two circular arcs joined by two radial lines is shown in the figure. It carries a current of 10 A. The magnetic field at point O will be close to:",
+    "options": [
+      "1.0 x 10^-5 T",
+      "1.5 x 10^-5 T",
+      "2.0 x 10^-5 T",
+      "2.5 x 10^-5 T"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 3,
+    "subject": "Physics",
+    "text": "A copper wire is stretched to make it 0.5% longer. The percentage change in its electrical resistance if its volume remains unchanged is:",
+    "options": [
+      "0.5%",
+      "1.0%",
+      "2.0%",
+      "0.25%"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 4,
+    "subject": "Physics",
+    "text": "A particle is executing simple harmonic motion (SHM) of amplitude A, along the x-axis, about x = 0. When its potential energy equals kinetic energy, the position of the particle will be:",
+    "options": [
+      "A",
+      "A / 2",
+      "A / sqrt(2)",
+      "A / 2*sqrt(2)"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 5,
+    "subject": "Physics",
+    "text": "Two vectors A and B have equal magnitudes. The magnitude of (A + B) is 'n' times the magnitude of (A - B). The angle between A and B is:",
+    "options": [
+      "cos^-1((n^2 - 1)/(n^2 + 1))",
+      "cos^-1((n - 1)/(n + 1))",
+      "sin^-1((n^2 - 1)/(n^2 + 1))",
+      "sin^-1((n - 1)/(n + 1))"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 6,
+    "subject": "Physics",
+    "text": "A liquid of density ρ is coming out of a hose pipe of radius a with horizontal speed v and hits a mesh. 50% of the liquid passes through the mesh unaffected. 25% loses all of its momentum and 25% comes back with the same speed. The resultant pressure on the mesh will be:",
+    "options": [
+      "0.5 ρv^2",
+      "0.75 ρv^2",
+      "ρv^2",
+      "1.25 ρv^2"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 7,
+    "subject": "Physics",
+    "text": "A gas can be taken from A to B via two different processes ACB and ADB. When path ACB is used 60 J of heat flows into the system and 30 J of work is done by the system. If path ADB is used work done by the system is 10 J. The heat flow into the system in path ADB is:",
+    "options": [
+      "40 J",
+      "80 J",
+      "20 J",
+      "100 J"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 8,
+    "subject": "Physics",
+    "text": "A plane electromagnetic wave of frequency 50 MHz travels in free space along the positive x-direction. At a particular point in space and time, E = 6.3 j V/m. The corresponding magnetic field B, at that point will be:",
+    "options": [
+      "2.1 x 10^-8 k T",
+      "1.89 x 10^-8 k T",
+      "6.3 x 10^-8 k T",
+      "2.1 x 10^-8 j T"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 9,
+    "subject": "Physics",
+    "text": "If the de Broglie wavelength of an electron is equal to 10^-3 times the wavelength of a photon of frequency 6 * 10^14 Hz, then the speed of electron is equal to: (Speed of light = 3 * 10^8 m/s, Planck's constant = 6.63 * 10^-34 J.s, Mass of electron = 9.1 * 10^-31 kg)",
+    "options": [
+      "1.45 x 10^6 m/s",
+      "1.7 x 10^6 m/s",
+      "1.1 x 10^6 m/s",
+      "1.8 x 10^6 m/s"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 10,
+    "subject": "Physics",
+    "text": "A tuning fork of frequency 480 Hz is used in an experiment for measuring speed of sound (v) in air by resonance tube method. Resonance is observed to occur at two successive lengths of the air column, l1 = 30 cm and l2 = 70 cm. Then v is equal to:",
+    "options": [
+      "332 m/s",
+      "384 m/s",
+      "338 m/s",
+      "379 m/s"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 11,
+    "subject": "Chemistry",
+    "text": "The major product of the following reaction is: (Reaction: 1-methylcyclohexene + HI)",
+    "options": [
+      "1-iodo-1-methylcyclohexane",
+      "1-iodo-2-methylcyclohexane",
+      "1-methylcyclohexanol",
+      "1-iodomethylcyclohexane"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 12,
+    "subject": "Chemistry",
+    "text": "Which of the following compounds will form a yellow precipitate with iodine and alkali?",
+    "options": [
+      "Acetophenone",
+      "Methyl acetate",
+      "Propionamide",
+      "1-Propanol"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 13,
+    "subject": "Chemistry",
+    "text": "The complex that has highest crystal field splitting energy (Δ0) is:",
+    "options": [
+      "[Co(NH3)5(H2O)]Cl3",
+      "[Co(NH3)6]Cl3",
+      "K3[Co(CN)6]",
+      "[Co(H2O)6]Cl3"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 14,
+    "subject": "Chemistry",
+    "text": "The standard Gibbs free energy change (ΔG°) for the reaction H2O(l) <=> H+(aq) + OH-(aq) at 298 K is: (Given Kw = 10^-14, R = 8.314 J/K mol)",
+    "options": [
+      "79.8 kJ/mol",
+      "85.2 kJ/mol",
+      "65.4 kJ/mol",
+      "70.2 kJ/mol"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 15,
+    "subject": "Chemistry",
+    "text": "The increasing order of pKa of the following amino acids in aqueous solution is: Gly, Asp, Lys, Arg",
+    "options": [
+      "Asp < Gly < Arg < Lys",
+      "Gly < Asp < Arg < Lys",
+      "Asp < Gly < Lys < Arg",
+      "Gly < Asp < Lys < Arg"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 16,
+    "subject": "Chemistry",
+    "text": "Among the following, the false statement is: (regarding adsorption/partition chromatography)",
+    "options": [
+      "It is a type of partition chromatography",
+      "The stationary phase is solid",
+      "The mobile phase is liquid",
+      "Rf value is used to identify spots"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 17,
+    "subject": "Chemistry",
+    "text": "The correct order of atomic radii is:",
+    "options": [
+      "N < Be < B",
+      "F < O < N",
+      "Na < Li < K",
+      "Fe < Co < Ni"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 18,
+    "subject": "Chemistry",
+    "text": "Which of the following ores is concentrated by froth floatation process?",
+    "options": [
+      "Hematite",
+      "Siderite",
+      "Galena",
+      "Malachite"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 19,
+    "subject": "Chemistry",
+    "text": "The number of bridged oxygen atoms in P4O10 is:",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "8"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 20,
+    "subject": "Chemistry",
+    "text": "For the reaction 2A + B -> C, the rate equation is found to be: rate = k[A][B]. The correct statement in relation to this reaction is:",
+    "options": [
+      "Unit of k is L mol^-1 s^-1",
+      "Half life of A is constant",
+      "Rate of formation of C is twice the rate of disappearance of A",
+      "Value of k is independent of initial concentration of A and B"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 21,
+    "subject": "Mathematics",
+    "text": "If A = [1, sin θ; -sin θ, 1], then for all θ ∈ (0, 2π), det(A) lies in the interval:",
+    "options": [
+      "[1, 2]",
+      "[0, 1]",
+      "[1, 3]",
+      "[1/2, 1]"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 22,
+    "subject": "Mathematics",
+    "text": "The sum of the real values of x for which the middle term in the binomial expansion of (x^3/3 + 3/x)^8 equals 5670 is:",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 23,
+    "subject": "Mathematics",
+    "text": "Let f(x) = x^2 + 1/x^2 and g(x) = x - 1/x, x ∈ R - {-1, 0, 1}. If h(x) = f(x)/g(x), then the local minimum value of h(x) is:",
+    "options": [
+      "2",
+      "2sqrt(2)",
+      "4",
+      "sqrt(2)"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 24,
+    "subject": "Mathematics",
+    "text": "The area (in sq. units) of the region A = {(x, y): x^2 ≤ y ≤ x + 2} is:",
+    "options": [
+      "9/2",
+      "3",
+      "7/2",
+      "5/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 25,
+    "subject": "Mathematics",
+    "text": "If the standard deviation of the numbers 2, 3, a, and 11 is 3.5, then which of the following is true?",
+    "options": [
+      "3a^2 - 26a + 55 = 0",
+      "3a^2 - 32a + 84 = 0",
+      "a^2 + a - 12 = 0",
+      "a^2 - 8a + 15 = 0"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 26,
+    "subject": "Mathematics",
+    "text": "The value of ∫[0 to π/2] (sin^3 x / (sin x + cos x)) dx is:",
+    "options": [
+      "(π-1)/4",
+      "(π-2)/4",
+      "(π-2)/8",
+      "(π-1)/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 27,
+    "subject": "Mathematics",
+    "text": "A plane passes through the points (0, -1, 0) and (0, 0, 1) and makes an angle π/4 with the plane y - z + 5 = 0. The equation of the plane is:",
+    "options": [
+      "x - y - z = 1",
+      "sqrt(2)x + y - z = -1",
+      "x + y + z = -1",
+      "sqrt(2)x - y + z = 1"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 28,
+    "subject": "Mathematics",
+    "text": "If the tangent to the parabola y^2 = x at a point (α, β), (β > 0) is also a tangent to the ellipse, x^2 + 2y^2 = 1, then α is equal to:",
+    "options": [
+      "1/2",
+      "1/4",
+      "1/8",
+      "1"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 29,
+    "subject": "Mathematics",
+    "text": "Two vertical poles of heights, 20 m and 80 m stand apart on a horizontal plane. The height (in meters) of the point of intersection of the lines joining the top of each pole to the foot of the other, from this horizontal plane is:",
+    "options": [
+      "12",
+      "16",
+      "15",
+      "18"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 30,
+    "subject": "Mathematics",
+    "text": "The logical statement (p ∧ q) → (p ∨ q) is logically equivalent to:",
+    "options": [
+      "T (Tautology)",
+      "F (Fallacy)",
+      "p ∨ q",
+      "p ∧ q"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 31,
+    "subject": "Chemistry",
+    "text": "(JEE Main 2023 PYQ) In the following halogenated organic compounds, the one with the maximum number of chlorine atoms in its structure is:",
+    "options": [
+      "Chloral",
+      "Gammaxene",
+      "Chloropicrin",
+      "Freon-12"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 32,
+    "subject": "Chemistry",
+    "text": "(JEE Main 2023 PYQ) Which is the incorrect statement for the use of indicators in acid-base titration?",
+    "options": [
+      "Methyl orange may be used for a weak acid vs weak base titration.",
+      "Methyl orange is a suitable indicator for a strong acid vs weak base titration.",
+      "Phenolphthalein is a suitable indicator for a weak acid vs strong base titration.",
+      "Phenolphthalein may be used for a strong acid vs strong base titration."
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 33,
+    "subject": "Physics",
+    "text": "(JEE Main 2023 PYQ) The shortest wavelength of hydrogen atom in the Lyman series is λ. The longest wavelength in the Balmer series of He+ is:",
+    "options": [
+      "5/9 λ",
+      "9/5 λ",
+      "36/5 λ",
+      "4/9 λ"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 34,
+    "subject": "Mathematics",
+    "text": "(JEE Main 2023 PYQ) If a, b and c are unit vectors, then |a − b|^2 + |b − c|^2 + |c − a|^2 does not exceed:",
+    "options": [
+      "4",
+      "9",
+      "8",
+      "6"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 35,
+    "subject": "Chemistry",
+    "text": "(JEE Main 2023 PYQ) The electronic configuration of Nd2+ (Neodymium, Atomic Number = 60) is:",
+    "options": [
+      "[Xe] 4f^4 6s^2",
+      "[Xe] 4f^4",
+      "[Xe] 4f^3",
+      "[Xe] 4f^2 6s^2"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 36,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The number of real solutions of the equation e^x + e^-x = x is:",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "Infinite"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 37,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following complexes does not show optical isomerism?",
+    "options": [
+      "[Co(en)3]3+",
+      "cis-[Co(en)2Cl2]+",
+      "trans-[Co(en)2Cl2]+",
+      "cis-[Pt(en)2Cl2]2+"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 38,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) Two light identical springs of spring constant k are attached horizontally on opposite sides to a block of mass m placed on a frictionless table. The frequency of horizontal oscillation is:",
+    "options": [
+      "(1/2π) * sqrt(2k/m)",
+      "(1/2π) * sqrt(k/2m)",
+      "(1/2π) * sqrt(k/m)",
+      "(1/π) * sqrt(k/m)"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 39,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) An electron and a proton are accelerated through the same potential difference. The ratio of their de Broglie wavelengths (λe / λp) is:",
+    "options": [
+      "1",
+      "mp / me",
+      "sqrt(mp / me)",
+      "sqrt(me / mp)"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 40,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If the sum of the roots of the quadratic equation x^2 - px + q = 0 is 3, and the sum of their cubes is 27, what is the value of q?",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 41,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The process with negative entropy change is:",
+    "options": [
+      "Synthesis of ammonia from N2 and H2",
+      "Dissociation of CaSO4(s) to CaO(s) and SO3(g)",
+      "Sublimation of dry ice",
+      "Dissolution of iodine in water"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 42,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) Let A and B be two independent events such that P(A) = 1/3 and P(B) = 1/6. Then, which of the following is TRUE?",
+    "options": [
+      "P(A / B) = 2/3",
+      "P(A / B') = 1/3",
+      "P(A' / B') = 1/2",
+      "P(A ∪ B) = 1/2"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 43,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A Carnot engine operating between temperatures T1 and T2 has an efficiency of 1/6. When T2 is lowered by 62 K, its efficiency increases to 1/3. Then T1 and T2 are respectively:",
+    "options": [
+      "372 K and 310 K",
+      "372 K and 330 K",
+      "330 K and 268 K",
+      "310 K and 248 K"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 44,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Among the following, the most basic compound is:",
+    "options": [
+      "p-Nitroaniline",
+      "Acetanilide",
+      "Aniline",
+      "Benzylamine"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 45,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The value of the integral ∫(from 0 to π/2) [sqrt(sin x) / (sqrt(sin x) + sqrt(cos x))] dx is:",
+    "options": [
+      "π/4",
+      "π/2",
+      "π",
+      "0"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 46,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The escape velocity from the Earth's surface is v. The escape velocity from the surface of another planet having a radius four times that of Earth and same mass density is:",
+    "options": [
+      "v",
+      "2v",
+      "3v",
+      "4v"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 47,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The metal mainly used in devising photoelectric cells is:",
+    "options": [
+      "Li",
+      "Na",
+      "Rb",
+      "Cs"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 48,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If f(x) = x^3 + x^2 f'(1) + x f''(2) + f'''(3) for all x ∈ R, then f(x) is:",
+    "options": [
+      "x^3 + 2x^2 - 3x + 4",
+      "x^3 - x^2 + x - 1",
+      "x^3 - 5/2 x^2 + 2x + 6",
+      "x^3 - 3x^2 + 5x"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 49,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Calamine is an ore of:",
+    "options": [
+      "Zinc",
+      "Copper",
+      "Iron",
+      "Aluminium"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 50,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A block of mass 10 kg is placed on a rough inclined plane of inclination 30°. The coefficient of kinetic friction is 0.2. The acceleration of the block is (g = 10 m/s^2):",
+    "options": [
+      "3.26 m/s^2",
+      "4.5 m/s^2",
+      "5.0 m/s^2",
+      "1.73 m/s^2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 51,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The maximum power dissipated in an external resistance R, when connected to a cell of emf E and internal resistance r, will be:",
+    "options": [
+      "E^2 / 4r",
+      "E^2 / 2r",
+      "E^2 / r",
+      "E^2 / 3r"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 52,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The ratio of rms speed to most probable speed of ideal gas molecules at a given temperature is:",
+    "options": [
+      "sqrt(3/2)",
+      "sqrt(2/3)",
+      "sqrt(3)",
+      "1/sqrt(3)"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 53,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A body cools from 80°C to 60°C in 5 minutes. If the temperature of the surroundings is 20°C, the time taken by it to cool from 60°C to 40°C is:",
+    "options": [
+      "5 min",
+      "7.5 min",
+      "8.33 min",
+      "10 min"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 54,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The dimensional formula of magnetic flux is:",
+    "options": [
+      "[M L^2 T^-2 A^-1]",
+      "[M L^2 T^-1 A^-1]",
+      "[M L^2 T^-2 A^-2]",
+      "[M L T^-2 A^-1]"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 55,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A wire of resistance 4 Ω is stretched uniformly to twice its original length. The resistance of the stretched wire would be:",
+    "options": [
+      "2 Ω",
+      "4 Ω",
+      "8 Ω",
+      "16 Ω"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 56,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The half-life of a radioactive substance is 20 minutes. The approximate time interval (t2 - t1) between the time t2 when 2/3 of it has decayed and time t1 when 1/3 of it had decayed is:",
+    "options": [
+      "10 min",
+      "20 min",
+      "30 min",
+      "40 min"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 57,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The threshold frequency for a metallic surface corresponds to an energy of 6.2 eV and the stopping potential for a radiation incident on this surface is 5 V. The incident radiation lies in:",
+    "options": [
+      "X-ray region",
+      "Ultraviolet region",
+      "Infrared region",
+      "Visible region"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 58,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) Two identical capacitors C1 and C2 of equal capacitance are available. C1 is charged to a potential V using a battery. After disconnecting the battery, the uncharged capacitor C2 is connected in parallel to C1. What will be the percentage loss of energy in the system?",
+    "options": [
+      "25%",
+      "50%",
+      "75%",
+      "0%"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 59,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The relation between time t and distance x is t = ax^2 + bx, where a and b are constants. The acceleration of the particle is (where v is the velocity):",
+    "options": [
+      "-2ab v^2",
+      "2b v^3",
+      "-2a v^3",
+      "2a v^2"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 60,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A particle is projected from the ground with an initial speed v at an angle θ with the horizontal. The average velocity of the particle between its point of projection and the highest point of its trajectory is:",
+    "options": [
+      "(v/2) * sqrt(1 + 2cos^2(θ))",
+      "(v/2) * sqrt(1 + 3cos^2(θ))",
+      "v * cos(θ)",
+      "(v/2) * sqrt(1 + cos^2(θ))"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 61,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following is an amphoteric oxide?",
+    "options": [
+      "V2O5",
+      "Cr2O3",
+      "Mn2O7",
+      "V2O3"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 62,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The hybridization of Xenon in XeF4 is:",
+    "options": [
+      "sp3d",
+      "sp3d2",
+      "sp3",
+      "sp3d3"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 63,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following vitamins is water soluble?",
+    "options": [
+      "Vitamin A",
+      "Vitamin D",
+      "Vitamin C",
+      "Vitamin K"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 64,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following statements about interstitial compounds is INCORRECT?",
+    "options": [
+      "They are chemically reactive.",
+      "They are much harder than the pure metal.",
+      "They have higher melting points than the pure metal.",
+      "They retain metallic conductivity."
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 65,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The correct order of acid strength of the following carboxylic acids is: I) Cl3CCOOH, II) Cl2CHCOOH, III) ClCH2COOH",
+    "options": [
+      "I > II > III",
+      "II > I > III",
+      "III > II > I",
+      "I > III > II"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 66,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Standard electrode potential for Sn4+/Sn2+ couple is +0.15 V and that for the Cr3+/Cr couple is -0.74 V. These two couples in their standard state are connected to make a cell. The standard cell potential will be:",
+    "options": [
+      "+0.89 V",
+      "+0.18 V",
+      "+1.83 V",
+      "+1.19 V"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 67,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following alkyl halides does NOT give a white precipitate when treated with aqueous AgNO3 solution?",
+    "options": [
+      "C2H5Cl",
+      "CH3COCl",
+      "(CH3)3CCl",
+      "CH2=CH-Cl (Vinyl chloride)"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 68,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The major product obtained in the photobromination of 2-methylbutane is:",
+    "options": [
+      "1-bromo-2-methylbutane",
+      "2-bromo-2-methylbutane",
+      "2-bromo-3-methylbutane",
+      "1-bromo-3-methylbutane"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 69,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Among the following, the strongest nucleophile in a polar protic solvent is:",
+    "options": [
+      "C2H5S-",
+      "CH3COO-",
+      "CH3O-",
+      "NC-"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 70,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The coagulation value (in millimoles per litre) of the electrolytes used for the coagulation of As2S3 are given below: I. NaCl = 52, II. BaCl2 = 0.69, III. MgSO4 = 0.22. The correct order of their coagulating power is:",
+    "options": [
+      "I > II > III",
+      "II > I > III",
+      "III > II > I",
+      "III > I > II"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 71,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If the lines 2x - 3y = 5 and 3x - 4y = 7 are the diameters of a circle of area 154 sq. units, then the equation of the circle is (Take π = 22/7):",
+    "options": [
+      "x^2 + y^2 + 2x - 2y - 47 = 0",
+      "x^2 + y^2 - 2x + 2y - 47 = 0",
+      "x^2 + y^2 - 2x + 2y - 62 = 0",
+      "x^2 + y^2 + 2x - 2y - 62 = 0"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 72,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The value of limit (x -> 0) (sin x - x) / x^3 is:",
+    "options": [
+      "1/6",
+      "-1/6",
+      "1/3",
+      "-1/3"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 73,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If A and B are two events such that P(A ∪ B) = P(A) + P(B) - P(A)P(B), then the events A and B are:",
+    "options": [
+      "Mutually exclusive",
+      "Independent",
+      "Exhaustive",
+      "Dependent"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 74,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The distance of the point (1, -5, 9) from the plane x - y + z = 5 measured along the line x = y = z is:",
+    "options": [
+      "10 * sqrt(3)",
+      "20 / 3",
+      "10 / sqrt(3)",
+      "10"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 75,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The number of terms in the expansion of (x + y + z)^10 is:",
+    "options": [
+      "66",
+      "55",
+      "11",
+      "33"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 76,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If the sum of the first n terms of an Arithmetic Progression is cn^2 (where c is a constant), then the sum of squares of these n terms is:",
+    "options": [
+      "n(4n^2 - 1)c^2 / 6",
+      "n(4n^2 + 1)c^2 / 3",
+      "n(4n^2 - 1)c^2 / 3",
+      "n(4n^2 + 1)c^2 / 6"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 77,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The value of tan^-1(1/2) + tan^-1(1/3) is:",
+    "options": [
+      "π/4",
+      "π/2",
+      "π/3",
+      "π/6"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 78,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) Let A be a 3x3 matrix such that the determinant |A| = 4. Then the value of |adj A| is:",
+    "options": [
+      "16",
+      "64",
+      "4",
+      "12"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 79,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The general solution of the differential equation dy/dx = e^(x-y) is:",
+    "options": [
+      "e^y = e^x + C",
+      "e^x + e^y = C",
+      "e^-y = e^-x + C",
+      "e^y - e^x = C"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 80,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If the vectors 2i - j + k, i + 2j - 3k and 3i + aj + 5k are coplanar, then the value of 'a' is:",
+    "options": [
+      "-4",
+      "4",
+      "2",
+      "-2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 81,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The work function of a substance is 4.0 eV. The longest wavelength of light that can cause photoelectron emission from this substance is approximately (in nm):",
+    "options": [
+      "310",
+      "400",
+      "540",
+      "220"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 82,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) A parallel plate capacitor has a capacitance of 10 μF. If the distance between the plates is halved and the space is filled with a material of dielectric constant 2, the new capacitance (in μF) is:",
+    "options": [
+      "10",
+      "20",
+      "40",
+      "5"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 83,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The rms velocity of hydrogen molecules at 300 K is v. The rms velocity of oxygen molecules at the same temperature will be:",
+    "options": [
+      "v",
+      "v/4",
+      "v/16",
+      "4v"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 84,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) The maximum amplitude of an amplitude modulated wave is 15 V and minimum amplitude is 5 V. The modulation index is:",
+    "options": [
+      "0.5",
+      "0.25",
+      "0.33",
+      "0.75"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 85,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A uniform solid cylinder of mass M and radius R rolls without slipping down an inclined plane of angle θ. Its acceleration is:",
+    "options": [
+      "(2/3)g sin θ",
+      "(1/2)g sin θ",
+      "(3/4)g sin θ",
+      "g sin θ"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 86,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) A particle executes SHM with an amplitude of 10 cm and a time period of 2 s. The maximum velocity of the particle (in cm/s) is:",
+    "options": [
+      "10π",
+      "20π",
+      "5π",
+      "15π"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 87,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) An ideal diode is connected in a circuit. If the input is a 10V peak AC signal, the peak inverse voltage (PIV) across the diode in a half-wave rectifier is:",
+    "options": [
+      "10 V",
+      "20 V",
+      "5 V",
+      "10√2 V"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 88,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) A ray of light is incident at an angle of 60° on a glass prism of refractive index √3. The angle of refraction (in degrees) is:",
+    "options": [
+      "30",
+      "45",
+      "60",
+      "90"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 89,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The angular momentum of an electron in the nth orbit of hydrogen atom is proportional to:",
+    "options": [
+      "n",
+      "n^2",
+      "1/n",
+      "1/n^2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 90,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) Two coherent sources produce waves of intensities I and 4I. The ratio of maximum to minimum intensity in the interference pattern is:",
+    "options": [
+      "9:1",
+      "3:1",
+      "4:1",
+      "5:3"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 91,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following is a non-reducing sugar?",
+    "options": [
+      "Glucose",
+      "Fructose",
+      "Sucrose",
+      "Lactose"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 92,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The oxidation state of Cr in K2Cr2O7 is:",
+    "options": [
+      "+6",
+      "+3",
+      "+4",
+      "+5"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 93,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The shape of IF7 molecule is:",
+    "options": [
+      "Pentagonal bipyramidal",
+      "Octahedral",
+      "Square pyramidal",
+      "Trigonal bipyramidal"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 94,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The number of lone pairs of electrons on the central atom of XeF4 is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "0"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 95,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The polymer used in the manufacture of non-stick cookware is:",
+    "options": [
+      "Teflon",
+      "PVC",
+      "Bakelite",
+      "Nylon-6,6"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 96,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The spin-only magnetic moment of Fe2+ (Z=26) ion in aqueous solution (in BM) is approximately:",
+    "options": [
+      "4.90",
+      "5.92",
+      "3.87",
+      "2.83"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 97,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The IUPAC name of the complex [Co(NH3)5(CO3)]Cl is:",
+    "options": [
+      "Pentaamminecarbonatocobalt(III) chloride",
+      "Pentaamminecarbonatocobalt(II) chloride",
+      "Carbonatopentaamminecobalt(III) chloride",
+      "Carbonatopentaamminecobalt(II) chloride"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 98,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) In the reaction A + 2B -> C, the rate is given by Rate = k[A][B]^2. If the concentration of B is doubled, the rate of reaction will increase by a factor of:",
+    "options": [
+      "2",
+      "4",
+      "8",
+      "16"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 99,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following elements has the lowest first ionization enthalpy?",
+    "options": [
+      "Na",
+      "K",
+      "Rb",
+      "Cs"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 100,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The pH of a 0.01 M NaOH solution is:",
+    "options": [
+      "2",
+      "10",
+      "12",
+      "14"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 101,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The domain of the function f(x) = sqrt(x^2 - 4) is:",
+    "options": [
+      "[-2, 2]",
+      "(-∞, -2] U [2, ∞)",
+      "(0, ∞)",
+      "R"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 102,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The value of the determinant |[1, ω, ω^2], [ω, ω^2, 1], [ω^2, 1, ω]|, where ω is the complex cube root of unity, is:",
+    "options": [
+      "0",
+      "1",
+      "ω",
+      "ω^2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 103,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The eccentricity of the ellipse x^2/16 + y^2/9 = 1 is:",
+    "options": [
+      "√7/4",
+      "3/4",
+      "7/16",
+      "√7/3"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 104,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The maximum value of 3 cos x + 4 sin x is:",
+    "options": [
+      "5",
+      "7",
+      "12",
+      "1"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 105,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The integration of ln(x) dx is:",
+    "options": [
+      "x ln(x) - x + C",
+      "x ln(x) + x + C",
+      "1/x + C",
+      "x/ln(x) + C"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 106,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) If a coin is tossed 3 times, the probability of getting exactly 2 heads is:",
+    "options": [
+      "1/8",
+      "3/8",
+      "1/4",
+      "1/2"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 107,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The distance of the point (2, 3, 4) from the x-axis is:",
+    "options": [
+      "5",
+      "√13",
+      "√20",
+      "√29"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 108,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The number of ways in which 5 boys and 5 girls can sit in a circle alternately is:",
+    "options": [
+      "4! * 5!",
+      "5! * 5!",
+      "4! * 4!",
+      "9!"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 109,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The limit lim(x->0) (e^x - 1)/x is:",
+    "options": [
+      "0",
+      "1",
+      "e",
+      "∞"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 110,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The radius of the circle x^2 + y^2 - 6x + 8y - 11 = 0 is:",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "√11"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 111,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A uniform solid sphere of mass M and radius R is placed on a smooth horizontal surface. It is pulled by a horizontal force F acting through its center of mass. The acceleration of the center of mass is:",
+    "options": [
+      "F/M",
+      "F/2M",
+      "2F/5M",
+      "5F/2M"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 112,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) An engine pumps water continuously through a hose. Water leaves the hose with a velocity v and m is the mass per unit length of the water jet. What is the rate at which kinetic energy is imparted to water?",
+    "options": [
+      "1/2 m v^3",
+      "m v^3",
+      "1/2 m v^2",
+      "m v^2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 113,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The rms speed of oxygen molecules in a gas is v. If the temperature is doubled and the oxygen molecules dissociate into oxygen atoms, the rms speed will become:",
+    "options": [
+      "v",
+      "2v",
+      "sqrt(2)v",
+      "4v"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 114,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) A particle of mass m is projected with a velocity v making an angle of 45° with the horizontal. The magnitude of the angular momentum of the projectile about the point of projection when the particle is at its maximum height is:",
+    "options": [
+      "m v^3 / (4 sqrt(2) g)",
+      "m v^3 / (sqrt(2) g)",
+      "m v^2 / (2 g)",
+      "zero"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 115,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) In an LCR series AC circuit, the voltage across each of the components, L, C and R is 50 V. The voltage across the LC combination will be:",
+    "options": [
+      "50 V",
+      "50√2 V",
+      "100 V",
+      "0 V"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 116,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) If a wire of resistance R is stretched to double its length, then its new resistance will be:",
+    "options": [
+      "R",
+      "2R",
+      "4R",
+      "R/2"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 117,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) Two charges, each equal to q, are kept at x = -a and x = a on the x-axis. A particle of mass m and charge q0 = q/2 is placed at the origin. If charge q0 is given a small displacement (y << a) along the y-axis, the net force acting on the particle is proportional to:",
+    "options": [
+      "y",
+      "-y",
+      "1/y",
+      "-1/y"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 118,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) The stopping potential V0 (in volt) as a function of frequency (v) for a sodium emitter is given by the straight line equation. The work function of sodium is 2.2 eV. The threshold frequency is approximately (in 10^14 Hz):",
+    "options": [
+      "5.3",
+      "3.3",
+      "8.5",
+      "4.2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 119,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A solid cylinder of mass 2 kg and radius 4 cm is rotating about its axis at the rate of 3 rpm. The torque required to stop after 2 pi revolutions is:",
+    "options": [
+      "2 x 10^-6 N m",
+      "12 x 10^-4 N m",
+      "2 x 10^-3 N m",
+      "1.2 x 10^-5 N m"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 120,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) A pendulum clock loses 12 s a day if the temperature is 40°C and gains 4 s a day if the temperature is 20°C. The temperature at which the clock will show correct time, and the co-efficient of linear expansion (α) of the metal of the pendulum shaft are respectively:",
+    "options": [
+      "25°C; α = 1.85 × 10^-5 /°C",
+      "60°C; α = 1.85 × 10^-4 /°C",
+      "30°C; α = 1.85 × 10^-3 /°C",
+      "55°C; α = 1.85 × 10^-2 /°C"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 121,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The correct structure of tribromo-octaoxide is:",
+    "options": [
+      "O=Br(=O)-Br(=O)2-Br(=O)=O",
+      "O=Br(=O)-Br(O)-Br(=O)=O",
+      "O2Br-Br-BrO2",
+      "O3Br-Br(O2)-BrO3"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 122,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The number of chiral carbons in chloramphenicol is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 123,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following compounds is not aromatic?",
+    "options": [
+      "Benzene",
+      "Cyclopentadienyl anion",
+      "Cycloheptatrienyl cation",
+      "Cyclopentadienyl cation"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 124,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) If the rate constant for a first order reaction is k, the time (t) required for the completion of 99% of the reaction is given by:",
+    "options": [
+      "t = 2.303/k",
+      "t = 4.606/k",
+      "t = 6.909/k",
+      "t = 0.693/k"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 125,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) For the chemical reaction X ⇌ Y, the standard reaction Gibbs energy depends on temperature T (in K) as ΔrG° (in kJ mol^-1) = 120 - (3/8)T. The major component of the reaction mixture at T = 315 K is:",
+    "options": [
+      "X",
+      "Y",
+      "Both X and Y in equal amounts",
+      "Cannot be predicted"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 126,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The oxidation states of iron atoms in compounds (A), (B) and (C) respectively, are x, y and z. The sum of x, y and z is: (A) Na4[Fe(CN)5(NOS)] (B) Na4[FeO4] (C) [Fe2(CO)9]",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 127,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The major product of the reaction between CH3CH=CHCO2CH3 and LiAlH4 is:",
+    "options": [
+      "CH3CH2CH2CO2CH3",
+      "CH3CH=CHCH2OH",
+      "CH3CH2CH2CH2OH",
+      "CH3CH(OH)CH2CO2CH3"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 128,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) Among the following, the number of compounds that can react with PCl5 to give POCl3 is: O2, CO2, SO2, H2O, H2SO4, P4O10.",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 129,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following is an example of a solid sol?",
+    "options": [
+      "Butter",
+      "Paint",
+      "Hair cream",
+      "Gemstones"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 130,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The amount of water produced by the combustion of 16 g of methane is (in grams):",
+    "options": [
+      "18",
+      "36",
+      "32",
+      "16"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 131,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) Let f(x) be a quadratic polynomial such that f(-1) + f(2) = 0. If one of the roots of f(x) = 0 is 3, then its other root lies in:",
+    "options": [
+      "(-1, 0)",
+      "(1, 3)",
+      "(-3, -1)",
+      "(0, 1)"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 132,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The number of common tangents to the circles x^2 + y^2 - 4x - 6y - 12 = 0 and x^2 + y^2 + 6x + 18y + 26 = 0, is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 133,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The area (in sq. units) of the region bounded by the curves y = 2^x and y = |x + 1|, in the first quadrant is:",
+    "options": [
+      "3/2 - 1/ln2",
+      "3/2 + 1/ln2",
+      "1/2",
+      "1/ln2 - 1/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 134,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) Let A = [aij] be a 3x3 matrix where aij = i + j. Then the trace of the matrix A is:",
+    "options": [
+      "6",
+      "9",
+      "12",
+      "3"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 135,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If the system of linear equations x - 4y + 7z = g, 3y - 5z = h, -2x + 5y - 9z = k is consistent, then:",
+    "options": [
+      "g + h + k = 0",
+      "2g + h + k = 0",
+      "g + 2h + k = 0",
+      "g + h + 2k = 0"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 136,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) If the sum of the first 20 terms of the series log(7^(1/2)) x + log(7^(1/3)) x + log(7^(1/4)) x + ... is 460, then x is equal to:",
+    "options": [
+      "7^2",
+      "7^1/2",
+      "7",
+      "e^2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 137,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) Let the line y = mx and the ellipse 2x^2 + y^2 = 1 intersect at a point P in the first quadrant. If the normal to this ellipse at P meets the co-ordinate axes at (-1/3√2, 0) and (0, β), then β is equal to:",
+    "options": [
+      "√2 / 3",
+      "2 / 3",
+      "2√2 / 3",
+      "√2 / 6"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 138,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The maximum volume (in cu. m) of the right circular cone having slant height 3 m is:",
+    "options": [
+      "6π",
+      "2√3 π",
+      "3√3 π",
+      "4π/3"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 139,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The set of all values of a for which the equation x|x| + 1 = x^2 + a has exactly one real root is:",
+    "options": [
+      "(-∞, 1]",
+      "(1, ∞)",
+      "(-∞, 0)",
+      "[0, ∞)"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 140,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) If a variable plane, at a distance of 3 units from the origin, intersects the coordinate axes at A, B and C, then the locus of the centroid of ΔABC is:",
+    "options": [
+      "1/x^2 + 1/y^2 + 1/z^2 = 1",
+      "1/x^2 + 1/y^2 + 1/z^2 = 3",
+      "1/x^2 + 1/y^2 + 1/z^2 = 9",
+      "1/x^2 + 1/y^2 + 1/z^2 = 1/9"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 141,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A projectile is fired with a velocity u making an angle θ with the horizontal. What is the magnitude of the change in velocity when it reaches the highest point of its trajectory?",
+    "options": [
+      "u sin θ",
+      "u cos θ",
+      "u",
+      "u(1 - cos θ)"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 142,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) An ideal gas expands isothermally from volume V1 to V2 and is then compressed to original volume V1 adiabatically. If the initial pressure is P1 and final pressure is P3, and total work done is W, then:",
+    "options": [
+      "P3 > P1, W > 0",
+      "P3 < P1, W < 0",
+      "P3 > P1, W < 0",
+      "P3 = P1, W = 0"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 143,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) A 2 μF capacitor is charged to 100 V and then its plates are connected by a conducting wire. The heat produced (in mJ) is:",
+    "options": [
+      "10",
+      "20",
+      "40",
+      "5"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 144,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The de Broglie wavelength of a proton and an α-particle are equal. The ratio of their velocities (v_p / v_α) is:",
+    "options": [
+      "4:1",
+      "1:4",
+      "2:1",
+      "1:2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 145,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) In Young's double slit experiment, if the separation between the slits is halved and the distance between the slits and the screen is doubled, the fringe width becomes:",
+    "options": [
+      "Half",
+      "Double",
+      "Four times",
+      "One-fourth"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 146,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) The resistance of a wire is 5 Ω at 50°C and 6 Ω at 100°C. The resistance of the wire at 0°C will be:",
+    "options": [
+      "2 Ω",
+      "1 Ω",
+      "4 Ω",
+      "3 Ω"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 147,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) A Zener diode having breakdown voltage 5.6 V is connected in reverse bias with a battery of 10 V and a resistance of 100 Ω in series. The current flowing through the Zener diode (in mA) is:",
+    "options": [
+      "44",
+      "88",
+      "22",
+      "11"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 148,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A charged particle enters a uniform magnetic field with a velocity vector at an angle of 45° with the magnetic field. The path of the particle will be:",
+    "options": [
+      "A straight line",
+      "A circle",
+      "An ellipse",
+      "A helix"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 149,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ) A thin circular ring of mass M and radius R is rotating about its axis with a constant angular velocity ω. Two objects each of mass m are attached gently to the opposite ends of a diameter of the ring. The new angular velocity of the ring is:",
+    "options": [
+      "Mω/(M+2m)",
+      "(M+2m)ω/M",
+      "Mω/(M+m)",
+      "(M+m)ω/M"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 150,
+    "subject": "Physics",
+    "text": "(JEE Main PYQ - NAT) If the radius of the earth shrinks by 1%, its mass remaining the same, the acceleration due to gravity on the earth's surface would:",
+    "options": [
+      "Increase by 1%",
+      "Increase by 2%",
+      "Decrease by 1%",
+      "Decrease by 2%"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 151,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The reaction of CH3MgBr with dry ice followed by acid hydrolysis yields:",
+    "options": [
+      "Acetic acid",
+      "Formic acid",
+      "Acetone",
+      "Acetaldehyde"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 152,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) For a zero-order reaction, the half-life depends on the initial concentration [A0] as:",
+    "options": [
+      "Directly proportional to [A0]",
+      "Inversely proportional to [A0]",
+      "Independent of [A0]",
+      "Proportional to [A0]^2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 153,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The number of unpaired electrons in the complex [Ni(CO)4] is:",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "4"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 154,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following is NOT a condensation polymer?",
+    "options": [
+      "Melamine",
+      "Glyptal",
+      "Dacron",
+      "Neoprene"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 155,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Which of the following conditions is correct for an ideal solution?",
+    "options": [
+      "ΔH_mix = 0 and ΔV_mix = 0",
+      "ΔH_mix > 0 and ΔV_mix > 0",
+      "ΔH_mix < 0 and ΔV_mix < 0",
+      "ΔH_mix = 0 and ΔV_mix < 0"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 156,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Based on VSEPR theory, the structure of XeO3 is:",
+    "options": [
+      "Linear",
+      "Planar",
+      "Pyramidal",
+      "T-shaped"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 157,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The standard EMF of a galvanic cell involving cell reaction with n = 2 is found to be 0.295 V at 25°C. The equilibrium constant of the reaction would be (Given F/RT = 38.92 V^-1, or use 0.0591):",
+    "options": [
+      "1.0 x 10^10",
+      "2.0 x 10^11",
+      "1.0 x 10^2",
+      "1.0 x 10^5"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 158,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) Hofmann degradation of amides leads to the formation of amines with:",
+    "options": [
+      "One carbon atom less",
+      "One carbon atom more",
+      "Same number of carbon atoms",
+      "Two carbon atoms less"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 159,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ) The percentage of empty space in a body-centered cubic (bcc) arrangement is:",
+    "options": [
+      "74%",
+      "68%",
+      "32%",
+      "26%"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 160,
+    "subject": "Chemistry",
+    "text": "(JEE Main PYQ - NAT) The average oxidation state of sulfur in Na2S4O6 is:",
+    "options": [
+      "+2.5",
+      "+2",
+      "+3",
+      "+6"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 161,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The value of the definite integral ∫(from -π/4 to π/4) x^3 sin^4(x) dx is:",
+    "options": [
+      "0",
+      "π/4",
+      "π/2",
+      "1"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 162,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The locus of the complex number z satisfying |z - i| = |z + i| is:",
+    "options": [
+      "x-axis",
+      "y-axis",
+      "y = x",
+      "a circle"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 163,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The length of the latus rectum of the parabola y^2 = 4ax passing through the point (2, -6) is:",
+    "options": [
+      "9",
+      "18",
+      "36",
+      "4"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 164,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If A is a skew-symmetric matrix of odd order, then the determinant of A (det(A)) is:",
+    "options": [
+      "1",
+      "-1",
+      "0",
+      "undefined"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 165,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The integrating factor of the differential equation dy/dx + y sec x = tan x is:",
+    "options": [
+      "sec x + tan x",
+      "sec x - tan x",
+      "cos x",
+      "sin x"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 166,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The angle between the planes 2x - y + z = 6 and x + y + 2z = 7 is:",
+    "options": [
+      "π/6",
+      "π/4",
+      "π/3",
+      "π/2"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 167,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) In an Arithmetic Progression (AP), if the 3rd term is 18 and the 7th term is 30, what is the sum of the first 20 terms?",
+    "options": [
+      "610",
+      "710",
+      "810",
+      "910"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 168,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) The minimum value of the function f(x) = |x - 1| + |x - 2| + |x - 3| is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "0"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 169,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ) If a fair six-sided die is thrown twice, the probability of getting a sum of exactly 7 is:",
+    "options": [
+      "1/6",
+      "1/12",
+      "1/36",
+      "1/9"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 170,
+    "subject": "Mathematics",
+    "text": "(JEE Main PYQ - NAT) The principal value of sin^-1(sin(2π/3)) is:",
+    "options": [
+      "2π/3",
+      "π/3",
+      "4π/3",
+      "π/6"
+    ],
+    "correctAnswer": 1
+  }
+]

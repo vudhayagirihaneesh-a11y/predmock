@@ -1,0 +1,58 @@
+Provided updated EULA text (for reference):
+
+Comprehensive Terms of Service & End User License Agreement (EULA)
+Effective Date: [Insert Date]
+
+Welcome to Exam Prep Hub. Please read these Terms of Service ("Terms", "Terms of Service", or "Agreement") carefully before using the Exam Prep Hub website and platform (the "Service") operated by Exam Prep Hub ("us", "we", or "our"). By accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the terms, you may not access the Service.
+
+1. Definitions
+
+"Platform" refers to the Exam Prep Hub website, underlying PHP/SQL architecture, predictor algorithms, and mock test engines.
+
+"User", "You", or "Your" refers to the individual registering for an account, accessing the predictors, or purchasing mock tests.
+
+"Premium Content" refers to the locked mock test series (BITSAT, MET, VITEEE, SRMJEEE, AMRITA, GITAM, JEE Mains) accessible only after payment verification.
+
+"Agent" refers to an authorized volunteer or staff member granted access to the Agent Portal for customer support.
+
+2. User Accounts, Eligibility, and Security
+
+2.1 Eligibility: You must be a student preparing for engineering entrance examinations. By registering, you warrant that all data provided is accurate.
+
+2.2 Authentication: Access relies on an email-based OTP verification system. You are strictly responsible for safeguarding your session tokens and cookies.
+
+2.3 Prohibited Access: Using developer tools (such as browser consoles or network interceptors) to bypass client-side routing, manipulate localStorage, or artificially grant access to .php premium endpoints is strictly forbidden and constitutes a violation of cyber laws.
+
+3. Intellectual Property Rights
+
+3.1 Ownership: All content, features, and functionality—including but not limited to codebase, UI/UX design, custom graphics, and algorithms—are the exclusive property of Exam Prep Hub and its licensors.
+
+3.2 License to Use: We grant you a limited, non-exclusive, non-transferable, and revocable license to access the Platform for personal, non-commercial exam preparation.
+
+3.3 Restrictions: You may not copy, reproduce, distribute, scrape, reverse-engineer, or create derivative works from our platform. Sharing account credentials or publishing test questions to third-party forums (e.g., Telegram, Reddit) will result in immediate lifetime bans.
+
+4. Payments, Approvals, and Fair Use
+
+4.1 Manual Verification: We operate a manual payment ledger. You must upload valid photographic proof of your UPI/Bank transfer.
+
+4.2 Fraudulent Submissions: Submitting altered, forged, or previously used transaction IDs is a violation of these terms. Accounts found attempting to defraud the payment gateway will be permanently disabled.
+
+4.3 No Refunds: Due to the digital, immediately consumable nature of the mock test JSON data, all sales are absolute and final. No refunds will be issued once a package is marked "approved" in our database.
+
+5. Disclaimer of Warranties (The "As-Is" Clause)
+
+5.1 Predictor Accuracy: The BITSAT, MET, and other Rank/College Predictors are algorithmic estimations based on historical data. They are for informational and entertainment purposes only. We make no guarantees regarding actual official cutoffs, ranks, or university admissions.
+
+5.2 Platform Availability: The Service is provided on an "AS IS" and "AS AVAILABLE" basis. We reserve the right to take the platform offline for maintenance at any time.
+
+6. Limitation of Liability
+
+In no event shall Exam Prep Hub, nor its developers, partners, or agents, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of data, loss of exam performance, or other intangible losses, resulting from your access to or inability to use the Service. Our maximum liability to you for any damages will at all times be limited to the amount you paid to us for the specific Premium Content in dispute.
+
+7. Indemnification
+
+You agree to defend, indemnify and hold harmless Exam Prep Hub and its developer from and against any and all claims, damages, obligations, losses, liabilities, costs or debt, and expenses arising from your use of the Service or your violation of these Terms.
+
+8. Explicit Non-Affiliation and Trademark Disclaimer
+
+8.1 Independent Entity: Exam Prep Hub is an independent, private educational platform. We are NOT affiliated, associated, authorized, endorsed by, or in any way officially connected with BITS Pilani, Manipal Academy of Higher Education, Vellore Institute of Technology, SRM Institute of Science and Technology, Amrita Vishwa Vidyapeetham, GITAM, or any of their subsidiaries.

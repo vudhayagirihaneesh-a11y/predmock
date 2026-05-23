@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Exam Prep Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme img, html.dark-theme svg { filter: invert(1) hue-rotate(180deg); }
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+        
+        // Redirect if not logged in
+        if (!localStorage.getItem('user_email')) {
+window.location.href = 'login.html?redirect=profile.html';
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-8 relative overflow-x-hidden">
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+
+    <div class="max-w-5xl mx-auto space-y-8 relative z-10">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-tr from-indigo-600 to-purple-600 p-3.5 rounded-xl shadow-lg text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">My <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Profile</span></h1>
+                    <p class="text-slate-500 mt-1">Your account details and test history</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Mail Icon for Admin Inbox -->
+                <button onclick="openInboxModal()" class="relative p-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition shadow-sm" title="Admin Inbox">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span id="inbox-badge" class="hide absolute -top-1 -right-1 flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                    </span>
+                </button>
+                <a href="index.html" class="px-4 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg hover:bg-slate-50 transition shadow-sm">Home</a>
+                <button onclick="logout()" class="px-4 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition shadow-md">Logout</button>
+            </div>
+        </header>
+
+        <!-- Account Info Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white flex items-center justify-between gap-3">
+                <h2 class="text-2xl font-bold">Account Information</h2>
+                <span class="text-sm font-semibold bg-white/15 px-3 py-1 rounded-full">Support & Tickets</span>
+            </div>
+            <div class="p-6 md:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="account-details">
+                    <!-- Filled by JS -->
+                </div>
+                <!-- The customer care bot will inject itself here -->
+                <div class="mt-8">
+                    <div id="chatbox"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Ticket History -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-bold">Support Ticket History</h2>
+                    <button onclick="openReportModal()" class="px-3 py-1 bg-rose-500/20 text-rose-200 border border-rose-500/30 rounded-md text-xs font-bold hover:bg-rose-500/40 transition">Report Agent</button>
+                </div>
+                <span class="text-sm font-semibold bg-white/15 px-3 py-1 rounded-full" id="ticket-count">0 Tickets</span>
+            </div>
+            <div class="p-6 overflow-x-auto">
+                <table class="w-full text-sm text-slate-600" id="ticket-history-table">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-700">
+                            <th class="text-left py-2 font-semibold">Ticket ID</th>
+                            <th class="text-left py-2 font-semibold">Subject</th>
+                            <th class="text-left py-2 font-semibold">Status</th>
+                            <th class="text-left py-2 font-semibold">Last Updated</th>
+                            <th class="text-right py-2 font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticket-history-body"></tbody>
+                </table>
+                <div id="tickets-no-data" class="text-center text-slate-400 py-8">No support tickets found.</div>
+            </div>
+        </div>
+
+        <!-- User Ticket Chat Modal -->
+        <div id="user-chat-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-2xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                <header class="p-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
+                    <h3 class="font-bold text-lg">Support Ticket #<span id="user-modal-ticket-id"></span></h3>
+                    <button onclick="closeUserChatModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+                </header>
+                <div id="user-modal-chat-history" class="p-4 flex-1 overflow-y-auto bg-slate-50 space-y-4 flex flex-col">
+                    <!-- Chat messages will be injected here -->
+                </div>
+                <footer class="p-4 bg-white border-t border-slate-200 shrink-0">
+                    <div id="user-chat-input-area">
+                        <textarea id="user-modal-chat-input" rows="3" class="w-full p-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Type your reply to the agent..."></textarea>
+                        <div class="mt-3 flex justify-between items-center">
+                            <button onclick="sendUserMessage()" class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Send Message</button>
+                            <button onclick="closeUserTicket()" class="px-5 py-2.5 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition">Close Ticket</button>
+                        </div>
+                    </div>
+                    <div id="user-chat-closed-area" class="hide text-center text-rose-600 font-bold py-3">
+                        This ticket is closed.
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Mock Test History Cards -->
+        <div class="space-y-6">
+            <h2 class="text-2xl font-bold text-slate-800">Mock Test History</h2>
+            
+            <!-- BITSAT History -->
+            <div class="bg-white rounded-2xl shadow-xl border border-orange-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-5 text-white flex items-center justify-between">
+                    <h3 class="text-xl font-bold">BITSAT Mock Tests</h3>
+                    <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold" id="bitsat-tests-count">0 tests</span>
+                </div>
+                <div class="p-6 overflow-x-auto">
+                    <table class="w-full text-sm text-slate-600" id="bitsat-history-table">
+                        <thead><tr class="border-b border-slate-200 text-slate-700"><th class="text-left py-2 font-semibold">Test</th><th class="text-right py-2 font-semibold">Score</th><th class="text-right py-2 font-semibold">Correct</th><th class="text-right py-2 font-semibold">Wrong</th><th class="text-right py-2 font-semibold">Unattempted</th></tr></thead>
+                        <tbody id="bitsat-history-body"></tbody>
+                    </table>
+                    <div id="bitsat-no-data" class="text-center text-slate-400 py-8">No BITSAT test history found.</div>
+                </div>
+            </div>
+
+            <!-- MET History -->
+            <div class="bg-white rounded-2xl shadow-xl border border-emerald-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 p-5 text-white flex items-center justify-between">
+                    <h3 class="text-xl font-bold">MET Mock Tests</h3>
+                    <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold" id="met-tests-count">0 tests</span>
+                </div>
+                <div class="p-6 overflow-x-auto">
+                    <table class="w-full text-sm text-slate-600" id="met-history-table">
+                        <thead><tr class="border-b border-slate-200 text-slate-700"><th class="text-left py-2 font-semibold">Test</th><th class="text-right py-2 font-semibold">Score</th><th class="text-right py-2 font-semibold">Correct</th><th class="text-right py-2 font-semibold">Wrong</th><th class="text-right py-2 font-semibold">Unattempted</th></tr></thead>
+                        <tbody id="met-history-body"></tbody>
+                    </table>
+                    <div id="met-no-data" class="text-center text-slate-400 py-8">No MET test history found.</div>
+                </div>
+            </div>
+
+            <!-- VITEEE History -->
+            <div class="bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-5 text-white flex items-center justify-between">
+                    <h3 class="text-xl font-bold">VITEEE Mock Tests</h3>
+                    <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold" id="viteee-tests-count">0 tests</span>
+                </div>
+                <div class="p-6 overflow-x-auto">
+                    <table class="w-full text-sm text-slate-600" id="viteee-history-table">
+                        <thead><tr class="border-b border-slate-200 text-slate-700"><th class="text-left py-2 font-semibold">Test</th><th class="text-right py-2 font-semibold">Score</th><th class="text-right py-2 font-semibold">Correct</th><th class="text-right py-2 font-semibold">Wrong</th><th class="text-right py-2 font-semibold">Unattempted</th></tr></thead>
+                        <tbody id="viteee-history-body"></tbody>
+                    </table>
+                    <div id="viteee-no-data" class="text-center text-slate-400 py-8">No VITEEE test history found.</div>
+                </div>
+            </div>
+
+            <!-- SRM History -->
+            <div class="bg-white rounded-2xl shadow-xl border border-purple-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-500 to-fuchsia-500 p-5 text-white flex items-center justify-between">
+                    <h3 class="text-xl font-bold">SRMJEEE Mock Tests</h3>
+                    <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold" id="srm-tests-count">0 tests</span>
+                </div>
+                <div class="p-6 overflow-x-auto">
+                    <table class="w-full text-sm text-slate-600" id="srm-history-table">
+                        <thead><tr class="border-b border-slate-200 text-slate-700"><th class="text-left py-2 font-semibold">Test</th><th class="text-right py-2 font-semibold">Score</th><th class="text-right py-2 font-semibold">Correct</th><th class="text-right py-2 font-semibold">Wrong</th><th class="text-right py-2 font-semibold">Unattempted</th></tr></thead>
+                        <tbody id="srm-history-body"></tbody>
+                    </table>
+                    <div id="srm-no-data" class="text-center text-slate-400 py-8">No SRMJEEE test history found.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Quick Access</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="bitsat-predictor.html" class="p-4 bg-orange-50 rounded-xl text-center hover:bg-orange-100 transition border border-orange-200">
+                    <p class="font-bold text-orange-700 text-sm">BITSAT Predictor</p>
+                </a>
+                <a href="bitsat-mock-tests.html" class="p-4 bg-orange-50 rounded-xl text-center hover:bg-orange-100 transition border border-orange-200">
+                    <p class="font-bold text-orange-700 text-sm">BITSAT Mock Tests</p>
+                </a>
+                <a href="mock-tests.html" class="p-4 bg-emerald-50 rounded-xl text-center hover:bg-emerald-100 transition border border-emerald-200">
+                    <p class="font-bold text-emerald-700 text-sm">MET Mock Tests</p>
+                </a>
+                <button onclick="openRefundModal()" class="p-4 bg-amber-50 rounded-xl text-center hover:bg-amber-100 transition border border-amber-200 cursor-pointer">
+                    <p class="font-bold text-amber-700 text-sm">Request Refund</p>
+                </button>
+                <a href="login.html" class="p-4 bg-indigo-50 rounded-xl text-center hover:bg-indigo-100 transition border border-indigo-200">
+                    <p class="font-bold text-indigo-700 text-sm">Switch Account</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Modal -->
+    <div id="refund-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <header class="p-4 bg-amber-500 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg">Request Refund</h3>
+                <button onclick="document.getElementById('refund-modal').classList.add('hide')" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-600">Select the plan you wish to be refunded for and upload your UPI QR code. The admin will scan it to process your money back.</p>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Select Plan</label>
+                    <select id="refund-plan" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="">-- Choose a Plan --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Upload QR Code (Image)</label>
+                    <input type="file" id="refund-qr" accept="image/*" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50" />
+                </div>
+                <button onclick="submitRefundRequest()" id="submit-refund-btn" class="w-full py-2.5 bg-amber-500 text-white font-bold rounded-lg hover:bg-amber-600 transition shadow-md">Submit Request</button>
+                <p id="refund-msg" class="text-sm text-center hide"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Agent Modal -->
+    <div id="report-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <header class="p-4 bg-rose-600 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg">Report Agent</h3>
+                <button onclick="document.getElementById('report-modal').classList.add('hide')" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-600">If an agent was unhelpful, rude, or violated the code of conduct, please report them directly to the administration.</p>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Select Ticket ID</label>
+                    <select id="report-ticket-id" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-rose-500">
+                        <option value="">-- Choose a Ticket --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Issue Description</label>
+                    <textarea id="report-message" rows="4" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-rose-500" placeholder="Please describe the agent's offense..."></textarea>
+                </div>
+                <button onclick="submitAgentReport()" id="submit-report-btn" class="w-full py-2.5 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition shadow-md">Send Report</button>
+                <p id="report-error" class="text-sm text-rose-600 text-center hide"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inbox Modal -->
+    <div id="inbox-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <header class="p-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> Admin Inbox</h3>
+                <button onclick="document.getElementById('inbox-modal').classList.add('hide')" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="flex-1 overflow-y-auto p-6 bg-slate-50 space-y-4" id="inbox-list"></div>
+        </div>
+    </div>
+
+    <script src="customer-care-bot.js"></script>
+    <script>
+        function loadProfile() { 
+            const email = localStorage.getItem('user_email');
+            const id = localStorage.getItem('user_id') || 'N/A';
+            const verified = localStorage.getItem('user_verified');
+            const createdAt = localStorage.getItem('user_created_at') || 'N/A';
+            const loginTime = localStorage.getItem('user_login_time') || 'N/A';
+            let displayName = email;
+            try {
+                const profileRaw = localStorage.getItem('user_profile');
+                const profile = profileRaw ? JSON.parse(profileRaw) : null;
+                if (profile) {
+                    displayName = (profile.name || profile.display_name || profile.full_name || profile.username || email);
+                }
+            } catch (e) {}
+
+            const details = document.getElementById('account-details');
+            details.innerHTML = `
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wide mb-2">Name</p>
+                    <input type="text" id="profile-name-input" value="${escapeHtml(displayName)}" maxlength="100" placeholder="Enter your name" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-lg font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                    <button onclick="saveProfileName()" class="mt-2 px-4 py-1.5 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 transition">Save Name</button>
+                    <p id="profile-name-msg" class="text-xs mt-1 hide"></p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Email</p>
+                    <p class="text-xl font-bold text-slate-800 mt-1">${email}</p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">User ID</p>
+                    <p class="text-xl font-bold text-slate-800 mt-1">${id}</p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Status</p>
+                    <p class="text-xl font-bold text-emerald-600 mt-1">${verified === '1' ? '✓ Verified' : 'Not Verified'}</p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 md:col-span-2">
+                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Account Created</p>
+                    <p class="text-xl font-bold text-slate-800 mt-1">${createdAt !== 'N/A' ? new Date(createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A'}</p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 md:col-span-2">
+                    <p class="text-sm text-slate-500 font-medium uppercase tracking-wide">Last Login</p>
+                    <p class="text-xl font-bold text-slate-800 mt-1">${loginTime !== 'N/A' ? new Date(loginTime).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A'}</p>
+                </div>
+            `;
+
+            // Load test histories
+            loadTestHistory('bitsatMockResults', 'bitsat-history-body', 'bitsat-no-data', 'bitsat-tests-count');
+            loadTestHistory('metMockResults', 'met-history-body', 'met-no-data', 'met-tests-count');
+            loadTestHistory('viteeeMockResults', 'viteee-history-body', 'viteee-no-data', 'viteee-tests-count');
+            loadTestHistory('srmMockResults', 'srm-history-body', 'srm-no-data', 'srm-tests-count');
+            loadTicketHistory();
+            loadInbox();
+        }
+
+function loadTestHistory(storageKey, tbodyId, noDataId, countId) {
+            const tbody = document.getElementById(tbodyId);
+            const noData = document.getElementById(noDataId);
+            const countEl = document.getElementById(countId);
+            
+            try {
+                const data = JSON.parse(localStorage.getItem(storageKey));
+                if (!data || Object.keys(data).length === 0) {
+                    noData.classList.remove('hide');
+                    tbody.innerHTML = '';
+                    countEl.innerText = '0 tests';
+                    return;
+                }
+                
+                noData.classList.add('hide');
+                const keys = Object.keys(data).filter(k => data[k] && data[k].score !== undefined);
+                countEl.innerText = `${keys.length} tests`;
+                
+                tbody.innerHTML = keys.map(k => {
+                    const r = data[k];
+                    return `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                        <td class="py-3 font-semibold text-slate-800">Test ${k}</td>
+                        <td class="py-3 text-right font-bold ${r.score >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${r.score}</td>
+                        <td class="py-3 text-right text-emerald-600 font-medium">${r.correct || 0}</td>
+                        <td class="py-3 text-right text-rose-600 font-medium">${r.incorrect || 0}</td>
+                        <td class="py-3 text-right text-slate-400 font-medium">${r.unattempted || 0}</td>
+                    </tr>`;
+                }).join('');
+            } catch(e) {
+                noData.classList.remove('hide');
+                countEl.innerText = '0 tests';
+            }
+        }
+
+        let activeTicketId = null;
+        let activeTicketPollInterval = null;
+        let isTransitioning = false;
+
+        function getApiUrl(path = 'api.php') {
+            if (window.location.protocol === 'file:') {
+                return null;
+            }
+            return new URL(path, window.location.href).href;
+        }
+
+        async function fetchJson(url, options) {
+            options = options || {};
+            options.credentials = options.credentials || 'include';
+            try {
+                const response = await fetch(url, options);
+                const text = await response.text();
+                try {
+                    return JSON.parse(text);
+                } catch (err) {
+                    console.error('Invalid API response from', url, 'raw:', text.slice(0, 300));
+                    return { success: false, message: 'Server returned an invalid response. Please try again.' };
+                }
+            } catch (err) {
+                console.error('fetchJson failed:', err);
+                return { success: false, message: (err && err.message) ? err.message : 'Network error' };
+            }
+        }
+
+        function loadTicketHistory() {
+            const email = localStorage.getItem('user_email');
+            const token = localStorage.getItem('session_token') || '';
+            if (!email) return;
+
+            const tbody = document.getElementById('ticket-history-body');
+            const noData = document.getElementById('tickets-no-data');
+            const countEl = document.getElementById('ticket-count');
+            
+            if (window.location.protocol === 'file:') {
+                noData.innerText = 'Error loading ticket history: profile.html must be served through a PHP-capable web server (e.g. http://localhost/), not opened directly from file://.';
+                noData.classList.remove('hide');
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            if (!apiUrl) {
+                noData.innerText = 'Error loading ticket history: profile.html must be served through a PHP-capable web server (e.g. http://localhost/), not opened directly from file://.';
+                noData.classList.remove('hide');
+                return;
+            }
+
+            fetchJson(`${apiUrl}?action=get_user_tickets&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`, { credentials: 'include' })
+                .then(data => {
+                    if (data.success && data.tickets && data.tickets.length > 0) {
+                        noData.classList.add('hide');
+                        tbody.innerHTML = '';
+                        countEl.innerText = `${data.tickets.length} Tickets`;
+                        let foundActive = null;
+
+                        data.tickets.forEach(ticket => {
+                            if (!foundActive && (ticket.status === 'open' || ticket.status === 'assigned' || ticket.status === 'resolved')) {
+                                foundActive = ticket;
+                            }
+
+                            const statusMap = {
+                                'open': 'bg-amber-100 text-amber-800 border-amber-200',
+                                'assigned': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                                'resolved': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                                'closed': 'bg-slate-100 text-slate-800 border-slate-200'
+                            };
+                            const statusClass = statusMap[ticket.status] || 'bg-slate-100 text-slate-800 border-slate-200';
+
+                            const tr = document.createElement('tr');
+                            tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition';
+                            tr.innerHTML = `
+                                <td class="py-3 font-mono font-bold text-slate-500">#${ticket.id}</td>
+                                <td class="py-3 font-semibold text-slate-800">${escapeHtml(ticket.subject)}</td>
+                                <td class="py-3">
+                                    <span class="px-2.5 py-1 text-xs font-bold rounded-full border ${statusClass}">${ticket.status.toUpperCase()}</span>
+                                </td>
+                                <td class="py-3 text-slate-500">${new Date(ticket.updated_at).toLocaleString('en-IN')}</td>
+                                <td class="py-3 text-right">
+                                    <button onclick="viewTicket(${ticket.id})" class="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-100 font-medium text-xs">View Chat</button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                        
+                        if (foundActive) {
+                            switchToLiveChatMode(foundActive.id);
+                        } else {
+                            if (activeTicketId) {
+                                activeTicketId = null;
+                                if (activeTicketPollInterval) clearInterval(activeTicketPollInterval);
+                                initChatBox();
+                            }
+                        }
+                    } else {
+                        noData.classList.remove('hide');
+                        tbody.innerHTML = '';
+                        countEl.innerText = '0 Tickets';
+                        
+                        if (activeTicketId) {
+                            activeTicketId = null;
+                            if (activeTicketPollInterval) clearInterval(activeTicketPollInterval);
+                            initChatBox();
+                        }
+                    }
+                    // If session is invalid, prompt user to re-login
+                    if (data.success === false && data.message && data.message.includes('Unauthorized')) {
+                        noData.innerText = 'Your session has expired. Please log out and log back in to see your tickets.';
+                        noData.classList.remove('hide');
+                        tbody.innerHTML = '';
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to load ticket history:', err);
+                    noData.innerText = err && err.message ? `Error loading ticket history: ${err.message}` : 'Error loading ticket history.';
+                    noData.classList.remove('hide');
+                    countEl.innerText = '0 Tickets';
+                    tbody.innerHTML = '';
+                });
+        }
+
+        let userChatPollInterval = null;
+
+        function viewTicket(ticketId) {
+            if (activeTicketId === ticketId) {
+                document.getElementById('chatbox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const cb = document.getElementById('chatbox').firstElementChild;
+                if (cb) {
+                    cb.classList.add('ring-4', 'ring-indigo-500', 'scale-[1.02]');
+                    setTimeout(() => cb.classList.remove('ring-4', 'ring-indigo-500', 'scale-[1.02]'), 1000);
+                }
+                return;
+            }
+            
+            document.getElementById('user-modal-ticket-id').textContent = ticketId;
+            const chatHistoryEl = document.getElementById('user-modal-chat-history');
+            chatHistoryEl.innerHTML = '';
+            document.getElementById('user-chat-modal').classList.remove('hide');
+            document.getElementById('user-chat-input-area').classList.remove('hide');
+            document.getElementById('user-chat-closed-area').classList.add('hide');
+            
+            if (userChatPollInterval) clearInterval(userChatPollInterval);
+            let lastMessageId = -1;
+
+            const fetchMessages = async () => {
+                const apiUrl = getApiUrl();
+                if (!apiUrl) throw new Error('Cannot fetch chat messages from file://. Please use a PHP server.');
+                const email = localStorage.getItem('user_email');
+                const token = localStorage.getItem('session_token') || '';
+                const data = await fetchJson(`${apiUrl}?action=fetch_chat_messages&ticket_id=${ticketId}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`);
+                if (data.success) {
+                    if (data.messages) {
+                        const newMessages = data.messages.filter(m => m.id > lastMessageId);
+                        newMessages.forEach(msg => {
+                            const bubble = document.createElement('div');
+                            if (msg.sender_type === 'agent') {
+                                bubble.className = 'p-3 rounded-lg bg-indigo-50 border border-indigo-200 self-start max-w-[85%]';
+                                bubble.innerHTML = `<p class="text-xs font-bold text-indigo-700 mb-1">${escapeHtml(msg.agent_name || 'Agent')}</p><p class="text-sm text-slate-700">${escapeHtml(msg.message)}</p>`;
+                            } else {
+                                bubble.className = 'p-3 rounded-lg bg-indigo-600 text-white self-end max-w-[85%]';
+                                bubble.innerHTML = `<p class="text-sm">${escapeHtml(msg.message)}</p>`;
+                            }
+                            chatHistoryEl.appendChild(bubble);
+                            lastMessageId = msg.id;
+                        });
+                        if (newMessages.length > 0) chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
+                    }
+                }
+            };
+            fetchMessages();
+            userChatPollInterval = setInterval(fetchMessages, 3000);
+        }
+
+        function closeUserChatModal() {
+            if (userChatPollInterval) clearInterval(userChatPollInterval);
+            document.getElementById('user-chat-modal').classList.add('hide');
+            loadTicketHistory();
+        }
+
+        async function sendUserMessage() {
+            const ticketId = document.getElementById('user-modal-ticket-id').textContent;
+            const input = document.getElementById('user-modal-chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            input.value = '';
+            const fd = new FormData();
+            fd.append('action', 'send_chat_message');
+            fd.append('ticket_id', ticketId);
+            fd.append('sender_type', 'user');
+            fd.append('message', message);
+            fd.append('user_email', localStorage.getItem('user_email'));
+            fd.append('token', localStorage.getItem('session_token') || '');
+            const apiUrl = getApiUrl();
+            if (!apiUrl) {
+                alert('Cannot send message from file://. Please open this app via a PHP web server.');
+                return;
+            }
+            await fetch(apiUrl, { method: 'POST', body: fd });
+        }
+
+        async function closeUserTicket() {
+            if (!confirm("Are you sure you want to close this ticket?")) return;
+            const ticketId = document.getElementById('user-modal-ticket-id').textContent;
+            const fd = new FormData();
+            fd.append('action', 'close_ticket');
+            fd.append('ticket_id', ticketId);
+            fd.append('closed_by', 'user');
+            fd.append('user_email', localStorage.getItem('user_email') || '');
+            fd.append('token', localStorage.getItem('session_token') || '');
+            const apiUrl = getApiUrl();
+            if (!apiUrl) {
+                alert('Cannot close this ticket from file://. Please open this app via a PHP web server.');
+                return;
+            }
+            await fetch(apiUrl, { method: 'POST', body: fd });
+            closeUserChatModal();
+        }
+
+        function switchToLiveChatMode(ticketId) {
+            if (!ticketId) return;
+            if (activeTicketId === ticketId) return;
+            
+            isTransitioning = true;
+            activeTicketId = ticketId;
+            if (activeTicketPollInterval) {
+                clearInterval(activeTicketPollInterval);
+                activeTicketPollInterval = null;
+            }
+            
+            const chatbox = document.getElementById('chatbox');
+            if (!chatbox) return;
+
+            try {
+                chatbox.innerHTML = `
+                    <div class="bg-indigo-50 border border-indigo-200 rounded-3xl shadow-xl p-4 md:p-6 transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-indigo-900">Live Support Chat</h3>
+                                <p class="text-sm text-indigo-700">Ticket #${ticketId}</p>
+                            </div>
+                            <span class="text-xs px-3 py-1 bg-emerald-500 text-white rounded-full font-bold uppercase shadow-sm flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Active</span>
+                        </div>
+                        <div id="live-messages" class="min-h-[250px] max-h-[350px] overflow-y-auto flex flex-col gap-3 p-4 bg-white border border-indigo-100 rounded-2xl shadow-inner"></div>
+                        
+                        <div id="live-input-container" class="mt-4 flex gap-3">
+                            <input id="live-user-input" type="text" placeholder="Type your message..." class="flex-1 px-4 py-3 rounded-2xl border border-indigo-200 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm text-sm" />
+                            <button id="live-send-btn" class="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition shadow-md">Send</button>
+                        </div>
+                        <div class="mt-3 flex justify-between items-center px-1">
+                            <p class="text-xs font-medium text-indigo-400">Agent replies will appear here in real-time.</p>
+                            <button onclick="closeActiveTicket(${ticketId})" class="text-xs font-bold text-rose-500 hover:text-rose-700 transition px-2 py-1 bg-white rounded-md shadow-sm border border-rose-100">End Chat</button>
+                        </div>
+                    </div>
+                `;
+            } catch (renderError) {
+                console.error('Failed to render live chat UI for ticket', ticketId, renderError);
+                return;
+            }
+
+            const input = document.getElementById('live-user-input');
+            const btn = document.getElementById('live-send-btn');
+            const messagesEl = document.getElementById('live-messages');
+            if (!input || !btn || !messagesEl) {
+                console.error('Live chat UI missing elements', { ticketId, input: !!input, btn: !!btn, messagesEl: !!messagesEl });
+                return;
+            }
+            let lastMessageId = -1;
+
+            const fetchLiveMessages = async () => {
+                try {
+                    const apiUrl = getApiUrl();
+                    if (!apiUrl) {
+                        console.error('Cannot fetch live messages: not on a PHP server');
+                        return;
+                    }
+                    const email = localStorage.getItem('user_email');
+                    const token = localStorage.getItem('session_token') || '';
+                    const data = await fetchJson(`${apiUrl}?action=fetch_chat_messages&ticket_id=${ticketId}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`);
+                    if (data.success) {
+                        const resolvedBannerSelector = '.status-msg-resolved';
+                        const inputContainer = document.getElementById('live-input-container');
+                        const statusMsgEl = messagesEl.querySelector(resolvedBannerSelector);
+
+                        if (data.status === 'resolved') {
+                            if (!statusMsgEl) {
+                                const div = document.createElement('div');
+                                div.className = 'status-msg-resolved p-3 text-center text-xs font-bold text-emerald-600 bg-emerald-50 rounded-lg mt-2 border border-emerald-100 shadow-sm';
+                                div.innerText = `This ticket is marked as ${data.status}. You can reply to reopen it, or click "End Chat" if your issue is settled.`;
+                                messagesEl.appendChild(div);
+                                messagesEl.scrollTop = messagesEl.scrollHeight;
+                            }
+                            // Show input container even if resolved so user can reply to reopen
+                            if (inputContainer) inputContainer.classList.remove('hide');
+                        } else {
+                            if (statusMsgEl) statusMsgEl.remove();
+                            if (inputContainer) inputContainer.classList.remove('hide');
+                        }
+
+                        if (data.messages) {
+                            const newMessages = data.messages.filter(m => m.id > lastMessageId);
+                            let scrolled = false;
+                            newMessages.forEach(msg => {
+                                const bubble = document.createElement('div');
+                                if (msg.sender_type === 'agent') {
+                                    bubble.className = 'p-3 rounded-2xl bg-slate-100 border border-slate-200 self-start max-w-[85%] text-sm text-slate-800';
+                                    bubble.innerHTML = `<p class="text-xs font-bold text-indigo-600 mb-1">${escapeHtml(msg.agent_name || 'Support Agent')}</p><p class="whitespace-pre-wrap">${escapeHtml(msg.message)}</p>`;
+                                } else {
+                                    const optimistics = messagesEl.querySelectorAll('.optimistic-msg');
+                                    optimistics.forEach(el => el.remove());
+                                    
+                                    bubble.className = 'p-3 rounded-2xl bg-indigo-600 text-white self-end max-w-[85%] text-sm shadow-sm';
+                                    bubble.innerHTML = `<p class="whitespace-pre-wrap">${escapeHtml(msg.message)}</p>`;
+                                }
+                                messagesEl.appendChild(bubble);
+                                lastMessageId = msg.id;
+                                scrolled = true;
+                            });
+                            if (scrolled) messagesEl.scrollTop = messagesEl.scrollHeight;
+                        }
+                    }
+                } catch(e) {
+                    console.error('Error fetching live messages:', e);
+                }
+            };
+
+            const sendLiveMessage = async () => {
+                if (!input || !btn) return;
+                btn.disabled = true;
+                input.disabled = true;
+
+                try {
+                    const text = input.value.trim();
+                    if (!text) return;
+                    input.value = '';
+                    
+                    const bubble = document.createElement('div');
+                    bubble.className = 'optimistic-msg p-3 rounded-2xl bg-indigo-400 text-white self-end max-w-[85%] text-sm shadow-sm opacity-70';
+                    bubble.innerHTML = `<p class="whitespace-pre-wrap">${escapeHtml(text)}</p>`;
+                    messagesEl.appendChild(bubble);
+                    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+                    const fd = new FormData();
+                    fd.append('action', 'send_chat_message');
+                    fd.append('ticket_id', ticketId);
+                    fd.append('sender_type', 'user');
+                    fd.append('message', text);
+                    fd.append('user_email', localStorage.getItem('user_email'));
+                    fd.append('token', localStorage.getItem('session_token') || '');
+                    const apiUrl = getApiUrl();
+                    if (!apiUrl) {
+                        console.error('Cannot send message: not on a PHP server');
+                        alert('Cannot send message. Please make sure you\'re accessing this through a web server.');
+                        return;
+                    }
+                    const response = await fetch(apiUrl, { method: 'POST', body: fd });
+                    if (!response.ok) {
+                        throw new Error('Server returned ' + response.status);
+                    }
+                    await fetchLiveMessages();
+                } catch(e) {
+                    console.error('Error sending message:', e);
+                    alert('Error sending message: ' + (e.message || 'Unknown error'));
+                } finally {
+                    btn.disabled = false;
+                    input.disabled = false;
+                    input.focus();
+                }
+            };
+
+            btn.onclick = sendLiveMessage;
+            input.onkeydown = (e) => { if (e.key === 'Enter') sendLiveMessage(); };
+
+            fetchLiveMessages();
+            activeTicketPollInterval = setInterval(fetchLiveMessages, 4000);
+            setTimeout(() => { isTransitioning = false; }, 1000);
+        }
+
+        window.closeActiveTicket = async function(ticketId) {
+            if (!confirm("Are you sure you want to end this chat?")) return;
+            const fd = new FormData();
+            fd.append('action', 'close_ticket');
+            fd.append('ticket_id', ticketId);
+            fd.append('closed_by', 'user');
+            fd.append('user_email', localStorage.getItem('user_email') || '');
+            fd.append('token', localStorage.getItem('session_token') || '');
+            const apiUrl = getApiUrl();
+            if (!apiUrl) {
+                alert('Cannot close this chat from file://. Please open this app via a PHP web server.');
+                return;
+            }
+            await fetch(apiUrl, { method: 'POST', body: fd });
+            if (activeTicketPollInterval) clearInterval(activeTicketPollInterval);
+            activeTicketId = null;
+            activeTicketPollInterval = null;
+            initChatBox();
+            loadTicketHistory();
+        };
+
+        function saveProfileName() {
+            const email = localStorage.getItem('user_email');
+            const nameInput = document.getElementById('profile-name-input');
+            const msgEl = document.getElementById('profile-name-msg');
+            const newName = (nameInput.value || '').trim();
+            if (!newName || newName.length < 1) {
+                msgEl.textContent = 'Name cannot be empty.';
+                msgEl.classList.remove('hide');
+                msgEl.className = 'text-xs mt-1 text-rose-500';
+                return;
+            }
+            if (newName.length > 100) {
+                msgEl.textContent = 'Name is too long (max 100 characters).';
+                msgEl.classList.remove('hide');
+                msgEl.className = 'text-xs mt-1 text-rose-500';
+                return;
+            }
+            const apiUrl = getApiUrl();
+            if (!apiUrl) {
+                alert('Cannot save from file://. Please use a PHP web server.');
+                return;
+            }
+            const fd = new FormData();
+            fd.append('action', 'save_display_name');
+            fd.append('email', email);
+            fd.append('token', localStorage.getItem('session_token') || '');
+            fd.append('display_name', newName);
+            fetchJson(apiUrl, { method: 'POST', body: fd }).then(d => {
+                if (d.success) {
+                    msgEl.textContent = 'Name saved successfully!';
+                    msgEl.className = 'text-xs mt-1 text-emerald-500';
+                    msgEl.classList.remove('hide');
+                    // Update localStorage profile copy too
+                    try {
+                        const p = JSON.parse(localStorage.getItem('user_profile') || '{}');
+                        p.name = p.full_name = p.username = newName;
+                        localStorage.setItem('user_profile', JSON.stringify(p));
+                    } catch(e) {}
+                    localStorage.setItem('user_display_name', newName);
+                    // Refresh profile header on index saves
+                    loadProfile();
+                } else {
+                    msgEl.textContent = 'Error: ' + (d.message || 'Could not save.');
+                    msgEl.className = 'text-xs mt-1 text-rose-500';
+                    msgEl.classList.remove('hide');
+                }
+            });
+        }
+
+        function escapeHtml(s) { return s ? String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/`/g, '&#96;') : ''; }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                const keys = ['user_email', 'user_id', 'user_verified', 'user_created_at', 'user_login_time', 'user_profile', 'session_token', 'login_timestamp', 'met_all_tests_unlocked', 'vit_all_tests_unlocked', 'srm_all_tests_unlocked', 'bitsat_all_tests_unlocked'];
+                keys.forEach(k => localStorage.removeItem(k));
+                localStorage.removeItem('user_display_name');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function renderBotMessage(text) {
+            const messages = document.getElementById('bot-messages');
+            if (!messages) return;
+            const safeText = String(text || '');
+            const message = document.createElement('div');
+            message.className = 'rounded-2xl p-3 border border-slate-200 bg-slate-50 text-slate-800 text-sm max-w-[85%]';
+            message.innerHTML = `<div class="font-semibold text-slate-800 mb-1">Bot</div><div>${safeText.replace(/\n/g, '<br>')}</div>`;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function renderUserMessage(text) {
+            const messages = document.getElementById('bot-messages');
+            if (!messages) return;
+            const safeText = String(text || '');
+            const message = document.createElement('div');
+            message.className = 'self-end rounded-2xl p-3 border border-indigo-200 bg-indigo-50 text-slate-900 text-sm max-w-[85%]';
+            message.innerHTML = `<div class="font-semibold text-indigo-700 mb-1">You</div><div>${safeText.replace(/\n/g, '<br>')}</div>`;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function openReportModal() {
+            const ticketSelect = document.getElementById('report-ticket-id');
+            ticketSelect.innerHTML = '<option value="">-- Choose a Ticket --</option>';
+            
+            const tbody = document.getElementById('ticket-history-body');
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(tr => {
+                const idCell = tr.querySelector('td.font-mono');
+                const subjCell = tr.querySelector('td:nth-child(2)');
+                if (idCell && subjCell) {
+                    const id = idCell.textContent.replace('#', '').trim();
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = `Ticket #${id} - ${subjCell.textContent}`;
+                    ticketSelect.appendChild(opt);
+                }
+            });
+
+            document.getElementById('report-message').value = '';
+            document.getElementById('report-error').classList.add('hide');
+            document.getElementById('report-modal').classList.remove('hide');
+        }
+
+        async function submitAgentReport() {
+            const email = localStorage.getItem('user_email');
+            const token = localStorage.getItem('session_token') || '';
+            const ticketId = document.getElementById('report-ticket-id').value;
+            const message = document.getElementById('report-message').value.trim();
+            const errEl = document.getElementById('report-error');
+            const btn = document.getElementById('submit-report-btn');
+
+            if (!ticketId || message.length < 10) {
+                errEl.textContent = !ticketId ? 'Please select a ticket.' : 'Please provide a detailed description (10+ characters).';
+                errEl.classList.remove('hide');
+                return;
+            }
+
+            errEl.classList.add('hide');
+            btn.disabled = true; btn.textContent = 'Sending...';
+
+            const fd = new FormData();
+            fd.append('action', 'submit_agent_report');
+            fd.append('email', email); fd.append('token', token);
+            fd.append('ticket_id', ticketId); fd.append('message', message);
+
+            const apiUrl = getApiUrl();
+            if (!apiUrl) { errEl.textContent = 'Cannot submit from file://'; errEl.classList.remove('hide'); btn.disabled = false; btn.textContent = 'Send Report'; return; }
+
+            try {
+                const data = await fetchJson(apiUrl, { method: 'POST', body: fd });
+                if (data.success) {
+                    document.getElementById('report-modal').classList.add('hide');
+                    alert('Your report has been sent to the admin. We will review it shortly.');
+                    loadInbox(); 
+                } else { errEl.textContent = data.message || 'Failed to submit report.'; errEl.classList.remove('hide'); }
+            } catch (e) { errEl.textContent = 'Network error.'; errEl.classList.remove('hide'); }
+            btn.disabled = false; btn.textContent = 'Send Report';
+        }
+
+        function openInboxModal() {
+            document.getElementById('inbox-modal').classList.remove('hide');
+            loadInbox();
+        }
+
+        async function loadInbox() {
+            const email = localStorage.getItem('user_email');
+            const token = localStorage.getItem('session_token') || '';
+            if (!email) return;
+            const apiUrl = getApiUrl(); if (!apiUrl) return;
+            const listEl = document.getElementById('inbox-list');
+            listEl.innerHTML = '<div class="text-center text-slate-400 py-10">Loading...</div>';
+
+            const data = await fetchJson(`${apiUrl}?action=get_user_reports&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`);
+            if (data.success && data.reports) {
+                listEl.innerHTML = '';
+                let hasUnread = false;
+                if (data.reports.length === 0) { listEl.innerHTML = '<div class="text-center text-slate-500 py-10">Your inbox is empty.<br><span class="text-xs">Replies from admin regarding your reports will appear here.</span></div>'; } 
+                else {
+                    data.reports.forEach(r => {
+                        if (r.status === 'replied') hasUnread = true;
+                        
+                        const isSystem = parseInt(r.ticket_id) === 0;
+                        const titleText = isSystem ? 'System Notification' : `Report regarding Ticket #${r.ticket_id}`;
+                        const labelText = isSystem ? 'Topic:' : 'Your Report:';
+
+                        const card = document.createElement('div'); card.className = 'bg-white p-5 rounded-xl shadow-sm border border-slate-200';
+                        card.innerHTML = `<div class="flex justify-between items-start mb-3"><div><h4 class="font-bold text-slate-800">${titleText}</h4><p class="text-xs text-slate-500">${new Date(r.created_at).toLocaleString('en-IN')}</p></div><span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full ${r.status === 'replied' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${r.status}</span></div><div class="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3"><span class="font-semibold text-slate-800 text-xs block mb-1">${labelText}</span>${escapeHtml(r.message)}</div>${r.admin_reply ? `<div class="text-sm text-indigo-800 bg-indigo-50 p-3 rounded-lg border border-indigo-100"><span class="font-bold text-indigo-900 text-xs block mb-1">Admin Message:</span>${escapeHtml(r.admin_reply).replace(/\n/g, '<br>')}</div>` : `<p class="text-xs text-slate-400 italic">Waiting for admin response...</p>`}`;
+                        listEl.appendChild(card);
+                    });
+                }
+                const badge = document.getElementById('inbox-badge');
+                if (badge) { if (hasUnread) badge.classList.remove('hide'); else badge.classList.add('hide'); }
+            } else { listEl.innerHTML = '<div class="text-center text-rose-500 py-10">Failed to load inbox.</div>'; }
+        }
+
+        function initChatBox() {
+            if (activeTicketId) return;
+
+            // Prevent crashes/double submissions in the bot ticket flow
+            window.botRequestInFlight = false;
+
+            const chatbox = document.getElementById('chatbox');
+            if (!chatbox) return;
+
+            chatbox.innerHTML = `
+                <div class="bg-slate-50 border border-slate-200 rounded-3xl shadow-xl p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900">Customer Care Chat</h3>
+                            <p class="text-sm text-slate-500">Select a category for quick answers or talk to an agent.</p>
+                        </div>
+                        <span class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full font-bold">Bot</span>
+                    </div>
+                    <div id="bot-messages" class="min-h-[250px] max-h-[350px] overflow-y-auto flex flex-col gap-3 p-4 bg-white border border-slate-200 rounded-2xl"></div>
+                    
+                    <!-- Quick Replies -->
+                    <div id="quick-replies" class="mt-4 flex flex-wrap gap-2"></div>
+                    
+                    <!-- Text Input (Hidden initially) -->
+                    <div id="chat-input-container" class="mt-4 flex gap-3 hide">
+                        <input id="bot-user-input" type="text" placeholder="Describe your issue..." class="flex-1 px-4 py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                        <button id="bot-send-btn" class="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition shadow-sm">Send</button>
+                    </div>
+                    <p class="mt-3 text-xs text-slate-500 text-center" id="bot-footer-text">You can also create a new support ticket using the panel above.</p>
+                </div>
+            `;
+
+            const input = document.getElementById('bot-user-input');
+            const btn = document.getElementById('bot-send-btn');
+            const repliesContainer = document.getElementById('quick-replies');
+            const inputContainer = document.getElementById('chat-input-container');
+            const botFooterText = document.getElementById('bot-footer-text');
+            const botMessagesContainer = document.getElementById('bot-messages');
+
+            if (!input || !btn || !repliesContainer || !inputContainer || !botMessagesContainer) {
+                console.warn('Chat UI failed to initialize: missing DOM elements');
+                return;
+            }
+
+            // Pre-defined menus mapped to bot query triggers
+            const menus = {
+                main: [
+                    { label: "💳 Payments & Unlocks", action: "menu_payments" },
+                    { label: "📝 Mock Tests & Results", action: "menu_mocks" },
+                    { label: "🔑 Login & Account", action: "menu_login" },
+                    { label: "💻 Technical Issues", action: "menu_tech" },
+                    { label: "👨‍💼 Talk to Agent", action: "talk_agent" }
+                ],
+                menu_payments: [
+                    { label: "Why is my test locked?", query: "Why is it locked?" },
+                    { label: "I paid twice", query: "I paid twice" },
+                    { label: "Refund policy", query: "refund" },
+                    { label: "Package details", query: "packages" },
+                    { label: "⬅️ Back", action: "main" }
+                ],
+                menu_mocks: [
+                    { label: "How to access mocks?", query: "How to access mocks?" },
+                    { label: "Where are my results?", query: "results" },
+                    { label: "Are questions repeated?", query: "repeat" },
+                    { label: "⬅️ Back", action: "main" }
+                ],
+                menu_login: [
+                    { label: "Login/OTP issues", query: "login fails" },
+                    { label: "Edit profile data", query: "profile" },
+                    { label: "⬅️ Back", action: "main" }
+                ],
+                menu_tech: [
+                    { label: "Test is slow/lagging", query: "slow" },
+                    { label: "Bug/Error on page", query: "error" },
+                    { label: "⬅️ Back", action: "main" }
+                ]
+            };
+
+            function renderQuickReplies(menuKey) {
+                repliesContainer.innerHTML = '';
+                const items = menus[menuKey] || [];
+                items.forEach(item => {
+                    const button = document.createElement('button');
+                    button.className = 'px-4 py-2 bg-white border border-indigo-200 text-indigo-700 text-sm font-bold rounded-xl hover:bg-indigo-50 transition shadow-sm';
+                    button.innerText = item.label;
+                    button.onclick = () => {
+                        if (item.action) {
+                            if (item.action === 'talk_agent') {
+                                renderUserMessage("I need to talk to an agent.");
+                                renderBotMessage("I've enabled the text box below. Please type your query, and if I can't resolve it, I will connect you to our support team or you can open a ticket.");
+                                repliesContainer.classList.add('hide');
+                                inputContainer.classList.remove('hide');
+                                if (botFooterText) botFooterText.classList.add('hide');
+                                input.focus();
+                            } else {
+                                renderQuickReplies(item.action);
+                            }
+                        } else if (item.query) {
+                            renderUserMessage(item.label);
+                            const response = window.ExamCareBot ? window.ExamCareBot.getBotResponse(item.query) : { reply: "Bot offline." };
+                            renderBotMessage(response.reply);
+                            
+                            // Ask if issue is resolved
+                            const resolveCheck = document.createElement('div');
+                            resolveCheck.className = 'mt-2 flex flex-wrap gap-2 items-center bg-slate-50 p-3 rounded-xl border border-slate-200';
+                            resolveCheck.innerHTML = `
+                                <span class="text-xs font-bold text-slate-600 w-full mb-1">Did this resolve your issue?</span>
+                                <button class="px-4 py-2 bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-lg hover:bg-emerald-200 transition btn-yes">Yes, thanks!</button>
+                                <button class="px-4 py-2 bg-rose-100 text-rose-800 border border-rose-200 text-xs font-bold rounded-lg hover:bg-rose-200 transition btn-no">No, talk to agent</button>
+                            `;
+const botMessagesInMenu = document.getElementById('bot-messages');
+                              if (botMessagesInMenu) {
+                                  botMessagesInMenu.appendChild(resolveCheck);
+                                  botMessagesInMenu.scrollTop = botMessagesInMenu.scrollHeight;
+                              }
+
+                            resolveCheck.querySelector('.btn-yes').onclick = () => {
+                                renderUserMessage("Yes, thanks!");
+                                renderBotMessage("Glad I could help! Let me know if you need anything else.");
+                                resolveCheck.remove();
+                                renderQuickReplies('main');
+                            };
+
+                            resolveCheck.querySelector('.btn-no').onclick = () => {
+                                renderUserMessage("No, this didn't help. I need an agent.");
+                                renderBotMessage("I've enabled the text box below. Please describe your issue so our support team can assist you.");
+                                resolveCheck.remove();
+                                repliesContainer.classList.add('hide');
+                                inputContainer.classList.remove('hide');
+                                if (botFooterText) botFooterText.classList.add('hide');
+                                input.focus();
+                            };
+                        }
+                    };
+                    repliesContainer.appendChild(button);
+                });
+            }
+
+            const welcome = '👋 Welcome to Exam Prep Hub Support!\n\nPlease select a category below for quick answers, or click "Talk to Agent" if you need human assistance.';
+            renderBotMessage(welcome);
+            renderQuickReplies('main');
+
+            const handleSend = async () => {
+                if (window.botRequestInFlight) return;
+                window.botRequestInFlight = true;
+                if (!input || !botMessagesContainer || btn.disabled) return;
+                const text = String(input.value || '').trim();
+                if (!text) return;
+                
+                // CRASH FIX: Prevent ticket creation if a live chat is already active or transitioning
+                if (activeTicketId || isTransitioning) {
+                    renderBotMessage("You already have an active support chat session. Please use the chat window above.");
+                    return;
+                }
+                
+                // Prevent multiple simultaneous submissions
+                btn.disabled = true;
+                // Also prevent Enter re-triggering while request is running
+                input.disabled = true;
+
+                const normalized = text.toLowerCase().replace(/[^a-z0-9 ]+/g, '').trim();
+                const isGreeting = /^(hi|hello|hey|thanks|thank you|good morning|good afternoon|good evening)$/.test(normalized);
+                
+                // Allow shorter messages if they are not greetings (min 5 chars)
+                if (text.length < 5 || (isGreeting && text.length < 15)) {
+                    renderUserMessage(text);
+                    input.value = '';
+                    renderBotMessage("I'm here to help! To create a support ticket, please provide a brief description of your issue (at least 5 characters).");
+                    btn.disabled = false;
+                    input.disabled = false;
+                    return;
+                }
+
+                renderUserMessage(text);
+                input.value = '';
+                renderBotMessage("Creating a support ticket with your message...");
+
+                const email = localStorage.getItem('user_email');
+                const fd = new FormData();
+                fd.append('action', 'student_submit_ticket');
+                fd.append('student_email', email);
+                fd.append('subject', 'Support Request: ' + text.substring(0, 30) + '...');
+                fd.append('message', text);
+
+                let ticketCreated = false;
+                try {
+                    const apiUrl = getApiUrl();
+                    if (!apiUrl) throw new Error('Cannot create support ticket from file://. Please use a PHP server.');
+                    const data = await fetchJson(apiUrl, { method: 'POST', body: fd });
+                    if (data.success && data.ticket) {
+                        ticketCreated = true;
+                        renderBotMessage(`✅ Ticket #${data.ticket.id} has been created successfully! Our support team will review it and reply soon. You can view the chat in the **Support Ticket History** table above.`);
+                        // CRASH FIX: Keep inputs disabled until live chat is ready
+                        setTimeout(() => {
+                            switchToLiveChatMode(data.ticket.id);
+                            loadTicketHistory();
+                            btn.disabled = false;
+                            input.disabled = false;
+                        }, 1000);
+                    } else {
+                        renderBotMessage(`❌ Failed to create ticket: ${data.message || 'Unknown error'}.`);
+                        btn.disabled = false;
+                        input.disabled = false;
+                    }
+                } catch (err) {
+                    const message = err && err.message ? err.message : 'Could not connect to the server. Please check your connection.';
+                    renderBotMessage(`❌ Error: ${message}`);
+                    btn.disabled = false;
+                    input.disabled = false;
+                }
+
+                // CRASH FIX: Skip "Back to quick menu" button if ticket was created (UI will switch to live chat)
+                try {
+                    // Mark request end will happen after switchToLiveChatMode timeout too
+                } finally {
+                    // Allow new requests after UI update attempt
+                    window.botRequestInFlight = false;
+                }
+
+                if (!ticketCreated) {
+                    const backCheck = document.createElement('div');
+                    backCheck.className = 'mt-2';
+                    backCheck.innerHTML = '<button class="text-xs text-indigo-600 font-bold hover:underline px-2 py-1 rounded hover:bg-indigo-50 transition">← Back to quick menu</button>';
+                    const botMessagesAfterSend = document.getElementById('bot-messages');
+                    if (botMessagesAfterSend) {
+                        botMessagesAfterSend.appendChild(backCheck);
+                        botMessagesAfterSend.scrollTop = botMessagesAfterSend.scrollHeight;
+                    }
+
+                    backCheck.querySelector('button').onclick = () => {
+                        backCheck.remove();
+                        inputContainer.classList.add('hide');
+                        if (botFooterText) botFooterText.classList.remove('hide');
+                        repliesContainer.classList.remove('hide');
+                        renderQuickReplies('main');
+                    };
+                }
+            };
+
+            btn.addEventListener('click', handleSend);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Avoid accidental double-submit / re-entrancy
+                    if (!window.botRequestInFlight) handleSend();
+                }
+            });
+
+        }
+
+        async function openRefundModal() {
+            const planSelect = document.getElementById('refund-plan');
+            planSelect.innerHTML = '<option value="">Loading plans...</option>';
+            document.getElementById('refund-qr').value = '';
+            document.getElementById('refund-msg').classList.add('hide');
+            document.getElementById('refund-modal').classList.remove('hide');
+
+            const email = localStorage.getItem('user_email');
+            const apiUrl = getApiUrl();
+            if(apiUrl && email) {
+                try {
+                    const token = localStorage.getItem('session_token') || '';
+                    const data = await fetchJson(`${apiUrl}?action=get_purchases&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`);
+                    planSelect.innerHTML = '<option value="">-- Choose a Plan --</option>';
+                    // Ensure refund modal shows only plans that user actually owns (approved payments)
+                    const plans = (data && data.purchases && data.success) ? data.purchases : [];
+                    const plansSet = new Set(plans);
+                    const purchases = Array.from(plansSet);
+                    if(purchases && purchases.length > 0) {
+                        purchases.forEach(p => {
+                            const opt = document.createElement('option');
+                            opt.value = p;
+                            opt.textContent = p.toUpperCase() + ' Package';
+                            planSelect.appendChild(opt);
+                        });
+                    } else {
+                        planSelect.innerHTML = '<option value="">-- No active plans found --</option>';
+                    }
+                } catch (e) {
+                    planSelect.innerHTML = '<option value="">-- Error loading plans --</option>';
+                }
+            } else {
+                planSelect.innerHTML = '<option value="">-- Choose a Plan --</option>';
+            }
+        }
+
+        async function submitRefundRequest() {
+            const email = localStorage.getItem('user_email');
+            const token = localStorage.getItem('session_token') || '';
+            const plan = document.getElementById('refund-plan').value;
+            const qrInput = document.getElementById('refund-qr');
+            const msgEl = document.getElementById('refund-msg');
+            const btn = document.getElementById('submit-refund-btn');
+
+            if (!plan) {
+                msgEl.textContent = 'Please select a plan.';
+                msgEl.className = 'text-sm font-semibold text-rose-600 mt-2';
+                msgEl.classList.remove('hide');
+                return;
+            }
+            if (!qrInput.files[0]) {
+                msgEl.textContent = 'Please upload your QR code image.';
+                msgEl.className = 'text-sm font-semibold text-rose-600 mt-2';
+                msgEl.classList.remove('hide');
+                return;
+            }
+
+            msgEl.classList.add('hide');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            const fd = new FormData();
+            fd.append('action', 'request_refund');
+            fd.append('email', email);
+            fd.append('token', token);
+            fd.append('plan', plan);
+            fd.append('qr_code', qrInput.files[0]);
+
+            const apiUrl = getApiUrl();
+            if (!apiUrl) {
+                msgEl.textContent = 'Cannot submit from file://';
+                msgEl.className = 'text-sm font-semibold text-rose-600 mt-2';
+                msgEl.classList.remove('hide');
+                btn.disabled = false;
+                btn.textContent = 'Submit Request';
+                return;
+            }
+
+            try {
+                const data = await fetchJson(apiUrl, { method: 'POST', body: fd });
+                if (data.success) {
+                    msgEl.textContent = data.message || 'Refund request submitted successfully.';
+                    msgEl.className = 'text-sm font-semibold text-emerald-600 mt-2';
+                    msgEl.classList.remove('hide');
+                    setTimeout(() => {
+                        document.getElementById('refund-modal').classList.add('hide');
+                    }, 6000); // Wait 6 seconds so user has time to copy the REF token
+                } else {
+                    msgEl.textContent = data.message || 'Failed to submit request.';
+                    msgEl.className = 'text-sm font-semibold text-rose-600 mt-2';
+                    msgEl.classList.remove('hide');
+                }
+            } catch (e) {
+                msgEl.textContent = 'Network error.';
+                msgEl.className = 'text-sm font-semibold text-rose-600 mt-2';
+                msgEl.classList.remove('hide');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Submit Request';
+        }
+
+        window.addEventListener('load', () => {
+            loadProfile();
+            initChatBox();
+        });
+    </script>
+</body>
+</html>

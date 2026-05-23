@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Portal | Exam Prep Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .hide { display: none !important; }
+    html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+    html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+    html.dark-theme img, html.dark-theme svg { filter: invert(1) hue-rotate(180deg); }
+  </style>
+  <script>
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+  </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-8">
+  <div class="max-w-5xl mx-auto space-y-6">
+
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-extrabold text-slate-800">Agent Portal</h1>
+        <p class="text-slate-500 mt-1">Resolve student support tickets</p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="logout()" class="px-4 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition">Logout</button>
+      </div>
+    </header>
+
+    <section class="bg-white rounded-xl shadow border border-slate-200 p-5">
+      <div class="flex items-start justify-between gap-4 flex-col md:flex-row">
+        <div>
+          <div class="text-sm font-bold text-slate-600 uppercase tracking-wider">Logged in as</div>
+          <div id="agent-email" class="text-lg font-extrabold text-slate-900 mt-1">-</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center min-w-[120px]">
+          <div class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Resolved</div>
+          <div id="resolved-count" class="text-2xl font-black text-emerald-700 mt-0.5">0</div>
+        </div>
+        <div>
+          <button onclick="refreshTickets()" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Refresh Tickets</button>
+        </div>
+      </div>
+
+      <div class="mt-6 border-b border-slate-200 flex gap-4">
+          <button onclick="setTab('new')" id="tab-new" class="pb-2 font-bold text-indigo-600 border-b-2 border-indigo-600">New Tickets</button>
+          <button onclick="setTab('pending')" id="tab-pending" class="pb-2 font-bold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent transition">Pending</button>
+          <button onclick="setTab('completed')" id="tab-completed" class="pb-2 font-bold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent transition">Completed</button>
+      </div>
+
+      <div class="mt-6 overflow-x-auto">
+        <div class="rounded-lg border border-slate-200 overflow-hidden">
+            <table class="w-full text-sm text-slate-700">
+              <thead class="bg-slate-100">
+                <tr class="text-left">
+                  <th class="p-3 font-bold">Ticket #</th>
+                  <th class="p-3 font-bold">Student</th>
+                  <th class="p-3 font-bold">Subject</th>
+                  <th class="p-3 font-bold">Received</th>
+                  <th class="p-3 font-bold">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tickets-body" class="divide-y divide-slate-100">
+                <!-- rows -->
+              </tbody>
+            </table>
+        </div>
+        <div id="no-tickets" class="text-center text-slate-400 py-6 hide">No tickets found.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Chat Modal -->
+  <div id="chat-modal" class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-2xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <header class="p-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
+            <h3 class="font-bold text-lg">Chat with Student - Ticket #<span id="modal-ticket-id"></span></h3>
+            <button onclick="closeChatModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+        </header>
+        <div id="modal-chat-history" class="p-4 flex-1 overflow-y-auto bg-slate-50 space-y-4 flex flex-col">
+            <!-- Chat messages will be injected here -->
+        </div>
+        <footer id="modal-footer" class="p-4 bg-white border-t border-slate-200 shrink-0">
+            <textarea id="modal-chat-input" rows="3" class="w-full p-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Type your reply to the student..."></textarea>
+            <div class="mt-3 flex justify-between items-center">
+                <button onclick="sendAgentMessage()" class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Send Message</button>
+                <button onclick="closeTicket()" class="px-5 py-2.5 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition">Close Ticket</button>
+            </div>
+        </footer>
+    </div>
+
+  </div>
+
+  <script>
+    function requireAgentAuth() {
+      const ok = localStorage.getItem('agent_logged_in') === 'true' && localStorage.getItem('agent_id');
+      if (!ok) {
+        window.location.href = 'agent-login.html';
+        return false;
+      }
+      return true;
+    }
+
+    async function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+            const fd = new FormData();
+            fd.append('action', 'logout');
+            await fetch('api.php', { method: 'POST', body: fd, credentials: 'include' });
+
+            localStorage.removeItem('agent_logged_in');
+            localStorage.removeItem('agent_email');
+            window.location.href = 'agent-login.html';
+        }
+    }
+
+    function setAgentEmail() {
+      const el = document.getElementById('agent-email');
+      const email = localStorage.getItem('agent_email') || '-';
+      el.textContent = email;
+    }
+
+    let currentTab = 'new';
+    function setTab(tab) {
+        currentTab = tab;
+        ['new', 'pending', 'completed'].forEach(t => {
+            const el = document.getElementById('tab-' + t);
+            if (t === tab) {
+                el.className = 'pb-2 font-bold text-indigo-600 border-b-2 border-indigo-600';
+            } else {
+                el.className = 'pb-2 font-bold text-slate-500 hover:text-indigo-600 border-b-2 border-transparent transition';
+            }
+        });
+        document.getElementById('modal-ticket-id').textContent = '';
+        refreshTickets();
+    }
+
+    function refreshTickets() {
+      const tbody = document.getElementById('tickets-body');
+      const noTickets = document.getElementById('no-tickets');
+      const currentTicketId = document.getElementById('modal-ticket-id').textContent;
+
+      tbody.innerHTML = '';
+      noTickets.classList.add('hide');
+
+      fetch('api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'agent_fetch_tickets', tab: currentTab }),
+        credentials: 'include'
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success) throw new Error(d.message || 'Failed');
+        const tickets = d.tickets || [];
+        if (d.resolved_count !== undefined) {
+           const el = document.getElementById('resolved-count');
+           if (el) el.textContent = d.resolved_count;
+        }
+        if (tickets.length === 0) {
+          noTickets.classList.remove('hide');
+          return;
+        }
+        tickets.forEach(t => {
+          const tr = document.createElement('tr');
+          tr.className = 'align-top';
+          const isSelected = currentTicketId && Number(currentTicketId) === t.id;
+          
+          let btnText = 'Open Chat';
+          if (currentTab === 'new') btnText = 'Claim Ticket';
+          if (currentTab === 'completed') btnText = 'View Chat';
+          if (isSelected) btnText = 'Selected';
+
+          tr.innerHTML = `
+            <td class="py-3 font-mono font-bold text-indigo-700">#${t.id}</td>
+            <td class="py-3 font-semibold">${t.student_email}</td>
+            <td class="py-3">${escapeHtml(t.subject)}</td>
+            <td class="py-3 text-xs text-slate-500">${new Date(t.created_at).toLocaleString()}</td>
+            <td class="py-3">
+              <button class="px-3 py-1.5 ${isSelected ? 'bg-emerald-600 text-white' : 'bg-indigo-50 text-indigo-700'} font-bold rounded-lg border ${isSelected ? 'border-emerald-700' : 'border-indigo-200'} hover:bg-indigo-100 transition"
+                onclick="handleTicketAction(${t.id}, \`${escapeHtml(t.message)}\`)">${btnText}</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        noTickets.classList.remove('hide');
+        noTickets.textContent = 'Error loading tickets: ' + err.message;
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/`/g, '&#96;');
+    }
+
+    async function handleTicketAction(ticketId, message) {
+        if (currentTab === 'new') {
+            const fd = new FormData();
+            fd.append('action', 'claim_ticket');
+            fd.append('ticket_id', ticketId);
+            const res = await fetch('api.php', { method: 'POST', body: fd, credentials: 'include' });
+            const data = await res.json();
+            if (data.success) {
+                setTab('pending');
+                selectTicket(ticketId, message);
+            } else {
+                alert(data.message || 'Failed to claim ticket. It might have been claimed by another agent.');
+                refreshTickets();
+            }
+        } else {
+            selectTicket(ticketId, message);
+        }
+    }
+
+    let chatPollInterval = null;
+
+    function selectTicket(ticketId, originalMessage) {
+        document.getElementById('modal-ticket-id').textContent = ticketId;
+        const chatHistoryEl = document.getElementById('modal-chat-history');
+        chatHistoryEl.innerHTML = `<div class="bg-slate-100 p-3 rounded-lg border border-slate-200 text-sm text-slate-600 whitespace-pre-wrap">${originalMessage}</div>`;
+        
+        document.getElementById('modal-footer').classList.remove('hide');
+        
+        document.getElementById('chat-modal').classList.remove('hide');
+        
+        if (chatPollInterval) clearInterval(chatPollInterval);
+        let lastMessageId = 0;
+
+        const fetchMessages = async () => {
+            const res = await fetch(`api.php?action=fetch_chat_messages&ticket_id=${ticketId}`, {credentials: 'include'});
+            const data = await res.json();
+            if (data.success) {
+                if (data.status === 'not_found') {
+                    if (chatPollInterval) clearInterval(chatPollInterval);
+                    alert("This ticket has been deleted.");
+                    closeChatModal();
+                    return;
+                }
+                if (data.messages) {
+                const newMessages = data.messages.filter(m => Number(m.id) > lastMessageId);
+                newMessages.forEach(msg => {
+                    const bubble = document.createElement('div');
+                    if (msg.sender_type === 'user') {
+                        bubble.className = 'p-3 rounded-lg bg-white border border-slate-200 self-start max-w-[85%]';
+                        bubble.innerHTML = `<p class="text-sm text-slate-700">${escapeHtml(msg.message)}</p>`;
+                    } else {
+                        bubble.className = 'p-3 rounded-lg bg-indigo-600 text-white self-end max-w-[85%]';
+                        bubble.innerHTML = `<p class="text-sm">${escapeHtml(msg.message)}</p>`;
+                    }
+                    chatHistoryEl.appendChild(bubble);
+                    lastMessageId = Number(msg.id);
+                });
+                chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
+                }
+            }
+        };
+
+        fetchMessages(); // initial fetch
+        chatPollInterval = setInterval(fetchMessages, 3000);
+        refreshTickets(); // to update button state
+    }
+
+    function closeChatModal() {
+        if (chatPollInterval) clearInterval(chatPollInterval);
+        document.getElementById('chat-modal').classList.add('hide');
+        document.getElementById('modal-ticket-id').textContent = '';
+        refreshTickets();
+    }
+
+    async function sendAgentMessage() {
+        const btn = document.querySelector('button[onclick="sendAgentMessage()"]');
+        if (btn && btn.disabled) return;
+        
+        const ticketId = document.getElementById('modal-ticket-id').textContent;
+        const input = document.getElementById('modal-chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        if (btn) btn.disabled = true;
+        input.disabled = true;
+
+        input.value = '';
+        const fd = new FormData();
+        fd.append('action', 'send_chat_message');
+        fd.append('ticket_id', ticketId);
+        fd.append('sender_type', 'agent');
+        fd.append('message', message);
+        await fetch('api.php', { method: 'POST', body: fd, credentials: 'include' });
+        
+        if (btn) btn.disabled = false;
+        input.disabled = false;
+        input.focus();
+    }
+
+    async function closeTicket() {
+        if (!confirm("Are you sure you want to close this ticket?")) return;
+        const ticketId = document.getElementById('modal-ticket-id').textContent;
+        const fd = new FormData();
+        fd.append('action', 'close_ticket');
+        fd.append('ticket_id', ticketId);
+        fd.append('closed_by', 'agent');
+        await fetch('api.php', { method: 'POST', body: fd, credentials: 'include' });
+        closeChatModal();
+    }
+
+    function agentPing() {
+        const fd = new FormData();
+        fd.append('action', 'agent_ping');
+        fetch('api.php', { method: 'POST', body: fd, credentials: 'include' }).catch(console.error);
+    }
+
+    // init
+    if (requireAgentAuth()) {
+      setAgentEmail();
+      refreshTickets();
+      agentPing(); // initial ping
+      setInterval(agentPing, 60000); // ping every 60 seconds
+    }
+  </script>
+</body>
+</html>

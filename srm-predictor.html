@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRMJEEE College Predictor</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme canvas, html.dark-theme img { filter: invert(1) hue-rotate(180deg); }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-purple-50/50 p-4 md:p-8 space-y-8 font-sans">
+    
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-purple-100/50 pb-6 print:hidden">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-tr from-purple-600 to-fuchsia-500 p-3.5 rounded-xl shadow-lg text-white transform transition hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">SRMJEEE <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-fuchsia-500">Predictor</span></h1>
+                    <p class="text-slate-500 font-medium mt-1">Check branch cutoffs based on your rank across all SRM campuses.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="payments.html?plan=srm" class="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-fuchsia-600 rounded-xl text-white hover:from-purple-600 hover:to-fuchsia-700 transition-all shadow-lg font-extrabold text-sm transform hover:-translate-y-1">Purchase Premium Mock Tests</a>
+                <button onclick="document.documentElement.classList.toggle('dark-theme'); localStorage.setItem('theme', document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light');" class="text-sm font-medium text-slate-500 hover:text-purple-600 transition px-2">Toggle Theme</button>
+                <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Home Hub</a>
+                <button onclick="window.print()" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm shadow-sm">Print</button>
+            </div>
+        </header>
+
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-purple-600">Enter Your Rank</h3>
+            </div>
+            <div class="p-6">
+                <label class="text-lg font-semibold text-slate-700">Estimated SRMJEEE Rank</label>
+                <input id="srm-rank" type="number" placeholder="ex: 15000" min="1" class="w-full max-w-md mt-2 pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-2xl font-bold transition-all focus:bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none rounded-xl shadow-sm" />
+            </div>
+        </div>
+
+        <!-- Probability Table -->
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-purple-600">Admission Chances</h3>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <select id="chance-filter" class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium cursor-pointer">
+                        <option value="All">All Branches</option>
+                        <option value="Possible">Available to me</option>
+                    </select>
+                    <input id="branch-search" type="text" placeholder="Search branch..." class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                    <div id="campus-filters" class="flex flex-wrap gap-2 rounded-md bg-slate-200 p-1"></div>
+                </div>
+            </div>
+            <div class="p-0 md:p-6 md:pt-0 overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600 border border-slate-200 rounded-lg">
+                    <thead class="bg-slate-100/50 text-slate-700">
+                        <tr class="border-b-2 border-slate-200">
+                            <th class="font-semibold uppercase text-xs py-4 px-4 cursor-pointer hover:bg-slate-200" onclick="handleSort('campus')">Campus</th>
+                            <th class="font-semibold uppercase text-xs py-4 px-4 cursor-pointer hover:bg-slate-200" onclick="handleSort('branch')">Branch</th>
+                            <th class="text-right font-semibold uppercase text-xs py-4 px-4 cursor-pointer hover:bg-slate-200" onclick="handleSort('rank')">Closing Rank Cutoff</th>
+                            <th class="text-center font-semibold uppercase text-xs py-4 px-4">Probability</th>
+                        </tr>
+                    </thead>
+                    <tbody id="probability-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cutoffData = [
+            // KTR Main
+            { campus: "KTR (Main)", branch: "Computer Science (CSE)", rank: 10000 },
+            { campus: "KTR (Main)", branch: "CSE (Artificial Intelligence & ML)", rank: 14000 },
+            { campus: "KTR (Main)", branch: "CSE (Data Science)", rank: 16000 },
+            { campus: "KTR (Main)", branch: "CSE (Cyber Security)", rank: 18000 },
+            { campus: "KTR (Main)", branch: "CSE (Software Engineering)", rank: 19000 },
+            { campus: "KTR (Main)", branch: "Information Technology (IT)", rank: 22000 },
+            { campus: "KTR (Main)", branch: "Electronics & Comm (ECE)", rank: 28000 },
+            { campus: "KTR (Main)", branch: "Electrical & Electronics (EEE)", rank: 35000 },
+            { campus: "KTR (Main)", branch: "Biomedical Engineering", rank: 45000 },
+            { campus: "KTR (Main)", branch: "Aerospace Engineering", rank: 40000 },
+            { campus: "KTR (Main)", branch: "Mechanical Engineering", rank: 55000 },
+            { campus: "KTR (Main)", branch: "Civil Engineering", rank: 65000 },
+
+            // Ramapuram
+            { campus: "Ramapuram", branch: "Computer Science (CSE)", rank: 25000 },
+            { campus: "Ramapuram", branch: "CSE (Artificial Intelligence & ML)", rank: 28000 },
+            { campus: "Ramapuram", branch: "Information Technology (IT)", rank: 32000 },
+            { campus: "Ramapuram", branch: "Electronics & Comm (ECE)", rank: 45000 },
+            { campus: "Ramapuram", branch: "Mechanical Engineering", rank: 70000 },
+
+            // Vadapalani
+            { campus: "Vadapalani", branch: "Computer Science (CSE)", rank: 32000 },
+            { campus: "Vadapalani", branch: "CSE (Artificial Intelligence & ML)", rank: 35000 },
+            { campus: "Vadapalani", branch: "Electronics & Comm (ECE)", rank: 55000 },
+            { campus: "Vadapalani", branch: "Mechanical Engineering", rank: 75000 },
+
+            // NCR Ghaziabad
+            { campus: "NCR Ghaziabad", branch: "Computer Science (CSE)", rank: 40000 },
+            { campus: "NCR Ghaziabad", branch: "Electronics & Comm (ECE)", rank: 60000 },
+            { campus: "NCR Ghaziabad", branch: "Mechanical Engineering", rank: 80000 },
+            
+            // SRM AP
+            { campus: "SRM AP", branch: "Computer Science (CSE)", rank: 35000 },
+            { campus: "SRM AP", branch: "Electronics & Comm (ECE)", rank: 50000 },
+            { campus: "SRM AP", branch: "Mechanical Engineering", rank: 65000 }
+        ];
+
+        let srmRank = null;
+        let campusFilter = 'All';
+        let chanceFilter = 'All';
+        let branchSearch = '';
+        let sortColumn = 'rank';
+        let sortAsc = true;
+
+        const getProbabilityBadge = (cutoff) => {
+            if (srmRank === null) return `<span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold">Enter Rank</span>`;
+            if (srmRank <= cutoff * 0.85) return `<span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold shadow-sm">Safe</span>`;
+            if (srmRank <= cutoff * 1.15) return `<span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold shadow-sm">Borderline</span>`;
+            return `<span class="px-2 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-semibold shadow-sm">Unlikely</span>`;
+        };
+
+        const renderFilters = () => {
+            const elFilters = document.getElementById('campus-filters');
+            elFilters.innerHTML = '';
+            ['All', 'KTR (Main)', 'Ramapuram', 'Vadapalani', 'NCR Ghaziabad', 'SRM AP'].forEach(campus => {
+                const btn = document.createElement('button');
+                btn.innerText = campus;
+                btn.className = `py-1.5 px-3 rounded-md text-sm font-medium transition ${campusFilter === campus ? 'bg-purple-600 text-white shadow' : 'text-slate-600 hover:bg-slate-300/70'}`;
+                btn.onclick = () => { campusFilter = campus; renderFilters(); renderTable(); };
+                elFilters.appendChild(btn);
+            });
+        };
+
+        const renderTable = () => {
+            const tbody = document.getElementById('probability-table-body');
+            tbody.innerHTML = '';
+            
+            const filtered = cutoffData.filter(i => {
+                if (campusFilter !== 'All' && i.campus !== campusFilter) return false;
+                if (!i.branch.toLowerCase().includes(branchSearch.toLowerCase())) return false;
+                if (chanceFilter === 'Possible' && srmRank !== null && srmRank > i.rank * 1.15) return false;
+                return true;
+            });
+            
+            filtered.sort((a, b) => {
+                const vA = a[sortColumn]; const vB = b[sortColumn];
+                return sortAsc ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
+            });
+            
+            filtered.forEach(i => {
+                const tr = document.createElement('tr');
+                tr.className = `border-b border-slate-100 hover:bg-purple-50/50 transition`;
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-800">${i.campus}</td>
+                    <td class="px-4 py-3 text-slate-700">${i.branch}</td>
+                    <td class="px-4 py-3 text-right font-semibold text-purple-700">${i.rank.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-center">${getProbabilityBadge(i.rank)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        const handleSort = (col) => { sortAsc = sortColumn === col ? !sortAsc : true; sortColumn = col; renderTable(); };
+
+        document.getElementById('srm-rank').addEventListener('input', e => { 
+            srmRank = e.target.value === '' ? null : Number(e.target.value); 
+            if (srmRank !== null) localStorage.setItem('srmRank', srmRank); 
+            else localStorage.removeItem('srmRank');
+            renderTable(); 
+        });
+        document.getElementById('branch-search').addEventListener('input', e => { branchSearch = e.target.value; renderTable(); });
+        document.getElementById('chance-filter').addEventListener('change', e => { chanceFilter = e.target.value; renderTable(); });
+
+        const saved = localStorage.getItem('srmRank');
+        if (saved !== null && saved !== "null") { document.getElementById('srm-rank').value = saved; srmRank = Number(saved); }
+        
+        renderFilters(); renderTable();
+    </script>
+</body>
+</html>

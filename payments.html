@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Premium Mocks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .hide { display: none !important; }
+        html.dark-theme { filter: invert(1) hue-rotate(180deg); }
+        html.dark-theme, html.dark-theme body { background-color: #f8fafc; color: #0f172a; }
+        html.dark-theme img, html.dark-theme svg { filter: invert(1) hue-rotate(180deg); }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.9); }
+        }
+        .combo-glow { animation: glow 2s infinite; }
+    </style>
+    <script>
+        // Require Login for Payment Page
+        if (!localStorage.getItem('user_email')) {
+            window.location.href = 'login.html?redirect=payments.html' + (window.location.search || '');
+        }
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+    </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-8 flex flex-col items-center">
+
+    <div class="max-w-5xl w-full space-y-8">
+        <header class="text-center space-y-3 mb-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-rose-500 tracking-tight">Unlock Premium Mocks</h1>
+            <p class="text-slate-500 font-medium text-lg">Select your target exam or grab the Mega Bundle for ultimate preparation.</p>
+            <a href="index.html" class="inline-block mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition underline">← Back to Home</a>
+        </header>
+
+        <!-- Pricing Plans -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            
+            <!-- Individual Exams List -->
+            <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <!-- MET -->
+                <div onclick="selectPlan('met', 500)" id="plan-met" class="plan-card cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-indigo-400 transition-all flex flex-col h-full relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-800">MET Package</h3>
+                    <p class="text-slate-500 text-sm mt-1 mb-4">25 Full-length MET Mocks</p>
+                    <div class="mt-auto text-3xl font-black text-indigo-600">₹500</div>
+                </div>
+
+                <!-- VITEEE -->
+                <div onclick="selectPlan('vit', 500)" id="plan-vit" class="plan-card cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-blue-400 transition-all flex flex-col h-full relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-800">VITEEE Package</h3>
+                    <p class="text-slate-500 text-sm mt-1 mb-4">25 Full-length VITEEE Mocks</p>
+                    <div class="mt-auto text-3xl font-black text-blue-600">₹500</div>
+                </div>
+
+                <!-- SRMJEEE -->
+                <div onclick="selectPlan('srm', 500)" id="plan-srm" class="plan-card cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-purple-400 transition-all flex flex-col h-full relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-800">SRMJEEE Package</h3>
+                    <p class="text-slate-500 text-sm mt-1 mb-4">25 Full-length SRMJEEE Mocks</p>
+                    <div class="mt-auto text-3xl font-black text-purple-600">₹500</div>
+                </div>
+
+                <!-- BITSAT -->
+                <div onclick="selectPlan('bitsat', 500)" id="plan-bitsat" class="plan-card cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-orange-400 transition-all flex flex-col h-full relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-800">BITSAT Package</h3>
+                    <p class="text-slate-500 text-sm mt-1 mb-4">25 Full-length BITSAT Mocks</p>
+                    <div class="mt-auto text-3xl font-black text-orange-600">₹500</div>
+                </div>
+
+
+                <!-- Amrita (AEEE) -->
+                <div onclick="selectPlan('amrita', 500)" id="plan-amrita" class="plan-card cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-pink-400 transition-all flex flex-col h-full relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-800">AEEE Package</h3>
+                    <p class="text-slate-500 text-sm mt-1 mb-4">25 Full-length AEEE Mocks</p>
+                    <div class="mt-auto text-3xl font-black text-pink-600">₹500</div>
+                </div>
+
+                <!-- JEE Mains -->
+                <div onclick="selectPlan('jee', 500)" id="plan-jee" class="plan-card cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-sky-400 transition-all flex flex-col h-full relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-800">JEE Mains Package</h3>
+                    <p class="text-slate-500 text-sm mt-1 mb-4">25 Full-length JEE Mocks</p>
+                    <div class="mt-auto text-3xl font-black text-sky-600">₹500</div>
+                </div>
+
+                <!-- GITAM (GAT) -->
+                <div onclick="selectPlan('gitam', 500)" id="plan-gitam" class="plan-card cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-red-400 transition-all flex flex-col h-full relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-slate-800">GAT Package</h3>
+                    <p class="text-slate-500 text-sm mt-1 mb-4">25 Full-length GAT Mocks</p>
+                    <div class="mt-auto text-3xl font-black text-red-600">₹500</div>
+                </div>
+            </div>
+
+            <!-- Combo Card -->
+            <div onclick="selectPlan('combo', 1500)" id="plan-combo" class="plan-card cursor-pointer bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 rounded-2xl p-1 shadow-2xl combo-glow transform transition-transform hover:scale-105">
+                <div class="bg-white rounded-xl p-6 h-full flex flex-col relative">
+                    <div class="absolute top-0 right-0 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-xl uppercase tracking-wider">Best Value</div>
+                    <h3 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-rose-600 mb-2">Mega Bundle</h3>                    <p class="text-slate-600 text-sm font-medium mb-4">Unlock ALL 150+ Mock Tests across MET, VITEEE, SRMJEEE, BITSAT, AEEE, & GAT.</p>
+                    <ul class="space-y-2 mb-6 text-sm font-semibold text-slate-700">
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> 25 MET Tests</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> 25 VITEEE Tests</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> 25 SRMJEEE Tests</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> 25 BITSAT Tests</li>
+                        <li class="flex items-center gap-2 text-slate-500 italic">+ JEE, Amrita, & GITAM Series</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <div class="text-sm text-slate-400 line-through font-bold">₹2000</div>
+                        <div class="text-4xl font-black text-slate-800">₹1500</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Checkout Section -->
+        <div id="checkout-section" class="hide mt-12 max-w-lg mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-800 p-4 text-white text-center">
+                <h2 class="text-xl font-bold">Complete Your Purchase</h2>
+                <p class="text-slate-300 text-sm" id="checkout-plan-name">Selected: Mega Bundle</p>
+            </div>
+            
+            <div class="p-8" id="payment-form">
+                <div id="qr-section" class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center mb-6 transition-all duration-300">
+                    <p class="text-slate-800 font-bold mb-1">Scan QR Code using PhonePe, GPay, Paytm, etc.</p>
+                    <p class="text-slate-500 text-sm mb-4">The Order ID will be automatically added to your payment remarks.</p>
+                    <img src="" id="qr-image" class="mx-auto w-48 h-48 rounded-lg shadow-sm bg-white p-2" alt="UPI QR Code">
+                    <p class="text-indigo-700 font-bold mt-4 tracking-wide">UPI ID: 8309888194@fam</p>
+                    <p class="text-slate-800 font-black text-3xl mt-1" id="checkout-amount">₹1500</p>
+                    <p class="text-slate-600 font-bold mt-2 text-lg">Order ID: <span id="display-order-id" class="text-rose-600 font-mono"></span></p>
+                    <div class="mt-4 p-3 bg-indigo-50 border border-indigo-100 rounded text-sm text-indigo-800 font-medium">
+                        Important: Please take a screenshot of your successful payment receipt.
+                    </div>
+                </div>
+
+                <div class="space-y-4 text-left">
+                    <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg flex gap-3">
+                        <input type="text" id="discount-code" placeholder="Enter Coupon Code" class="flex-1 px-4 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 uppercase outline-none text-sm">
+                        <button id="apply-coupon-btn" onclick="applyCoupon()" class="px-4 py-2 bg-indigo-100 text-indigo-700 font-bold rounded hover:bg-indigo-200 transition text-sm">Apply</button>
+                    </div>
+                    <div id="screenshot-section" class="transition-all duration-300">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Upload Payment Screenshot</label>
+                        <input type="file" id="payment-screenshot" accept="image/*" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    
+                    <button id="submit-proof-btn" onclick="submitPaymentProof()" class="w-full py-3.5 bg-indigo-600 text-white font-bold text-lg rounded-lg hover:bg-indigo-700 transition shadow-md">
+                        Submit for Verification
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="hide p-12 text-center space-y-6">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600"></div>
+                <h3 class="text-xl font-bold text-slate-800">Verifying Payment...</h3>
+                <p class="text-slate-500 text-sm">Please wait while an admin verifies your screenshot. This page will automatically update.</p>
+            </div>
+
+            <!-- Success State -->
+            <div id="success-state" class="hide p-12 text-center space-y-4 bg-emerald-50">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-emerald-800">Payment Successful!</h3>
+                <p class="text-emerald-600 font-medium">Your tests have been unlocked automatically.</p>
+                <p class="text-sm text-slate-500 mt-4">Redirecting you to the dashboard...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPlan = '';
+        let currentAmount = 0;
+        let currentOrderId = '';
+        let originalAmount = 0;
+        let discountApplied = false;
+        let currentCouponCode = '';
+
+        const savePendingPayment = () => {
+            localStorage.setItem('pending_payment_order_id', currentOrderId);
+            localStorage.setItem('pending_payment_plan', currentPlan);
+            localStorage.setItem('pending_payment_amount', currentAmount.toString());
+            localStorage.setItem('pending_payment_started_at', Date.now().toString());
+        };
+
+        const clearPendingPayment = () => {
+            localStorage.removeItem('pending_payment_order_id');
+            localStorage.removeItem('pending_payment_plan');
+            localStorage.removeItem('pending_payment_amount');
+            localStorage.removeItem('pending_payment_started_at');
+        };
+
+        const restorePendingPayment = () => {
+            const savedOrderId = localStorage.getItem('pending_payment_order_id');
+            const savedPlan = localStorage.getItem('pending_payment_plan');
+            const savedAmount = Number(localStorage.getItem('pending_payment_amount') || 0);
+            if (!savedOrderId || !savedPlan || !savedAmount) return false;
+
+            currentPlan = savedPlan;
+            currentAmount = savedAmount;
+            currentOrderId = savedOrderId;
+
+            selectPlan(currentPlan, currentAmount);
+            document.getElementById('display-order-id').innerText = currentOrderId;
+            document.getElementById('checkout-section').classList.remove('hide');
+            document.getElementById('payment-form').classList.add('hide');
+            document.getElementById('loading-state').classList.remove('hide');
+            startPolling();
+            return true;
+        };
+
+        const applyCoupon = () => {
+            if(discountApplied) return alert("Coupon already applied!");
+            const code = document.getElementById('discount-code').value.trim();
+            if(!code) return alert("Please enter a coupon code");
+            
+            fetch(`api.php?action=validate_coupon&code=${encodeURIComponent(code)}`)
+            .then(r => r.json())
+            .then(data => {
+                if(data.success) {
+                    originalAmount = currentAmount;
+                    currentAmount = Math.max(0, currentAmount - data.discount);
+                    discountApplied = true;
+                    currentCouponCode = code;
+                    document.getElementById('checkout-amount').innerHTML = `<span class="text-slate-400 line-through text-xl mr-2">₹${originalAmount}</span>₹${currentAmount}`;
+                    
+                    if (currentAmount > 0) {
+                        const upiData = `upi://pay?pa=8309888194@fam&pn=Exam%20Prep%20Hub&am=${currentAmount}&cu=INR&tr=${currentOrderId}&tn=Order_${currentOrderId}`;
+                        document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiData)}`;
+                    } else {
+                        document.getElementById('qr-section').classList.add('hide');
+                        document.getElementById('screenshot-section').classList.add('hide');
+                        document.getElementById('submit-proof-btn').innerText = 'Claim Free Access';
+                    }
+                    
+                    document.getElementById('discount-code').disabled = true;
+                    document.getElementById('apply-coupon-btn').innerText = 'Applied';
+                    document.getElementById('apply-coupon-btn').disabled = true;
+                    alert(`Coupon applied successfully! You got a discount of ₹${data.discount}.`);
+                } else { alert(data.message); }
+            }).catch(() => alert("Failed to validate coupon."));
+        };
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark-theme');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light');
+        }
+
+        const extractJSON = (text) => {
+            const startIndex = text.indexOf('{"success"');
+            if (startIndex !== -1) {
+                let openBraces = 0;
+                for (let i = startIndex; i < text.length; i++) {
+                    if (text[i] === '{') openBraces++;
+                    else if (text[i] === '}') {
+                        openBraces--;
+                        if (openBraces === 0) return JSON.parse(text.substring(startIndex, i + 1));
+                    }
+                }
+            }
+            return JSON.parse(text);
+        };
+
+        // Check URL parameters to auto-select a plan
+        window.onload = () => {
+            if (!restorePendingPayment()) {
+                const params = new URLSearchParams(window.location.search);
+                const plan = params.get('plan');
+                if (plan) {
+                    selectPlan(plan, plan === 'combo' ? 1500 : 500);
+                    document.getElementById('checkout-section').scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        };
+
+        const selectPlan = (planId, amount) => {
+            currentPlan = planId;
+            currentAmount = amount;
+            originalAmount = amount;
+            discountApplied = false;
+            currentCouponCode = '';
+            const codeEl = document.getElementById('discount-code');
+            const btnEl = document.getElementById('apply-coupon-btn');
+            if (codeEl && btnEl) {
+                codeEl.value = '';
+                codeEl.disabled = false;
+                btnEl.innerText = 'Apply';
+                btnEl.disabled = false;
+            }
+            
+            // Reset all borders
+            document.querySelectorAll('.plan-card').forEach(el => {
+                if(el.id === 'plan-combo') {
+                    el.classList.remove('ring-4', 'ring-rose-500');
+                } else {
+                    el.classList.remove('border-indigo-600', 'ring-2', 'ring-indigo-600');
+                    el.classList.add('border-slate-200');
+                }
+            });
+
+            // Highlight selected
+            const selectedEl = document.getElementById(`plan-${planId}`);
+            if(planId === 'combo') {
+                selectedEl.classList.add('ring-4', 'ring-rose-500');
+            } else {
+                selectedEl.classList.remove('border-slate-200');
+                selectedEl.classList.add('border-indigo-600', 'ring-2', 'ring-indigo-600');
+            }
+
+            // Update Checkout UI
+            const planNames = {
+                'met': 'MET 25-Test Package',
+                'vit': 'VITEEE 25-Test Package',
+                'srm': 'SRMJEEE 25-Test Package',
+                'bitsat': 'BITSAT 25-Test Package',
+                'jee': 'JEE Mains 25-Test Package',
+                'amrita': 'Amrita (AEEE) 25-Test Package',
+                'gitam': 'GITAM (GAT) 25-Test Package',
+                'combo': 'Mega Bundle (All Exams)'
+            };
+            
+            document.getElementById('checkout-plan-name').innerText = `Selected: ${planNames[planId]}`;
+            document.getElementById('checkout-amount').innerText = `₹${amount}`;
+            
+            // Generate a 6-digit random Order ID only when no pending order already exists
+            if (!currentOrderId) {
+                currentOrderId = 'EPH' + Math.floor(100000 + Math.random() * 900000);
+            }
+            document.getElementById('display-order-id').innerText = currentOrderId;
+            
+            // The &tn= parameter automatically forces the Order ID into the UPI Remarks / Note!
+            const upiData = `upi://pay?pa=8309888194@fam&pn=Exam%20Prep%20Hub&am=${amount}&cu=INR&tr=${currentOrderId}&tn=Order_${currentOrderId}`;
+            document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiData)}`;
+
+            document.getElementById('checkout-section').classList.remove('hide');
+        };
+
+        const submitPaymentProof = () => {
+            const fileInput = document.getElementById('payment-screenshot');
+            if (currentAmount > 0 && fileInput.files.length === 0) {
+                return alert("Please upload a screenshot of your successful payment.");
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'submit_payment');
+            formData.append('email', localStorage.getItem('user_email')); // Link payment to user
+            formData.append('order_id', currentOrderId);
+            formData.append('plan', currentPlan);
+            formData.append('amount', currentAmount);
+            if (currentCouponCode) {
+                formData.append('coupon_code', currentCouponCode);
+            }
+            if (currentAmount > 0) {
+                formData.append('screenshot', fileInput.files[0]);
+            }
+
+            const btn = document.getElementById('submit-proof-btn');
+            btn.disabled = true;
+            btn.innerText = 'Uploading...';
+
+            fetch('api.php', { method: 'POST', body: formData, credentials: 'include' })
+            .then(async res => {
+                const text = await res.text();
+                try { return extractJSON(text); }
+                catch (e) { throw new Error("Invalid JSON response"); }
+            })
+            .then(data => {
+                if (data.success) {
+                    savePendingPayment();
+                    if (currentAmount === 0) {
+                        handleSuccessfulPayment();
+                    } else {
+                        document.getElementById('payment-form').classList.add('hide');
+                        document.getElementById('loading-state').classList.remove('hide');
+                        startPolling();
+                    }
+                } else {
+                    alert("Error: " + (data.message || "Failed to submit."));
+                    btn.disabled = false;
+                    btn.innerText = 'Submit for Verification';
+                }
+            })
+            .catch(err => {
+                alert("Server error. Please ensure you are running this on a PHP server (like InfinityFree).");
+                btn.disabled = false;
+                btn.innerText = 'Submit for Verification';
+            });
+        };
+
+        const startPolling = () => {
+            const pollInterval = setInterval(() => {
+                fetch(`api.php?action=check_status&order_id=${currentOrderId}`, {credentials: 'include'})
+                .then(async res => {
+                    const text = await res.text();
+                    try { return extractJSON(text); }
+                    catch (e) { throw new Error("Invalid JSON response"); }
+                })
+                .then(data => {
+                    if (data.success) {
+                        if (data.status === 'approved') {
+                            clearInterval(pollInterval);
+                            handleSuccessfulPayment();
+                        } else if (data.status === 'rejected') {
+                            clearInterval(pollInterval);
+                            clearPendingPayment();
+                            alert("Your payment was rejected by the admin. Please verify and try again.");
+                            window.location.reload();
+                        }
+                    }
+                })
+                .catch(e => console.error("Polling error", e));
+            }, 5000); // Check every 5 seconds
+        };
+
+        const handleSuccessfulPayment = () => {
+            clearPendingPayment();
+            document.getElementById('loading-state').classList.add('hide');
+            document.getElementById('success-state').classList.remove('hide');
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        };
+    </script>
+</body>
+</html>

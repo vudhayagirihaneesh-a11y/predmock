@@ -1,0 +1,362 @@
+[
+  {
+    "id": 1,
+    "subject": "Physics",
+    "text": "A Carnot engine operates between two reservoirs at temperatures T1 and T2. If the efficiency is 0.5 and T1 is 600K, the change in entropy of the hot reservoir when 1200 J of heat is extracted is:",
+    "options": [
+      "-2 J/K",
+      "-4 J/K",
+      "2 J/K",
+      "4 J/K"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 2,
+    "subject": "Physics",
+    "text": "The moment of inertia of a solid cylinder of mass M, radius R, and length L about an axis passing through its center and perpendicular to its geometric axis is:",
+    "options": [
+      "M(R^2/4 + L^2/12)",
+      "M(R^2/2 + L^2/12)",
+      "M(R^2/4 + L^2/3)",
+      "MR^2/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 3,
+    "subject": "Physics",
+    "text": "A circular coil of radius r carries a current I. The magnetic field at a distance x = sqrt(3)r from the center on its axis is B. The magnetic field at the center of the coil is:",
+    "options": [
+      "8B",
+      "4B",
+      "2B",
+      "16B"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 4,
+    "subject": "Physics",
+    "text": "Unpolarized light of intensity I0 passes through two polaroids. The axis of the second polaroid is at an angle of 60 degrees to the first. The intensity of the transmitted light is:",
+    "options": [
+      "I0/8",
+      "I0/4",
+      "3I0/8",
+      "I0/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 5,
+    "subject": "Physics",
+    "text": "If the kinetic energy of a free non-relativistic electron doubles, its de Broglie wavelength changes by a factor of:",
+    "options": [
+      "1/sqrt(2)",
+      "sqrt(2)",
+      "1/2",
+      "2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 6,
+    "subject": "Physics",
+    "text": "A ship moves due east at 10 km/h. A second ship moves due north at 10 km/h. The velocity of the first ship relative to the second is:",
+    "options": [
+      "10*sqrt(2) km/h South-East",
+      "10*sqrt(2) km/h North-East",
+      "20 km/h South-East",
+      "10 km/h East"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 7,
+    "subject": "Physics",
+    "text": "Water rises to a height h in a capillary tube. If the length of the capillary tube above the surface of water is made less than h, then:",
+    "options": [
+      "Water rises to the top and stops without overflowing",
+      "Water overflows like a fountain",
+      "Water does not rise at all",
+      "Water rises up to a height h/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 8,
+    "subject": "Physics",
+    "text": "The total energy of a satellite of mass m orbiting the earth (mass M) at a distance r from the center of the earth is:",
+    "options": [
+      "-GMm/(2r)",
+      "-GMm/r",
+      "GMm/(2r)",
+      "GMm/r"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 9,
+    "subject": "Physics",
+    "text": "In a damped harmonic oscillator, the amplitude of oscillation decreases exponentially. If the amplitude becomes half of its initial value in 100 oscillations, after how many total oscillations will it become 1/8 of its initial value?",
+    "options": [
+      "300",
+      "400",
+      "200",
+      "800"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 10,
+    "subject": "Physics",
+    "text": "The quality factor (Q-factor) of an LCR series resonant circuit is given by:",
+    "options": [
+      "(1/R)*sqrt(L/C)",
+      "R*sqrt(C/L)",
+      "(1/L)*sqrt(R/C)",
+      "C*sqrt(L/R)"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 11,
+    "subject": "Chemistry",
+    "text": "The standard reduction potential of Zn2+/Zn is -0.76 V and Cu2+/Cu is +0.34 V. The standard EMF of the Daniel cell is:",
+    "options": [
+      "1.10 V",
+      "0.42 V",
+      "-1.10 V",
+      "-0.42 V"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 12,
+    "subject": "Chemistry",
+    "text": "In an SN2 substitution reaction of a chiral alkyl halide, the product exhibits:",
+    "options": [
+      "Walden Inversion",
+      "Racemization",
+      "Retention of configuration",
+      "Diastereomer formation"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 13,
+    "subject": "Chemistry",
+    "text": "The complex [Co(NH3)4Cl2]Cl primarily exhibits which of the following types of isomerism?",
+    "options": [
+      "Geometrical isomerism",
+      "Optical isomerism",
+      "Linkage isomerism",
+      "Coordination isomerism"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 14,
+    "subject": "Chemistry",
+    "text": "According to the Arrhenius equation, the slope of the plot of ln(k) against 1/T is equal to:",
+    "options": [
+      "-Ea/R",
+      "Ea/R",
+      "-R/Ea",
+      "Ea/RT"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 15,
+    "subject": "Chemistry",
+    "text": "Which of the following compounds will undergo an aldol condensation reaction?",
+    "options": [
+      "Acetaldehyde",
+      "Benzaldehyde",
+      "Formaldehyde",
+      "Trichloroacetaldehyde"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 16,
+    "subject": "Chemistry",
+    "text": "In the Ellingham diagram, the plot representing the formation of carbon monoxide (CO) from carbon:",
+    "options": [
+      "Slopes downwards",
+      "Slopes upwards",
+      "Is a horizontal line",
+      "Is a vertical line"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 17,
+    "subject": "Chemistry",
+    "text": "A crystal has an FCC lattice with edge length a. The distance between the nearest octahedral and tetrahedral voids is:",
+    "options": [
+      "a*sqrt(3)/4",
+      "a/2",
+      "a/sqrt(2)",
+      "a*sqrt(3)/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 18,
+    "subject": "Chemistry",
+    "text": "The Hofmann bromamide degradation reaction converts a primary amide into a primary amine with:",
+    "options": [
+      "One carbon less",
+      "One carbon more",
+      "The same number of carbons",
+      "Two carbons less"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 19,
+    "subject": "Chemistry",
+    "text": "Which of the following oxoacids of phosphorus is a strong reducing agent and is diprotic?",
+    "options": [
+      "H3PO3",
+      "H3PO4",
+      "H4P2O7",
+      "H3PO2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 20,
+    "subject": "Chemistry",
+    "text": "For a reversible process at equilibrium, the change in Gibbs free energy (Delta G) is:",
+    "options": [
+      "Zero",
+      "Positive",
+      "Negative",
+      "Equal to Delta H"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 21,
+    "subject": "Mathematics",
+    "text": "The value of the definite integral from -pi/2 to pi/2 of sin^5(x) dx is:",
+    "options": [
+      "0",
+      "1",
+      "pi/2",
+      "pi"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 22,
+    "subject": "Mathematics",
+    "text": "If omega is a complex cube root of unity, then the value of (1 - omega + omega^2)^5 + (1 + omega - omega^2)^5 is:",
+    "options": [
+      "32",
+      "64",
+      "-32",
+      "0"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 23,
+    "subject": "Mathematics",
+    "text": "The locus of the point of intersection of perpendicular tangents to the ellipse x^2/a^2 + y^2/b^2 = 1 is:",
+    "options": [
+      "x^2 + y^2 = a^2 + b^2",
+      "x^2 + y^2 = a^2 - b^2",
+      "x^2/a^2 + y^2/b^2 = 2",
+      "x^2 + y^2 = a*b"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 24,
+    "subject": "Mathematics",
+    "text": "For any three vectors a, b, c, the scalar triple product [a+b, b+c, c+a] is equal to:",
+    "options": [
+      "2[a, b, c]",
+      "[a, b, c]",
+      "0",
+      "3[a, b, c]"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 25,
+    "subject": "Mathematics",
+    "text": "A pair of fair dice is tossed. Given that the sum of the digits is 8, what is the probability that the first die shows a 3?",
+    "options": [
+      "1/5",
+      "1/6",
+      "1/4",
+      "1/36"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 26,
+    "subject": "English",
+    "text": "Choose the correct synonym for the word 'CANDID':",
+    "options": [
+      "Frank",
+      "Deceptive",
+      "Arrogant",
+      "Secretive"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 27,
+    "subject": "English",
+    "text": "Identify the error in the sentence: 'Neither the manager nor the employees was aware of the change in schedule.'",
+    "options": [
+      "was aware",
+      "Neither the manager",
+      "nor the employees",
+      "of the change"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 28,
+    "subject": "Aptitude",
+    "text": "If A is the brother of B; B is the sister of C; and C is the father of D, how is D related to A?",
+    "options": [
+      "Cannot be determined",
+      "Nephew",
+      "Niece",
+      "Brother"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 29,
+    "subject": "Aptitude",
+    "text": "A can do a piece of work in 10 days and B can do it in 15 days. If they work together, how long will they take to complete the work?",
+    "options": [
+      "6 days",
+      "5 days",
+      "8 days",
+      "12.5 days"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 30,
+    "subject": "Aptitude",
+    "text": "A man walks 5 km towards South and then turns to the right. After walking 3 km, he turns to the left and walks 5 km. In which direction is he from the starting place?",
+    "options": [
+      "South-West",
+      "South-East",
+      "North-West",
+      "South"
+    ],
+    "correctAnswer": 0
+  }
+]
