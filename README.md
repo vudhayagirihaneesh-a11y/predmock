@@ -1,30 +1,39 @@
 # PredMock - Engineering Mock Tests & College Predictor Platform
 
-PredMock is a comprehensive web-based platform designed to help students prepare for various engineering entrance exams across India. It offers full-length mock tests, performance analytics, and a data-driven college predictor based on historical cutoff trends.
+PredMock is a comprehensive web-based platform designed to help students prepare for various engineering entrance exams across India. It offers full-length mock tests, performance analytics, and a robust, data-driven college predictor based on historical cutoff trends.
 
-## Features
+## Core Features
 
-- **Interactive Mock Tests**: Simulated test environments for major engineering entrance exams:
-  - JEE Main
-  - AP EAPCET
-  - TS EAMCET
-  - BITSAT
-  - VITEEE
-  - SRMJEEE
-  - Amrita AEEE
-  - GITAM GAT
-- **College Rank Predictors**: Predicts potential college admissions based on expected scores/ranks using past year cutoff data. Available for AP EAPCET, TS EAMCET, VITEEE, BITSAT, SRMJEEE, and Amrita.
-- **User Authentication**: Secure signup, login, and password reset functionalities.
-- **User Profiles**: Track test history, performance metrics, and manage subscriptions.
-- **Admin & Agent Portals**: Specialized portals for administrators and agents to manage users, mock tests, and platform operations.
-- **Data Pipelines**: Python scripts to automatically parse cutoff PDFs and fetch previous year questions (PYQs).
+- **Interactive Mock Tests**: Simulated test environments with JSON-based question banks for major engineering entrance exams:
+  - JEE Main (`jee_mock_test.json`)
+  - AP EAPCET / TS EAMCET (`ap_eapcet_mock_test.json`, `ts_eamcet_mock_test.json`)
+  - BITSAT, VITEEE, SRMJEEE, Amrita AEEE, GITAM GAT
+- **College Rank Predictors**: Predicts potential college admissions based on expected scores/ranks. Includes category-wise and branch-wise filtering (e.g., OC, BC, SC, ST, EWS). 
+- **User Authentication**: Secure OTP-based signup and login system, complete with a password reset flow.
+- **Payment & Subscription Management**: Tracks user payments, plan subscriptions, discount coupons, and processes refund requests via QR codes.
+- **Student Support & Ticket System**: Integrated support system where students can raise tickets.
+- **Admin & Agent Portals**: Specialized portals (`agent-login.html`, `admin.php`) for administrators and customer care agents (cc012) to manage user tickets and issue resolutions.
+
+## Data Processing & Pipelines
+
+The repository includes Python scripts to automate the extraction of real-world data:
+- `parse_pdfs.py`: Uses `pdfplumber` to extract complex historical cutoff ranks (category and branch-wise) directly from official AP EAPCET and TS EAMCET PDFs. It formats this data into JavaScript arrays (`ts_cutoff_data.js`, `ap_cutoff_data.js`) for the frontend predictor engines.
+- `fetch_jee_pyqs.py` & `fetch_real_data.py`: Utilities designed to scrape or fetch Previous Year Questions (PYQs) to populate the mock test JSON databases.
 
 ## Tech Stack
 
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript.
-- **Backend API**: PHP (`api.php`, `db.php`, `config.php`).
-- **Database**: MySQL (`database.sql` provided for schema setup).
-- **Data Processing**: Python (used for PDF parsing and data fetching scripts).
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript (with specialized JS files like `auth.js` and `customer-care-bot.js`).
+- **Backend API**: PHP (`api.php` for handling endpoints, `db.php` for PDO connections, `config.php` for environment variables).
+- **Database**: MySQL.
+- **Data Engineering**: Python 3 (`pdfplumber`, `requests`).
+
+## Database Schema Highlights
+
+The included `database.sql` provides the complete schema, featuring:
+- `users`: OTP-based user authentication.
+- `payments`, `coupons`, `coupon_usage`, `refund_requests`: Full e-commerce suite for mock test subscriptions.
+- `support_tickets`, `ticket_resolutions`: Two-way messaging system between students and support agents.
+- `agents`: Roles and approval tracking for platform customer service representatives.
 
 ## Installation & Setup
 
@@ -43,29 +52,23 @@ PredMock is a comprehensive web-based platform designed to help students prepare
    - Host the directory on a local PHP server (e.g., XAMPP, MAMP, or standard LAMP stack).
    - Ensure the server supports PHP 7.4+ and has the PDO MySQL extension enabled.
 
-4. **Python Dependencies (for data scripts)**
-   - To use the PDF parsers or PYQ fetchers, you will need Python 3.
-   - Set up a virtual environment and install necessary packages (e.g., `PyPDF2`, `requests`):
+4. **Python Dependencies (Optional: for data scripts)**
+   - Set up a virtual environment and install the parsing libraries:
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
-   pip install -r requirements.txt # (If added later)
+   pip install pdfplumber requests
    ```
+   - Run `python parse_pdfs.py` to regenerate the cutoff data JS files from the PDFs.
 
-## Directory Structure
+## Directory Structure Overview
 
-- `*.html` - Frontend interfaces (mock tests, predictors, auth pages).
+- `*-mock-tests.html` - Frontend interfaces for the examination simulator.
+- `*-predictor.html` - Frontend interfaces for the rank predictors.
 - `*.php` - Backend logic, APIs, and database connections.
-- `*.json` - Data files containing mock test questions and structures.
-- `*.js` - JavaScript logic, cutoff data configurations, and customer support bots.
-- `*.py` - Python utility scripts for data mining and PDF extraction.
-
-## Usage
-
-- Start your local web server and navigate to `index.html` to view the homepage.
-- Use `signup.html` to create a new user account.
-- Take a mock test by navigating to any of the `<exam>-mock-tests.html` pages.
-- Access the admin portal via `admin.php` or `agent-login.html`.
+- `*.json` - Data files containing mock test structures and questions.
+- `*.js` - Client-side logic, cutoff data configurations, and chatbot scripts.
+- `*.py` - Python utility scripts for data mining.
 
 ## License
 
