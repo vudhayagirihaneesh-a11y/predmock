@@ -1,8 +1,8 @@
 <?php
 // Database Configuration
-define('DB_HOST', 'sql100.infinityfree.com'); // Usually something like sql123.epizy.com
-define('DB_NAME', 'if0_41675814_check');
-define('DB_USER', 'if0_41675814');
+define('DB_HOST', 'sql209.infinityfree.com'); // Usually something like sql123.epizy.com
+define('DB_NAME', 'if0_42630352_ch');
+define('DB_USER', 'if0_42630352');
 define('DB_PASS', 'Haneesh01');
 
 // SMTP Configuration

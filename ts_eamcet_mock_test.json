@@ -1,0 +1,266 @@
+[
+  {
+    "id": 1,
+    "subject": "Mathematics",
+    "text": "If the sum of two unit vectors is a unit vector, then the magnitude of their difference is:",
+    "options": [
+      "sqrt(2)",
+      "sqrt(3)",
+      "1/sqrt(2)",
+      "sqrt(5)"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 2,
+    "subject": "Mathematics",
+    "text": "The derivative of sec^(-1)(1/(2x^2 - 1)) with respect to sqrt(1-x^2) at x = 1/2 is:",
+    "options": [
+      "2",
+      "4",
+      "-2",
+      "-4"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 3,
+    "subject": "Mathematics",
+    "text": "In a triangle ABC, if a = 13, b = 14, c = 15, then the circumradius R is:",
+    "options": [
+      "65/8",
+      "65/4",
+      "13/4",
+      "25/8"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 4,
+    "subject": "Mathematics",
+    "text": "The value of limit (x->0) (e^(ax) - e^(bx)) / x is:",
+    "options": [
+      "a - b",
+      "a + b",
+      "b - a",
+      "ab"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 5,
+    "subject": "Mathematics",
+    "text": "The angle between the planes 2x - y + z = 6 and x + y + 2z = 7 is:",
+    "options": [
+      "30 degrees",
+      "45 degrees",
+      "60 degrees",
+      "90 degrees"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 6,
+    "subject": "Mathematics",
+    "text": "If a, b, c are in AP, then det([x+1, x+2, x+a], [x+2, x+3, x+b], [x+3, x+4, x+c]) is:",
+    "options": [
+      "0",
+      "1",
+      "x",
+      "2x"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 7,
+    "subject": "Mathematics",
+    "text": "The number of real solutions of the equation x^2 - 3|x| + 2 = 0 is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 8,
+    "subject": "Mathematics",
+    "text": "The maximum value of 3cos(x) + 4sin(x) is:",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "7"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 9,
+    "subject": "Mathematics",
+    "text": "The eccentricity of the hyperbola x^2/16 - y^2/9 = 1 is:",
+    "options": [
+      "5/4",
+      "4/3",
+      "4/5",
+      "3/4"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 10,
+    "subject": "Mathematics",
+    "text": "The area bounded by the curve y = sin x and the x-axis from x=0 to x=pi is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 11,
+    "subject": "Physics",
+    "text": "Two cars are moving in the same direction with speeds 30 km/hr and 58 km/hr. The relative speed of the second car with respect to the first is:",
+    "options": [
+      "28 km/hr",
+      "88 km/hr",
+      "44 km/hr",
+      "30 km/hr"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 12,
+    "subject": "Physics",
+    "text": "A particle moves in a circle of radius r with constant speed v. Its acceleration is:",
+    "options": [
+      "0",
+      "v^2/r",
+      "v/r",
+      "vr"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 13,
+    "subject": "Physics",
+    "text": "The ratio of specific heats (Cp/Cv) for a monoatomic gas is:",
+    "options": [
+      "5/3",
+      "7/5",
+      "4/3",
+      "9/7"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 14,
+    "subject": "Physics",
+    "text": "A Carnot engine operating between temperatures T1 and T2 has efficiency 1/6. When T2 is lowered by 62K, its efficiency increases to 1/3. Then T1 and T2 are:",
+    "options": [
+      "372K and 310K",
+      "372K and 330K",
+      "330K and 268K",
+      "310K and 248K"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 15,
+    "subject": "Physics",
+    "text": "In a Young's double slit experiment, if the slit width ratio is 1:9, the ratio of maximum to minimum intensities is:",
+    "options": [
+      "9:1",
+      "4:1",
+      "3:1",
+      "1:9"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 16,
+    "subject": "Physics",
+    "text": "The de Broglie wavelength of an electron accelerated through a potential difference V is proportional to:",
+    "options": [
+      "V",
+      "1/V",
+      "sqrt(V)",
+      "1/sqrt(V)"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 17,
+    "subject": "Chemistry",
+    "text": "Which of the following has the highest dipole moment?",
+    "options": [
+      "NH3",
+      "NF3",
+      "BF3",
+      "CH4"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 18,
+    "subject": "Chemistry",
+    "text": "The oxidation state of Cr in K2Cr2O7 is:",
+    "options": [
+      "+3",
+      "+6",
+      "+4",
+      "+7"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 19,
+    "subject": "Chemistry",
+    "text": "Which is the strongest acid among the following?",
+    "options": [
+      "HCOOH",
+      "CH3COOH",
+      "ClCH2COOH",
+      "FCH2COOH"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 20,
+    "subject": "Chemistry",
+    "text": "For a first-order reaction, the half-life is 138.6 s. The rate constant is:",
+    "options": [
+      "0.005 s^-1",
+      "0.05 s^-1",
+      "0.5 s^-1",
+      "5.0 s^-1"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 21,
+    "subject": "Chemistry",
+    "text": "The electronic configuration of Cu (Z=29) is:",
+    "options": [
+      "[Ar] 4s2 3d9",
+      "[Ar] 4s1 3d10",
+      "[Ar] 4s2 3d10",
+      "[Ar] 4s1 3d9"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 22,
+    "subject": "Chemistry",
+    "text": "Which of the following is a non-reducing sugar?",
+    "options": [
+      "Glucose",
+      "Fructose",
+      "Sucrose",
+      "Lactose"
+    ],
+    "correctAnswer": 2
+  }
+]

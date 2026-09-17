@@ -148,7 +148,7 @@
       fetch('api.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'agent_fetch_tickets', tab: currentTab }),
+        body: JSON.stringify({ action: 'agent_fetch_tickets', tab: currentTab, token: localStorage.getItem('session_token') || '' }),
         credentials: 'include'
       })
       .then(r => r.json())
@@ -180,7 +180,7 @@
             <td class="py-3 text-xs text-slate-500">${new Date(t.created_at).toLocaleString()}</td>
             <td class="py-3">
               <button class="px-3 py-1.5 ${isSelected ? 'bg-emerald-600 text-white' : 'bg-indigo-50 text-indigo-700'} font-bold rounded-lg border ${isSelected ? 'border-emerald-700' : 'border-indigo-200'} hover:bg-indigo-100 transition"
-                onclick="handleTicketAction(${t.id}, \`${escapeHtml(t.message)}\`)">${btnText}</button>
+                onclick="handleTicketAction(${t.id})">${btnText}</button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -202,41 +202,44 @@
         .replace(/`/g, '&#96;');
     }
 
-    async function handleTicketAction(ticketId, message) {
+    async function handleTicketAction(ticketId) {
         if (currentTab === 'new') {
             const fd = new FormData();
             fd.append('action', 'claim_ticket');
             fd.append('ticket_id', ticketId);
+            fd.append('token', localStorage.getItem('session_token') || '');
             const res = await fetch('api.php', { method: 'POST', body: fd, credentials: 'include' });
             const data = await res.json();
             if (data.success) {
                 setTab('pending');
-                selectTicket(ticketId, message);
+                selectTicket(ticketId);
             } else {
                 alert(data.message || 'Failed to claim ticket. It might have been claimed by another agent.');
                 refreshTickets();
             }
         } else {
-            selectTicket(ticketId, message);
+            selectTicket(ticketId);
         }
     }
 
     let chatPollInterval = null;
 
-    function selectTicket(ticketId, originalMessage) {
+    function selectTicket(ticketId) {
         document.getElementById('modal-ticket-id').textContent = ticketId;
         const chatHistoryEl = document.getElementById('modal-chat-history');
-        chatHistoryEl.innerHTML = `<div class="bg-slate-100 p-3 rounded-lg border border-slate-200 text-sm text-slate-600 whitespace-pre-wrap">${originalMessage}</div>`;
+        chatHistoryEl.innerHTML = '<div class="text-center text-slate-400 py-4">Loading chat history...</div>';
         
         document.getElementById('modal-footer').classList.remove('hide');
         
         document.getElementById('chat-modal').classList.remove('hide');
         
         if (chatPollInterval) clearInterval(chatPollInterval);
-        let lastMessageId = 0;
+        let lastMessageId = -1;
 
         const fetchMessages = async () => {
-            const res = await fetch(`api.php?action=fetch_chat_messages&ticket_id=${ticketId}`, {credentials: 'include'});
+            const email = localStorage.getItem('agent_email') || '';
+            const token = localStorage.getItem('session_token') || '';
+            const res = await fetch(`api.php?action=fetch_chat_messages&ticket_id=${ticketId}&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`, {credentials: 'include'});
             const data = await res.json();
             if (data.success) {
                 if (data.status === 'not_found') {
@@ -246,20 +249,24 @@
                     return;
                 }
                 if (data.messages) {
+                if (lastMessageId === -1) chatHistoryEl.innerHTML = '';
                 const newMessages = data.messages.filter(m => Number(m.id) > lastMessageId);
                 newMessages.forEach(msg => {
                     const bubble = document.createElement('div');
-                    if (msg.sender_type === 'user') {
+                    if (msg.id == 0) {
+                        bubble.className = 'bg-slate-100 p-4 rounded-xl border border-slate-200 text-sm text-slate-700 whitespace-pre-wrap self-start max-w-[90%] shadow-sm';
+                        bubble.innerHTML = `<p class="text-xs font-bold text-slate-500 mb-1">Initial Request</p>${escapeHtml(msg.message)}`;
+                    } else if (msg.sender_type === 'user') {
                         bubble.className = 'p-3 rounded-lg bg-white border border-slate-200 self-start max-w-[85%]';
-                        bubble.innerHTML = `<p class="text-sm text-slate-700">${escapeHtml(msg.message)}</p>`;
+                        bubble.innerHTML = `<p class="text-xs font-bold text-slate-500 mb-1">Student</p><p class="text-sm text-slate-700 whitespace-pre-wrap">${escapeHtml(msg.message)}</p>`;
                     } else {
                         bubble.className = 'p-3 rounded-lg bg-indigo-600 text-white self-end max-w-[85%]';
-                        bubble.innerHTML = `<p class="text-sm">${escapeHtml(msg.message)}</p>`;
+                        bubble.innerHTML = `<p class="text-xs font-bold text-indigo-300 mb-1">You</p><p class="text-sm whitespace-pre-wrap">${escapeHtml(msg.message)}</p>`;
                     }
                     chatHistoryEl.appendChild(bubble);
                     lastMessageId = Number(msg.id);
                 });
-                chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
+                if (newMessages.length > 0) chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
                 }
             }
         };
@@ -294,6 +301,7 @@
         fd.append('ticket_id', ticketId);
         fd.append('sender_type', 'agent');
         fd.append('message', message);
+        fd.append('token', localStorage.getItem('session_token') || '');
         await fetch('api.php', { method: 'POST', body: fd, credentials: 'include' });
         
         if (btn) btn.disabled = false;
@@ -308,6 +316,7 @@
         fd.append('action', 'close_ticket');
         fd.append('ticket_id', ticketId);
         fd.append('closed_by', 'agent');
+        fd.append('token', localStorage.getItem('session_token') || '');
         await fetch('api.php', { method: 'POST', body: fd, credentials: 'include' });
         closeChatModal();
     }
@@ -315,6 +324,7 @@
     function agentPing() {
         const fd = new FormData();
         fd.append('action', 'agent_ping');
+        fd.append('token', localStorage.getItem('session_token') || '');
         fetch('api.php', { method: 'POST', body: fd, credentials: 'include' }).catch(console.error);
     }
 

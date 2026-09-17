@@ -283,8 +283,6 @@ window.location.href = 'login.html?redirect=profile.html';
             const email = localStorage.getItem('user_email');
             const id = localStorage.getItem('user_id') || 'N/A';
             const verified = localStorage.getItem('user_verified');
-            const createdAt = localStorage.getItem('user_created_at') || 'N/A';
-            const loginTime = localStorage.getItem('user_login_time') || 'N/A';
             let displayName = email;
             try {
                 const profileRaw = localStorage.getItem('user_profile');
@@ -293,6 +291,11 @@ window.location.href = 'login.html?redirect=profile.html';
                     displayName = (profile.name || profile.display_name || profile.full_name || profile.username || email);
                 }
             } catch (e) {}
+
+            const profileRaw = localStorage.getItem('user_profile');
+            const profileObj = profileRaw ? JSON.parse(profileRaw) : null;
+            const createdAt = localStorage.getItem('user_created_at') || (profileObj ? profileObj.created_at : null) || 'N/A';
+            const loginTime = localStorage.getItem('user_login_time') || (profileObj ? profileObj.login_time : null) || 'N/A';
 
             const details = document.getElementById('account-details');
             details.innerHTML = `

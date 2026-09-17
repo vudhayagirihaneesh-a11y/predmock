@@ -55,11 +55,7 @@
 
         <!-- OTP Verification (Hidden initially) -->
         <div id="otp-form" class="p-8 space-y-4 hide">
-            <div id="dev-otp-display" class="hide bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                <p class="text-sm font-semibold text-yellow-800 mb-2">🔧 Development Mode</p>
-                <p class="text-xs text-yellow-700 mb-2">Here is your verification code:</p>
-                <p class="text-center text-3xl font-black text-yellow-600 font-mono tracking-wider" id="dev-otp-code">---</p>
-            </div>
+
             <p class="text-sm text-slate-600 text-center">Enter the verification code sent to <strong id="email-display"></strong></p>
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">Verification Code</label>
@@ -85,8 +81,7 @@
         const verifyOtpBtn = $('verify-otp-btn');
         const otpError = $('otp-error');
         const emailDisplay = $('email-display');
-        const devOtpDisplay = $('dev-otp-display');
-        const devOtpCode = $('dev-otp-code');
+
         
         let registeredEmail = '';
 
@@ -157,25 +152,38 @@
                     registeredEmail = email;
                     
                     // Send OTP automatically after successful signup
-                    const otpRes = await fetch('api.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'send_otp', email: email, type: 'signup' })
-                    });
-                    
-                    const otpData = await otpRes.json();
-                    
-                    if (otpData.success) {
+                    try {
+                        const otpRes = await fetch('api.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'send_otp', email: email, type: 'signup' })
+                        });
+                        
+                        const otpText = await otpRes.text();
+                        let otpData;
+                        try {
+                            otpData = JSON.parse(otpText);
+                        } catch (e) {
+                            console.warn('Non-JSON response from send_otp:', otpText);
+                            otpData = { success: true }; // Assume success if server sent warning text
+                        }
+                        
+                        if (otpData.success) {
+                            show(signupForm, false);
+                            show(otpForm, true);
+                            emailDisplay.textContent = email;
+                            
+
+                        } else {
+                            signupError.textContent = otpData.message || 'Account created, but failed to send verification code. Please login to verify.';
+                            show(signupError, true);
+                        }
+                    } catch (e) {
+                        console.error('OTP Send Error:', e);
+                        // Show OTP form anyway so they can at least attempt manual resend/check email
                         show(signupForm, false);
                         show(otpForm, true);
                         emailDisplay.textContent = email;
-                        if (otpData.otp) {
-                            devOtpCode.textContent = otpData.otp;
-                            show(devOtpDisplay, true);
-                        }
-                    } else {
-                        signupError.textContent = otpData.message || 'Account created, but failed to send verification code. Please login to verify.';
-                        show(signupError, true);
                     }
                 } else {
                     signupError.textContent = (data && data.message) ? data.message : 'Signup not available. Please login using OTP.';
@@ -217,6 +225,8 @@
                     if (data.user) {
                         localStorage.setItem('user_id', data.user.id || '');
                         localStorage.setItem('user_verified', data.user.is_verified || true);
+                        localStorage.setItem('user_created_at', data.user.created_at || new Date().toISOString());
+                        localStorage.setItem('user_login_time', data.user.login_time || new Date().toISOString());
                         localStorage.setItem('user_profile', JSON.stringify(data.user));
                         localStorage.setItem('session_token', data.session_token || '');
                     }

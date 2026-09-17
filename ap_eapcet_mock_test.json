@@ -1,0 +1,266 @@
+[
+  {
+    "id": 1,
+    "subject": "Mathematics",
+    "text": "The domain of the function f(x) = sqrt(x-2) + sqrt(4-x) is:",
+    "options": [
+      "[2, 4]",
+      "(2, 4)",
+      "[2, infinity)",
+      "(-infinity, 4]"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 2,
+    "subject": "Mathematics",
+    "text": "If z = x + iy and |z - 1| = |z + 1|, then the locus of z is:",
+    "options": [
+      "x-axis",
+      "y-axis",
+      "A circle",
+      "A parabola"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 3,
+    "subject": "Mathematics",
+    "text": "The number of ways in which 5 letters can be posted in 4 letter boxes is:",
+    "options": [
+      "5^4",
+      "4^5",
+      "5!",
+      "4!"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 4,
+    "subject": "Mathematics",
+    "text": "The term independent of x in the expansion of (x - 1/x)^10 is:",
+    "options": [
+      "252",
+      "-252",
+      "10",
+      "-10"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 5,
+    "subject": "Mathematics",
+    "text": "The value of sum (n=1 to infinity) 1/(n(n+1)) is:",
+    "options": [
+      "1",
+      "0",
+      "infinity",
+      "1/2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 6,
+    "subject": "Mathematics",
+    "text": "If the vectors 2i - j + k, i + 2j - 3k and 3i + aj + 5k are coplanar, then a is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswer": 3
+  },
+  {
+    "id": 7,
+    "subject": "Mathematics",
+    "text": "The radius of the circle x^2 + y^2 - 4x - 6y - 12 = 0 is:",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 8,
+    "subject": "Mathematics",
+    "text": "The equation of the tangent to the parabola y^2 = 8x at (2, 4) is:",
+    "options": [
+      "x - y + 2 = 0",
+      "x + y - 2 = 0",
+      "x - y - 2 = 0",
+      "x + y + 2 = 0"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 9,
+    "subject": "Mathematics",
+    "text": "Integral of log x dx is:",
+    "options": [
+      "x log x - x + C",
+      "x log x + x + C",
+      "log x / x + C",
+      "1/x + C"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 10,
+    "subject": "Mathematics",
+    "text": "The order and degree of the differential equation (d^2y/dx^2) + (dy/dx)^3 + y = 0 are respectively:",
+    "options": [
+      "2 and 1",
+      "2 and 3",
+      "1 and 3",
+      "3 and 2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 11,
+    "subject": "Physics",
+    "text": "The dimensions of gravitational constant G are:",
+    "options": [
+      "M^-1 L^3 T^-2",
+      "M L T^-2",
+      "M^2 L^2 T^-1",
+      "M^-1 L^2 T^-2"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 12,
+    "subject": "Physics",
+    "text": "A bomb initially at rest explodes into two pieces of masses 1 kg and 2 kg. If their kinetic energies are E1 and E2 respectively, then E1/E2 is:",
+    "options": [
+      "2/1",
+      "1/2",
+      "1/1",
+      "4/1"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 13,
+    "subject": "Physics",
+    "text": "The escape velocity from the earth is 11.2 km/s. The escape velocity from a planet having twice the mass and twice the radius of earth is:",
+    "options": [
+      "11.2 km/s",
+      "22.4 km/s",
+      "5.6 km/s",
+      "15.8 km/s"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 14,
+    "subject": "Physics",
+    "text": "In a capillary tube, water rises to a height h. If the capillary tube is inclined at an angle of 60 degrees with the vertical, the length of water column in it will be:",
+    "options": [
+      "h",
+      "2h",
+      "h/2",
+      "h/sqrt(3)"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 15,
+    "subject": "Physics",
+    "text": "Two thin lenses of powers +5D and -2D are placed in contact. The focal length of the combination is:",
+    "options": [
+      "+33.3 cm",
+      "-33.3 cm",
+      "+20 cm",
+      "-20 cm"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 16,
+    "subject": "Physics",
+    "text": "The logic gate which produces an output 1 only when all its inputs are 1 is:",
+    "options": [
+      "OR gate",
+      "AND gate",
+      "NAND gate",
+      "NOR gate"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 17,
+    "subject": "Chemistry",
+    "text": "Which of the following is an amphoteric oxide?",
+    "options": [
+      "Na2O",
+      "MgO",
+      "Al2O3",
+      "SO2"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 18,
+    "subject": "Chemistry",
+    "text": "The number of sigma and pi bonds in benzene are:",
+    "options": [
+      "12 sigma, 3 pi",
+      "6 sigma, 3 pi",
+      "12 sigma, 0 pi",
+      "6 sigma, 6 pi"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 19,
+    "subject": "Chemistry",
+    "text": "Which of the following aqueous solutions will have the lowest freezing point?",
+    "options": [
+      "0.1 M NaCl",
+      "0.1 M BaCl2",
+      "0.1 M AlCl3",
+      "0.1 M Urea"
+    ],
+    "correctAnswer": 2
+  },
+  {
+    "id": 20,
+    "subject": "Chemistry",
+    "text": "During rusting of iron, the anodic reaction is:",
+    "options": [
+      "Fe -> Fe2+ + 2e-",
+      "O2 + 4H+ + 4e- -> 2H2O",
+      "Fe2+ -> Fe3+ + e-",
+      "H2O -> 2H+ + 1/2 O2 + 2e-"
+    ],
+    "correctAnswer": 0
+  },
+  {
+    "id": 21,
+    "subject": "Chemistry",
+    "text": "The monomer of Teflon is:",
+    "options": [
+      "Vinyl chloride",
+      "Tetrafluoroethylene",
+      "Styrene",
+      "Chloroprene"
+    ],
+    "correctAnswer": 1
+  },
+  {
+    "id": 22,
+    "subject": "Chemistry",
+    "text": "IUPAC name of CH3-CH(OH)-CH2-COOH is:",
+    "options": [
+      "3-Hydroxybutanoic acid",
+      "2-Hydroxybutanoic acid",
+      "3-Hydroxypropanoic acid",
+      "4-Hydroxybutanoic acid"
+    ],
+    "correctAnswer": 0
+  }
+]

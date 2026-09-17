@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP EAPCET College Predictor</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        /* Dark Mode Magic Filter */
+        html.dark-theme {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        html.dark-theme,
+        html.dark-theme body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        html.dark-theme canvas,
+        html.dark-theme img {
+            filter: invert(1) hue-rotate(180deg);
+        }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="ap_cutoff_data.js"></script>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50/50 p-4 md:p-8 space-y-8 font-sans">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+
+        <!-- Header -->
+        <header
+            class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-emerald-100/50 pb-6">
+            <div class="flex items-center gap-4">
+                <div
+                    class="bg-gradient-to-tr from-emerald-600 to-teal-500 p-3.5 rounded-xl shadow-lg text-white transform transition hover:scale-105 print:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">AP EAPCET College
+                        <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 print:text-slate-800 print:bg-none">Predictor</span>
+                    </h1>
+                    <p class="text-slate-500 font-medium mt-1">Predict your admission chances based on your rank,
+                        category, and gender.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 print:hidden">
+                <a href="payments.html?plan=apeapcet"
+                    class="relative flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-400 via-emerald-500 to-green-600 rounded-xl text-white hover:from-teal-500 hover:via-emerald-600 hover:to-green-700 transition-all shadow-lg shadow-emerald-500/30 font-extrabold text-sm transform hover:-translate-y-1 hover:shadow-xl group overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-500 -skew-x-12 -translate-x-full z-0">
+                    </div>
+                    <span class="z-10">Purchase AP EAPCET Mock Tests</span>
+                </a>
+                <button onclick="toggleDarkMode()"
+                    class="text-sm font-medium text-slate-500 hover:text-emerald-600 transition px-2 flex items-center gap-1.5"
+                    title="Toggle Theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <span id="theme-text">Dark</span>
+                </button>
+                <a href="index.html"
+                    class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Home Hub</a>
+                <a href="ap-eapcet-mock-tests.html"
+                    class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Mock Tests</a>
+                <button onclick="window.print()"
+                    class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition shadow-sm font-medium text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    Print Report
+                </button>
+                <button onclick="downloadPDF()" class="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition shadow-sm font-medium text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download PDF (Good Chances)
+                </button>
+            </div>
+        </header>
+
+        <!-- Input Section -->
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-emerald-600">Enter Your Details</h3>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                <div class="w-full">
+                    <label for="eamcet-rank" class="text-sm font-semibold text-slate-700">Estimated AP EAPCET
+                        Rank</label>
+                    <div class="relative mt-2">
+                        <input id="eamcet-rank" type="number" placeholder="ex: 4500" min="1"
+                            class="w-full pl-4 pr-4 py-3 h-[52px] bg-slate-50 border border-slate-200 text-slate-900 text-xl font-bold transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none rounded-xl shadow-sm" />
+                    </div>
+                </div>
+                <div class="w-full">
+                    <label for="category-select" class="text-sm font-semibold text-slate-700">Reservation
+                        Category</label>
+                    <div class="relative mt-2">
+                        <select id="category-select"
+                            class="w-full pl-4 pr-10 py-3 h-[52px] bg-slate-50 border border-slate-200 text-slate-900 text-lg font-medium transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none rounded-xl shadow-sm cursor-pointer appearance-none">
+                            <option value="OC">OC (General)</option>
+                            <option value="EWS">EWS</option>
+                            <option value="BC_A">BC-A</option>
+                            <option value="BC_B">BC-B</option>
+                            <option value="BC_C">BC-C</option>
+                            <option value="BC_D">BC-D</option>
+                            <option value="BC_E">BC-E</option>
+                            <option value="SC">SC</option>
+                            <option value="ST">ST</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full">
+                    <label for="gender-select" class="text-sm font-semibold text-slate-700">Gender</label>
+                    <div class="relative mt-2">
+                        <select id="gender-select"
+                            class="w-full pl-4 pr-10 py-3 h-[52px] bg-slate-50 border border-slate-200 text-slate-900 text-lg font-medium transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none rounded-xl shadow-sm cursor-pointer appearance-none">
+                            <option value="Boys">Boys (General)</option>
+                            <option value="Girls">Girls</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Probability Table -->
+        <div class="bg-white border-none shadow-xl rounded-2xl ring-1 ring-slate-100 overflow-hidden">
+            <div
+                class="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-100">
+                <h3 class="text-2xl font-bold text-emerald-600">Admission Probability Engine</h3>
+                <div
+                    class="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto print:hidden">
+                    <select id="chance-filter"
+                        class="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-sm rounded-lg text-sm font-medium cursor-pointer">
+                        <option value="Available">Available to me</option>
+                        <option value="All">All Chances</option>
+                    </select>
+                    <select id="branch-filter"
+                        class="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-sm rounded-lg text-sm font-medium cursor-pointer max-w-[150px]">
+                        <option value="All">All Branches</option>
+                    </select>
+                    <div class="relative flex-1 md:w-48 lg:w-64">
+                        <input id="branch-search" type="text" placeholder="Search branch or college..."
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-sm rounded-lg" />
+                    </div>
+                </div>
+            </div>
+            <div class="p-0 md:p-6 md:pt-0 overflow-x-auto">
+                <div class="rounded-lg border border-gray-200 overflow-hidden min-w-[800px]">
+                    <table class="w-full text-left text-sm text-slate-600">
+                        <thead class="bg-slate-100/50 text-slate-700">
+                            <tr class="border-b-2 border-slate-200">
+                                <th class="font-semibold uppercase tracking-wider text-xs py-4 px-4">College</th>
+                                <th class="font-semibold uppercase tracking-wider text-xs py-4 px-4">Branch</th>
+                                <th class="text-right font-semibold uppercase tracking-wider text-xs py-4 px-4">Previous
+                                    Cutoff Rank</th>
+                                <th class="text-center font-semibold uppercase tracking-wider text-xs py-4 px-4">
+                                    Admission Chance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="probability-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Actual Cutoff Data for AP EAPCET 2023 (Estimates for top colleges)
+        const cutoffData = apCutoffData;
+
+        const rankInput = document.getElementById('eamcet-rank');
+        const categorySelect = document.getElementById('category-select');
+        const genderSelect = document.getElementById('gender-select');
+        const chanceFilter = document.getElementById('chance-filter');
+        const branchFilter = document.getElementById('branch-filter');
+        const searchInput = document.getElementById('branch-search');
+        const tbody = document.getElementById('probability-table-body');
+
+        // Populate branch dropdown
+        const branches = [...new Set(cutoffData.map(d => d.branch))].sort();
+        branches.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b;
+            opt.textContent = b;
+            branchFilter.appendChild(opt);
+        });
+
+        const calculateChance = (rank, cutoff) => {
+            if (!rank || isNaN(rank)) return { text: "Enter rank", color: "slate", icon: "" };
+            if (rank <= cutoff * 0.8) return { text: "High Chance", color: "emerald", icon: "✓" };
+            if (rank <= cutoff * 1.0) return { text: "Good Chance", color: "blue", icon: "↗" };
+            if (rank <= cutoff * 1.15) return { text: "Borderline", color: "amber", icon: "⚠" };
+            return { text: "Low Chance", color: "rose", icon: "✕" };
+        };
+
+        const renderTable = () => {
+            const rank = parseInt(rankInput.value);
+            const category = categorySelect.value.toLowerCase();
+            const gender = genderSelect.value.toLowerCase();
+            const filter = chanceFilter.value;
+            const bFilter = branchFilter.value;
+            const search = searchInput.value.toLowerCase();
+
+            // Key format: oc_boys, bc_a_girls, etc.
+            const dataKey = `${category}_${gender}`;
+
+            tbody.innerHTML = '';
+
+            let filteredData = cutoffData.filter(d => {
+                const cutoff = d[dataKey];
+                if (cutoff === null || cutoff === undefined) return false;
+
+                if (bFilter !== 'All' && d.branch !== bFilter) return false;
+                if (search && !d.branch.toLowerCase().includes(search) && !d.college.toLowerCase().includes(search)) return false;
+
+                if (filter === 'Available' && !isNaN(rank)) {
+                    if (rank > cutoff * 1.15) return false;
+                }
+                return true;
+            });
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-500 font-medium">No results found matching your criteria. Try adjusting your filters.</td></tr>`;
+                return;
+            }
+
+            // Sort by cutoff rank (ascending) so the most competitive/best colleges appear first
+            filteredData.sort((a, b) => a[dataKey] - b[dataKey]);
+
+            const displayData = filteredData.slice(0, 200);
+            displayData.forEach(d => {
+                const cutoff = d[dataKey];
+                const chance = calculateChance(rank, cutoff);
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-colors";
+
+                tr.innerHTML = `
+                    <td class="py-4 px-4 font-semibold text-slate-800">${d.college}</td>
+                    <td class="py-4 px-4 font-medium text-slate-700">${d.branch}</td>
+                    <td class="py-4 px-4 text-right font-mono font-bold text-slate-600">${cutoff.toLocaleString()}</td>
+                    <td class="py-4 px-4 text-center">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-${chance.color}-100 text-${chance.color}-700">
+                            ${chance.icon} ${chance.text}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (filteredData.length > 200) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="4" class="text-center py-6 text-sm text-slate-500 font-medium bg-slate-50/50">Showing top 200 results out of ${filteredData.length}. Please use the search bar to find specific colleges.</td>`;
+                tbody.appendChild(tr);
+            }
+        };
+
+        // Theme Toggle Logic
+        const toggleDarkMode = () => {
+            document.documentElement.classList.toggle('dark-theme');
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-text').innerText = isDark ? 'Light' : 'Dark';
+        };
+
+        if (document.documentElement.classList.contains('dark-theme')) {
+            document.getElementById('theme-text').innerText = 'Light';
+        }
+
+        // Event Listeners
+        [rankInput, categorySelect, genderSelect, chanceFilter, branchFilter, searchInput].forEach(el => {
+            el.addEventListener('input', renderTable);
+            el.addEventListener('change', renderTable);
+            el.addEventListener('keyup', renderTable);
+        });
+
+        // Initial Render
+        renderTable();
+    
+        const downloadPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const rank = parseInt(rankInput.value);
+            const category = categorySelect.value.toLowerCase();
+            const gender = genderSelect.value.toLowerCase();
+            
+            if (isNaN(rank)) {
+                alert("Please enter your estimated rank first!");
+                return;
+            }
+            
+            const dataKey = `${category}_${gender}`;
+            
+            const bFilter = branchFilter.value;
+
+            // Filter only for "Good Chance" or "High Chance" which is rank <= cutoff * 1.0
+            const goodColleges = cutoffData.filter(d => {
+                const cutoff = d[dataKey];
+                if (cutoff === null || cutoff === undefined) return false;
+                if (bFilter !== 'All' && d.branch !== bFilter) return false;
+                return rank <= cutoff * 1.0;
+            });
+            
+            if (goodColleges.length === 0) {
+                alert("You either did not qualify or no colleges were found for your rank and category. PDF cannot be generated.");
+                return;
+            }
+            
+            doc.setFontSize(18);
+            doc.text("AP EAPCET College Predictor - Good Chances", 14, 22);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Rank: ${rank} | Category: ${categorySelect.options[categorySelect.selectedIndex].text} | Gender: ${genderSelect.options[genderSelect.selectedIndex].text}`, 14, 30);
+            
+            const tableBody = goodColleges.map(d => [
+                d.college,
+                d.branch,
+                d[dataKey]
+            ]);
+            
+            doc.autoTable({
+                startY: 36,
+                head: [['College', 'Branch', 'Last Year Cutoff']],
+                body: tableBody,
+                theme: 'striped',
+                headStyles: { fillColor: [5, 150, 105] },
+                styles: { fontSize: 10, cellPadding: 4 },
+            });
+            
+            doc.save("AP EAPCET_Good_Chances.pdf");
+        };
+    </script>
+</body>
+
+</html>

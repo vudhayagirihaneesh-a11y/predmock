@@ -75,6 +75,9 @@ elseif ($action === 'signup') {
     }
     
     $checkStmt = $conn->prepare("SELECT id, is_verified FROM users WHERE email = ?");
+    if (!$checkStmt) {
+        die(json_encode(['success' => false, 'message' => 'Database error during signup.']));
+    }
     $checkStmt->bind_param("s", $email);
     $checkStmt->execute();
     $res = $checkStmt->get_result();
@@ -86,6 +89,9 @@ elseif ($action === 'signup') {
             // Update the unverified account so they can get the OTP and verify
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $conn->prepare("UPDATE users SET display_name = ?, password_hash = ? WHERE id = ?");
+            if (!$stmt) {
+                die(json_encode(['success' => false, 'message' => 'Database error.']));
+            }
             $stmt->bind_param("ssi", $name, $password_hash, $user['id']);
             if ($stmt->execute()) {
                 echo json_encode(['success' => true, 'message' => 'Account details updated. Please verify.']);
@@ -101,6 +107,9 @@ elseif ($action === 'signup') {
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
     $stmt = $conn->prepare("INSERT INTO users (email, display_name, password_hash) VALUES (?, ?, ?)");
+    if (!$stmt) {
+        die(json_encode(['success' => false, 'message' => 'Database error.']));
+    }
     $stmt->bind_param("sss", $email, $name, $password_hash);
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'Account created successfully. Please login.']);
@@ -176,6 +185,9 @@ elseif ($action === 'send_otp') {
     $type = $_POST['type'] ?? '';
     if ($type === 'signup') {
         $checkStmt = $conn->prepare("SELECT id, is_verified FROM users WHERE email = ?");
+        if (!$checkStmt) {
+            die(json_encode(['success' => false, 'message' => 'Database error.']));
+        }
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
         $res = $checkStmt->get_result();
@@ -190,6 +202,9 @@ elseif ($action === 'send_otp') {
         $checkStmt->close();
     } else if ($type === 'reset_password') {
         $checkStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        if (!$checkStmt) {
+            die(json_encode(['success' => false, 'message' => 'Database error.']));
+        }
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
         if ($checkStmt->get_result()->num_rows === 0) {
@@ -198,6 +213,9 @@ elseif ($action === 'send_otp') {
         $checkStmt->close();
     } else if ($type === 'agent_login') {
         $checkStmt = $conn->prepare("SELECT id FROM agents WHERE email = ?");
+        if (!$checkStmt) {
+            die(json_encode(['success' => false, 'message' => 'Database error.']));
+        }
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
         if ($checkStmt->get_result()->num_rows === 0) {
@@ -345,34 +363,7 @@ elseif ($action === 'send_otp') {
         ]));
     }
 }
-elseif ($action === 'get_otp_for_testing') {
-    // Development endpoint: Retrieve the latest OTP for a given email
-    $email = $conn->real_escape_string($_GET['email'] ?? '');
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        die(json_encode(['success' => false, 'message' => 'Invalid email address']));
-    }
-    
-    // Get OTP from database
-    $stmt = $conn->prepare("SELECT otp FROM users WHERE email = ? AND otp_expires_at > NOW() LIMIT 1");
-    if (!$stmt) {
-        error_log("DB Prepare Error (get_otp_for_testing): " . $conn->error);
-        die(json_encode(['success' => false, 'message' => 'A server error occurred.']));
-    }
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($row = $result->fetch_assoc()) {
-        if ($row['otp']) {
-            echo json_encode(['success' => true, 'otp' => $row['otp']]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'No OTP found. Request a new one first.']);
-        }
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Email not found']);
-    }
-    $stmt->close();
-}
+
 elseif ($action === 'verify_otp') {
     $email = $conn->real_escape_string($_POST['email'] ?? '');
     $otp = $conn->real_escape_string($_POST['otp'] ?? '');

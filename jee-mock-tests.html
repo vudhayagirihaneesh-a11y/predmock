@@ -165,6 +165,7 @@ if (empty($_COOKIE['session_token'])) {
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start md:items-center gap-3 mb-6">
                             <div class="flex flex-wrap items-center gap-3">
                                 <h3 class="text-lg font-bold text-slate-800">Question <span id="q-num">1</span></h3>
+                                <span id="q-type-badge" class="px-2 py-1 bg-sky-50 text-sky-600 text-xs font-bold rounded uppercase"></span>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <span id="q-time-spent" class="hide text-sm font-bold text-sky-600 bg-sky-50 border border-sky-200 px-2 py-1 rounded flex items-center gap-1.5 shadow-sm"></span>
@@ -296,6 +297,14 @@ if (empty($_COOKIE['session_token'])) {
             if (req.status === 200) {
                 const data = JSON.parse(req.responseText);
                 if (data.success && data.questions) {
+                    data.questions.forEach(q => {
+                        if (q.text && q.text.includes('- NAT')) {
+                            q.type = 'NAT';
+                            q.natAnswer = parseFloat(q.options[q.answer]);
+                        } else {
+                            q.type = 'MCQ';
+                        }
+                    });
                     if (fetchAll) return data.questions;
                     const totalQs = 90;
                     const startIndex = ((testId - 1) * totalQs) % Math.max(1, data.questions.length - totalQs + 1);
@@ -364,9 +373,32 @@ if (empty($_COOKIE['session_token'])) {
         const buildSubjects = () => { const subjects = [...new Set(questionsData.map(q => q.subject))]; const container = document.getElementById('subject-tabs'); container.innerHTML = ''; subjects.forEach(sub => { const btn = document.createElement('button'); btn.className = `px-4 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-800`; btn.innerText = sub; btn.onclick = () => loadQuestion(questionsData.findIndex(q => q.subject === sub)); container.appendChild(btn); }); };
         const buildPalette = () => { const container = document.getElementById('palette-grid'); container.innerHTML = ''; questionsData.forEach((_, idx) => { const btn = document.createElement('button'); btn.id = `pal-${idx}`; btn.className = `h-10 w-10 rounded border font-medium text-sm`; btn.innerText = idx + 1; btn.onclick = () => loadQuestion(idx); container.appendChild(btn); }); updatePaletteColors(); };
         
-        const updatePaletteColors = () => { questionsData.forEach((_, idx) => { const btn = document.getElementById(`pal-${idx}`); btn.className = `h-10 w-10 rounded border font-medium text-sm flex items-center justify-center `; if (reviewMode) { const isRight = answers[idx] === questionsData[idx].answer; if (answers[idx] === null) btn.className += 'bg-slate-200 text-slate-600'; else if (isRight) btn.className += 'bg-emerald-500 text-white'; else btn.className += 'bg-rose-500 text-white'; } else { if (markedForReview[idx] && answers[idx] !== null) btn.className += 'bg-sky-600 text-white'; else if (markedForReview[idx] && answers[idx] === null) btn.className += 'bg-sky-100 text-sky-700'; else if (answers[idx] !== null) btn.className += 'bg-emerald-500 text-white'; else if (visited[idx]) btn.className += 'bg-rose-500 text-white'; else btn.className += 'bg-white text-slate-600'; } if (idx === currentQIndex) btn.className += ' ring-2 ring-sky-500'; });             const answeredCount = answers.filter(a => a !== null).length; document.getElementById('exam-progress').style.width = `${(answeredCount / Math.max(1, questionsData.length)) * 100}%`; };
+        const updatePaletteColors = () => { questionsData.forEach((_, idx) => { const btn = document.getElementById(`pal-${idx}`); btn.className = `h-10 w-10 rounded border font-medium text-sm flex items-center justify-center `; if (reviewMode) { 
+            const q = questionsData[idx];
+            const isRight = (q.type === 'NAT') ? (answers[idx] !== null && Math.abs(answers[idx] - q.natAnswer) < 0.001) : (answers[idx] === q.answer);
+            if (answers[idx] === null) btn.className += 'bg-slate-200 text-slate-600'; else if (isRight) btn.className += 'bg-emerald-500 text-white'; else btn.className += 'bg-rose-500 text-white'; } else { if (markedForReview[idx] && answers[idx] !== null) btn.className += 'bg-sky-600 text-white'; else if (markedForReview[idx] && answers[idx] === null) btn.className += 'bg-sky-100 text-sky-700'; else if (answers[idx] !== null) btn.className += 'bg-emerald-500 text-white'; else if (visited[idx]) btn.className += 'bg-rose-500 text-white'; else btn.className += 'bg-white text-slate-600'; } if (idx === currentQIndex) btn.className += ' ring-2 ring-sky-500'; });             const answeredCount = answers.filter(a => a !== null).length; document.getElementById('exam-progress').style.width = `${(answeredCount / Math.max(1, questionsData.length)) * 100}%`; };
         
-        const loadQuestion = (idx) => { currentQIndex = idx; visited[idx] = true; const q = questionsData[idx]; document.getElementById('q-num').innerText = idx + 1; document.getElementById('q-text').innerHTML = q.text; const oc = document.getElementById('options-container'); oc.innerHTML = ''; q.options.forEach((opt, oIdx) => { const isSel = answers[idx] === oIdx; const isCor = q.answer === oIdx; const div = document.createElement('div'); let divClass = 'p-4 border rounded-lg flex items-center gap-3 '; if (reviewMode) { if (isCor) divClass += 'border-emerald-500 bg-emerald-50'; else if (isSel && !isCor) divClass += 'border-rose-500 bg-rose-50'; else divClass += 'bg-white opacity-50'; } else { divClass += `cursor-pointer ${isSel ? 'border-sky-500 bg-sky-50' : 'bg-white hover:bg-slate-50'}`; div.onclick = () => { answers[currentQIndex] = oIdx; loadQuestion(currentQIndex); }; } div.className = divClass; div.innerHTML = `<span class="${isSel||(reviewMode&&isCor)?'font-bold':'font-normal'}">${opt}</span>`; oc.appendChild(div); }); updatePaletteColors(); };
+        const loadQuestion = (idx) => { currentQIndex = idx; visited[idx] = true; const q = questionsData[idx]; document.getElementById('q-num').innerText = idx + 1; 
+            const badge = document.getElementById('q-type-badge'); if(badge) badge.innerText = q.type === 'NAT' ? 'Numerical Answer Type (NAT)' : 'Multiple Choice (MCQ)';
+            document.getElementById('q-text').innerHTML = q.text; const oc = document.getElementById('options-container'); oc.innerHTML = ''; 
+            if (q.type === 'NAT') {
+                if (reviewMode) {
+                    const isRight = answers[idx] !== null && Math.abs(answers[idx] - q.natAnswer) < 0.001;
+                    oc.innerHTML = `<div class="p-6 border-2 rounded-xl ${isRight ? 'border-emerald-500 bg-emerald-50' : 'border-rose-500 bg-rose-50'}"><p class="text-sm font-bold ${isRight ? 'text-emerald-700' : 'text-rose-700'} mb-1">Your Answer:</p><p class="text-2xl font-black ${isRight ? 'text-emerald-900' : 'text-rose-900'}">${answers[idx] !== null ? answers[idx] : 'Unattempted'}</p>${!isRight ? `<div class="mt-4 pt-4 border-t border-rose-200"><p class="text-sm font-bold text-emerald-700 mb-1">Correct Answer:</p><p class="text-xl font-black text-emerald-900">${q.natAnswer}</p></div>` : ''}</div>`;
+                } else {
+                    oc.innerHTML = `<input type="number" step="any" class="w-full p-4 border border-slate-300 rounded-lg text-lg focus:ring-2 focus:ring-sky-500 font-semibold text-slate-800" placeholder="Enter numerical answer here..." value="${answers[idx] !== null ? answers[idx] : ''}" oninput="selectNAT(this.value)">`;
+                }
+            } else {
+                q.options.forEach((opt, oIdx) => { const isSel = answers[idx] === oIdx; const isCor = q.answer === oIdx; const div = document.createElement('div'); let divClass = 'p-4 border rounded-lg flex items-center gap-3 '; if (reviewMode) { if (isCor) divClass += 'border-emerald-500 bg-emerald-50'; else if (isSel && !isCor) divClass += 'border-rose-500 bg-rose-50'; else divClass += 'bg-white opacity-50'; } else { divClass += `cursor-pointer ${isSel ? 'border-sky-500 bg-sky-50' : 'bg-white hover:bg-slate-50'}`; div.onclick = () => { answers[currentQIndex] = oIdx; loadQuestion(currentQIndex); }; } div.className = divClass; div.innerHTML = `<span class="${isSel||(reviewMode&&isCor)?'font-bold':'font-normal'}">${opt}</span>`; oc.appendChild(div); }); 
+            }
+            updatePaletteColors(); 
+        };
+
+        const selectNAT = (val) => {
+            const parsed = parseFloat(val);
+            answers[currentQIndex] = isNaN(parsed) ? null : parsed;
+            updatePaletteColors();
+        };
 
         const clearSelection = () => { answers[currentQIndex] = null; loadQuestion(currentQIndex); };
         const markForReview = () => { markedForReview[currentQIndex] = true; if (currentQIndex < questionsData.length - 1) { loadQuestion(currentQIndex + 1); } else { updatePaletteColors(); } };
@@ -383,7 +415,15 @@ if (empty($_COOKIE['session_token'])) {
             isExamActive = false; document.getElementById('view-exam').classList.add('hide'); document.getElementById('view-results').classList.remove('hide');
             let cor = 0, incor = 0, un = 0, tot = 0;
             let subScores = { 'Mathematics': 0, 'Physics': 0, 'Chemistry': 0 };
-            answers.forEach((ans, i) => { const q = questionsData[i]; if (ans === null) un++; else if (ans === q.answer) { cor++; tot += 4; subScores[q.subject] += 4; } else { incor++; tot -= 1; subScores[q.subject] -= 1; } });
+            answers.forEach((ans, i) => { 
+                const q = questionsData[i]; 
+                if (ans === null) { un++; } 
+                else {
+                    const isRight = (q.type === 'NAT') ? (Math.abs(ans - q.natAnswer) < 0.001) : (ans === q.answer);
+                    if (isRight) { cor++; tot += 4; subScores[q.subject] += 4; } 
+                    else { incor++; tot -= 1; subScores[q.subject] -= 1; } 
+                }
+            });
             const results = getMockTestResults(); results[currentTestId] = { score: tot, answers, correct: cor, incorrect: incor, unattempted: un, subjectScores: subScores };
             try { localStorage.setItem('jeeMockResults', JSON.stringify(results)); } catch(e) {}
             document.getElementById('result-score').innerText = tot; document.getElementById('res-unattempted').innerText = un; document.getElementById('res-correct').innerText = cor; document.getElementById('res-incorrect').innerText = incor;
@@ -415,14 +455,17 @@ if (empty($_COOKIE['session_token'])) {
                 const sub = q.subject;
                 if (!subScores[sub]) subScores[sub] = 0;
                 
-                if (ans === null) un++;
-                else if (ans === q.answer) { cor++; tot += 1; subScores[sub] += 1; }
-                else {
-                    incor++; tot -= 0.25;
-                    subScores[sub] -= 0.25;
-                    const key = sub + '|' + (q.chapter || 'General');
-                    if (!incTopics[key]) incTopics[key] = new Set();
-                    incTopics[key].add(q.topic || 'General');
+                if (ans === null) {
+                    un++;
+                } else {
+                    const isRight = (q.type === 'NAT') ? (Math.abs(ans - q.natAnswer) < 0.001) : (ans === q.answer);
+                    if (isRight) { cor++; tot += 4; subScores[sub] += 4; }
+                    else {
+                        incor++; tot -= 1; subScores[sub] -= 1;
+                        const key = sub + '|' + (q.chapter || 'General');
+                        if (!incTopics[key]) incTopics[key] = new Set();
+                        incTopics[key].add(q.topic || 'General');
+                    }
                 }
             });
             

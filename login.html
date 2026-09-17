@@ -50,14 +50,14 @@
                 <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 text-left">
                     <p class="text-xs text-slate-600 font-semibold uppercase tracking-wider mb-2">Terms, Privacy & Disclaimer</p>
                     <div class="text-sm text-slate-700 space-y-2">
-                        <p class="text-xs text-slate-600">By continuing, you agree to our <span class="font-semibold">Terms</span> and <span class="font-semibold">Privacy Policy</span>.</p>
+                        <p class="text-xs text-slate-600">By continuing, you agree to our <span class="font-semibold cursor-pointer hover:text-indigo-600" onclick="document.getElementById('terms-modal').classList.remove('hide')">Terms</span> and <span class="font-semibold cursor-pointer hover:text-indigo-600" onclick="document.getElementById('terms-modal').classList.remove('hide')">Privacy Policy</span>.</p>
                         <label class="flex items-start gap-3">
                             <input id="agree-terms" type="checkbox" class="mt-1.5 w-5 h-5 accent-indigo-600 cursor-pointer" />
                             <span class="text-sm text-slate-700">I agree to the terms and understand this is for mock/test purposes.</span>
                         </label>
                     </div>
                     <div class="mt-3 flex flex-wrap gap-3 text-xs">
-                        <a href="terms.html" class="text-indigo-600 font-semibold hover:underline">Read Full Terms & Privacy</a>
+                        <a href="terms.html" target="_blank" class="text-indigo-600 font-semibold hover:underline">Read Full Terms & Privacy</a>
                     </div>
                     <p id="terms-error" class="text-sm text-red-500 mt-2 hide">Please accept the terms to continue.</p>
                 </div>

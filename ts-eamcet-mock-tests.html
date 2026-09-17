@@ -1,0 +1,1843 @@
+<?php
+session_start();
+if (empty($_COOKIE['session_token'])) {
+    header("Location: login.html");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TS EAMCET Premium Mock Test Series</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        /* Custom Scrollbar for question palette */
+        .q-palette::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .q-palette::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        /* Dark Mode Magic Filter */
+        html.dark-theme {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        html.dark-theme,
+        html.dark-theme body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        /* Un-invert canvases (charts & confetti) so they look normal */
+        html.dark-theme canvas,
+        html.dark-theme img {
+            filter: invert(1) hue-rotate(180deg);
+        }
+    </style>
+    <script>
+        if (!localStorage.getItem('user_email')) {
+            window.location.href = 'login.html?redirect=mock-tests.html';
+        }
+        // Apply theme immediately before page renders to prevent white flashes
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+    <!-- VIEW 1: DASHBOARD -->
+    <div id="view-dashboard" class="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">TS EAMCET <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">Mock Test
+                        Series</span></h1>
+                <p class="text-slate-500 mt-1">Practice with 25 full-length papers mirroring the exact TS EAMCET
+                    pattern.</p>
+                <div
+                    class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg inline-flex items-start gap-2 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-amber-600 shrink-0 mt-0.5">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <span class="text-sm font-semibold text-amber-800">Disclaimer: Question complexity and calculation
+                        difficulty increases progressively. We highly recommend starting from Mock Test 1!</span>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <button onclick="toggleDarkMode()"
+                    class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition px-2 flex items-center gap-1.5"
+                    title="Toggle Theme">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <span id="theme-text">Dark</span>
+                </button>
+                <button onclick="openPurchaseModal('all')"
+                    class="px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">Unlock
+                    All Exams (₹1500)</button>
+                <button onclick="openCustomModal()"
+                    class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">🎯
+                    Custom Test</button>
+                <button onclick="openHistoryModal()"
+                    class="px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">📚
+                    History</button>
+                <button onclick="clearMockData()"
+                    class="text-sm font-medium text-slate-500 hover:text-slate-800 transition px-2">Clear Data</button>
+                <a href="index.html"
+                    class="px-4 py-2 bg-indigo-50 text-indigo-700 font-semibold rounded-lg hover:bg-indigo-100 transition shadow-sm">Back
+                    to Home</a>
+            </div>
+        </header>
+
+        <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 mb-2"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="test-grid">
+            <!-- Tests will be generated here by JS -->
+        </div>
+    </div>
+
+    <!-- VIEW 1.5: INSTRUCTIONS -->
+    <div id="view-instructions" class="hide max-w-4xl mx-auto p-4 md:p-8 space-y-6 mt-6">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-indigo-600 p-6 text-white">
+                <h2 class="text-2xl font-bold" id="instructions-title">Instructions for MET Mock Test</h2>
+            </div>
+            <div class="p-8 space-y-6 text-slate-700">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Exam Pattern & Weightage</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Total Duration:</strong> 180 Minutes</li>
+                        <li><strong>Total Questions:</strong> 160 Questions</li>
+                        <li><strong>Mathematics:</strong> 80 Questions</li>
+                        <li><strong>Physics:</strong> 40 Questions</li>
+                        <li><strong>Chemistry:</strong> 40 Questions</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Marking Scheme</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>All Questions:</strong> +1 for correct answer, <span
+                                class="text-emerald-600 font-bold">0 (No negative marking) for incorrect answer</span>.
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3 mt-4">
+                    <input type="checkbox" id="gadget-checkbox"
+                        class="mt-1 w-5 h-5 accent-indigo-600 cursor-pointer shrink-0" onchange="toggleProceedBtn()">
+                    <label for="gadget-checkbox" class="text-sm font-medium text-amber-900 cursor-pointer select-none">
+                        I confirm that I am not using any mobile phones, smartwatches, physical calculators (other than
+                        the provided virtual calculator), or any unauthorized gadgets. I will attempt this test with
+                        strict honesty.
+                    </label>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-4">
+                <button onclick="backToDashboard()"
+                    class="px-6 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition shadow-sm">Cancel</button>
+                <button id="proceed-btn" disabled onclick="proceedToExam()"
+                    class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg opacity-50 cursor-not-allowed transition shadow-md">Proceed
+                    to Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: EXAM INTERFACE -->
+    <div id="view-exam" class="hide min-h-screen lg:h-screen flex flex-col bg-slate-100 relative">
+        <!-- Pause Overlay -->
+        <div id="pause-overlay"
+            class="hide absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-white">
+            <h2 class="text-4xl font-extrabold mb-4">Exam Paused</h2>
+            <p class="text-lg text-slate-200 mb-8 text-center max-w-md">Your timer is stopped and your progress is
+                safely saved. The question paper is hidden to maintain test integrity.</p>
+            <button onclick="resumeExam()"
+                class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg transition text-lg flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Resume Exam
+            </button>
+        </div>
+        <!-- Exam Header -->
+        <header
+            class="bg-white shadow-sm border-b border-slate-200 px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 z-10 shrink-0">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-bold text-slate-800" id="exam-title">Mock Test 1</h2>
+                <span
+                    class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold uppercase tracking-wide">TS
+                    EAMCET Pattern</span>
+            </div>
+            <div id="exam-controls" class="flex flex-wrap justify-center items-center gap-2 md:gap-4">
+                <button onclick="toggleCalculator()"
+                    class="px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                        <line x1="8" y1="6" x2="16" y2="6"></line>
+                        <line x1="16" y1="14" x2="16" y2="14.01"></line>
+                        <line x1="16" y1="10" x2="16" y2="10.01"></line>
+                        <line x1="16" y1="18" x2="16" y2="18.01"></line>
+                        <line x1="12" y1="14" x2="12" y2="14.01"></line>
+                        <line x1="12" y1="10" x2="12" y2="10.01"></line>
+                        <line x1="12" y1="18" x2="12" y2="18.01"></line>
+                        <line x1="8" y1="14" x2="8" y2="14.01"></line>
+                        <line x1="8" y1="10" x2="8" y2="10.01"></line>
+                        <line x1="8" y1="18" x2="8" y2="18.01"></line>
+                    </svg>
+                    <span class="hidden sm:inline">Calculator</span>
+                </button>
+                <button onclick="togglePalette()"
+                    class="lg:hidden px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2"
+                    title="View Questions">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    <span class="hidden sm:inline">Questions</span>
+                </button>
+                <button id="pause-btn" onclick="pauseExam()"
+                    class="px-3 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 border border-slate-300 transition shadow-sm flex items-center gap-2"
+                    title="Pause Exam">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="6" y="4" width="4" height="16"></rect>
+                        <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                    <span class="hidden sm:inline">Pause</span>
+                </button>
+                <button onclick="cancelExam()"
+                    class="px-3 py-2 bg-rose-100 text-rose-700 font-semibold rounded-lg hover:bg-rose-200 border border-rose-200 transition shadow-sm hidden sm:inline-flex items-center gap-2"
+                    title="Cancel Exam">
+                    Cancel Test
+                </button>
+                <div id="timer-display"
+                    class="flex items-center gap-2 text-rose-600 font-bold bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span id="timer">180:00</span>
+                </div>
+                <button id="submit-btn" onclick="submitExam()"
+                    class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 shadow-md transition">Submit
+                    Test</button>
+            </div>
+            <button id="exit-review-btn" onclick="exitReview()"
+                class="hide px-6 py-2 bg-slate-800 text-white font-semibold rounded-lg hover:bg-slate-900 shadow-md transition flex items-center gap-2"><svg
+                    xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg> Exit Review</button>
+        </header>
+
+        <!-- VIRTUAL CALCULATOR (Floating) -->
+        <div id="virtual-calculator"
+            class="hide absolute top-20 right-2 sm:right-6 z-50 w-80 max-w-[95vw] bg-slate-800 rounded-xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col cursor-move">
+            <div id="calc-header" class="bg-slate-900 p-3 flex justify-between items-center select-none">
+                <span class="text-white font-bold text-sm tracking-wider pointer-events-none">SCIENTIFIC CALC</span>
+                <button onclick="toggleCalculator()"
+                    class="text-slate-400 hover:text-white transition cursor-pointer"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg></button>
+            </div>
+            <div class="p-4">
+                <input type="text" id="calc-display"
+                    class="w-full bg-slate-100 text-right text-xl p-2 rounded mb-3 font-mono font-bold text-slate-800 h-12 outline-none focus:ring-2 focus:ring-indigo-500 cursor-text"
+                    value="0">
+                <div class="grid grid-cols-5 gap-2 text-sm [&>button]:cursor-pointer">
+                    <button onclick="calcPress('sin()')"
+                        class="bg-indigo-700 text-white font-bold py-2 rounded hover:bg-indigo-600 transition">sin</button>
+                    <button onclick="calcPress('cos()')"
+                        class="bg-indigo-700 text-white font-bold py-2 rounded hover:bg-indigo-600 transition">cos</button>
+                    <button onclick="calcPress('tan()')"
+                        class="bg-indigo-700 text-white font-bold py-2 rounded hover:bg-indigo-600 transition">tan</button>
+                    <button onclick="calcPress('(')"
+                        class="bg-indigo-500 text-white font-bold py-2 rounded hover:bg-indigo-400 transition">(</button>
+                    <button onclick="calcPress(')')"
+                        class="bg-indigo-500 text-white font-bold py-2 rounded hover:bg-indigo-400 transition">)</button>
+
+                    <button onclick="calcPress('log()')"
+                        class="bg-indigo-700 text-white font-bold py-2 rounded hover:bg-indigo-600 transition">log</button>
+                    <button onclick="calcPress('ln()')"
+                        class="bg-indigo-700 text-white font-bold py-2 rounded hover:bg-indigo-600 transition">ln</button>
+                    <button onclick="calcPress('sqrt()')"
+                        class="bg-indigo-700 text-white font-bold py-2 rounded hover:bg-indigo-600 transition">&radic;</button>
+                    <button onclick="calcPress('^')"
+                        class="bg-indigo-700 text-white font-bold py-2 rounded hover:bg-indigo-600 transition">^</button>
+                    <button onclick="calcPress('π')"
+                        class="bg-indigo-500 text-white font-bold py-2 rounded hover:bg-indigo-400 transition">&pi;</button>
+
+                    <button onclick="calcPress('7')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">7</button>
+                    <button onclick="calcPress('8')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">8</button>
+                    <button onclick="calcPress('9')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">9</button>
+                    <button onclick="calcPress('C')"
+                        class="bg-rose-500 text-white font-bold py-2 rounded hover:bg-rose-600 transition">C</button>
+                    <button onclick="calcPress('&#8592;')"
+                        class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&#8592;</button>
+
+                    <button onclick="calcPress('4')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">4</button>
+                    <button onclick="calcPress('5')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">5</button>
+                    <button onclick="calcPress('6')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">6</button>
+                    <button onclick="calcPress('*')"
+                        class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&times;</button>
+                    <button onclick="calcPress('/')"
+                        class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&divide;</button>
+
+                    <button onclick="calcPress('1')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">1</button>
+                    <button onclick="calcPress('2')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">2</button>
+                    <button onclick="calcPress('3')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">3</button>
+                    <button onclick="calcPress('+')"
+                        class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">+</button>
+                    <button onclick="calcPress('-')"
+                        class="bg-slate-600 text-white font-bold py-2 rounded hover:bg-slate-500 transition">&minus;</button>
+
+                    <button onclick="calcPress('0')"
+                        class="col-span-2 bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">0</button>
+                    <button onclick="calcPress('.')"
+                        class="bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600 transition">.</button>
+                    <button onclick="calcPress('E')"
+                        class="bg-indigo-500 text-white font-bold py-2 rounded hover:bg-indigo-400 transition">E</button>
+                    <button onclick="calcPress('=')"
+                        class="bg-emerald-500 text-white font-bold py-2 rounded hover:bg-emerald-600 transition">=</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Body -->
+        <div class="flex flex-col lg:flex-row flex-1 lg:overflow-hidden">
+            <!-- Left: Question Area -->
+            <div class="flex-1 flex flex-col p-3 md:p-6 lg:overflow-y-auto">
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col max-w-4xl w-full mx-auto">
+
+                    <!-- Subjects Tabs -->
+                    <div class="flex flex-wrap border-b border-slate-100 p-2 gap-2 bg-slate-50/50 rounded-t-xl"
+                        id="subject-tabs">
+                        <!-- Generated by JS -->
+                    </div>
+
+                    <!-- Question Display -->
+                    <div class="p-4 md:p-8 flex-1">
+                        <div
+                            class="flex flex-col sm:flex-row sm:justify-between sm:items-start md:items-center gap-3 mb-6">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <h3 class="text-lg font-bold text-slate-800">Question <span id="q-num">1</span></h3>
+                                <span id="q-type-badge"
+                                    class="px-2 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded uppercase"></span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span id="q-time-spent"
+                                    class="hide text-sm font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-1 rounded flex items-center gap-1.5 shadow-sm"></span>
+                                <span
+                                    class="text-sm font-medium text-slate-500 bg-slate-100 border border-slate-200 px-2 py-1 rounded shadow-sm"
+                                    id="q-marking">Marking: +1 / 0</span>
+                            </div>
+                        </div>
+                        <p class="text-lg md:text-xl text-slate-700 mb-6" id="q-text">Loading question...</p>
+
+                        <div class="space-y-3" id="options-container">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div
+                        class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <button onclick="prevQuestion()"
+                            class="w-full sm:w-auto px-4 py-2 bg-white border border-slate-300 text-slate-700 font-medium rounded hover:bg-slate-50 transition shadow-sm text-sm">Previous</button>
+                        <div class="flex w-full sm:w-auto justify-center items-center gap-2">
+                            <button id="clear-btn" onclick="clearSelection()"
+                                class="flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-300 text-slate-600 font-medium rounded hover:bg-slate-50 transition shadow-sm text-sm">Clear</button>
+                            <button id="mark-review-btn" onclick="markForReview()"
+                                class="flex-1 sm:flex-none px-4 py-2 bg-purple-50 border border-purple-200 text-purple-700 font-medium rounded hover:bg-purple-100 transition shadow-sm text-sm">Mark
+                                for Review</button>
+                        </div>
+                        <button id="next-btn" onclick="saveAndNext()"
+                            class="w-full sm:w-auto px-6 py-2 bg-indigo-600 text-white font-medium rounded hover:bg-indigo-700 transition shadow-sm text-sm">Save
+                            & Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Palette Backdrop -->
+            <div id="palette-backdrop" class="hide fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden"
+                onclick="togglePalette()"></div>
+
+            <!-- Right: Question Palette -->
+            <div id="question-palette"
+                class="fixed lg:static inset-y-0 right-0 z-40 w-[85vw] sm:w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 transform translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-2xl lg:shadow-none h-[100dvh] lg:h-auto lg:overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0 flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-slate-800 mb-3">Questions</h3>
+                        <div class="grid grid-cols-2 gap-2 text-[10px] sm:text-xs font-medium text-slate-600">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-emerald-500"></div> Answered
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-rose-500"></div> Not Answered
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded border border-slate-300 bg-white"></div> Not Visited
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded bg-purple-100 border border-purple-400"></div> Marked
+                            </div>
+                            <div class="flex items-center gap-1.5 col-span-2">
+                                <div class="w-3 h-3 rounded bg-purple-600 border border-purple-700"></div> Ans & Marked
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="togglePalette()"
+                        class="lg:hidden text-slate-500 hover:text-slate-800 p-1 -mt-1 -mr-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-4 flex-1 overflow-y-auto q-palette grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-5 gap-2 content-start"
+                    id="palette-grid">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 3: RESULTS -->
+    <div id="view-results" class="hide max-w-4xl mx-auto p-4 md:p-8 space-y-8 mt-10">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-center">
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-500 p-8 text-white">
+                <h2 class="text-3xl font-extrabold mb-2">Test Submitted Successfully</h2>
+                <p class="text-emerald-100 font-medium text-lg">Here is your MET performance analysis</p>
+            </div>
+            <div class="p-8 flex flex-col md:flex-row items-center justify-around gap-8">
+                <div>
+                    <p class="text-slate-500 font-semibold uppercase tracking-wider mb-2">Attempted By</p>
+                    <p class="text-xl font-bold text-slate-800" id="result-username">—</p>
+                    <div class="mt-2">
+                        <p class="text-slate-500 font-semibold uppercase tracking-wider mb-2">Your MET Score</p>
+                        <p class="text-7xl font-black text-slate-800"><span id="result-score">0</span> <span
+                                class="text-2xl text-slate-400 font-medium">/ 240</span></p>
+                    </div>
+                </div>
+                <div class="w-full md:w-64 h-64">
+                    <canvas id="subjectChart"></canvas>
+                </div>
+                <div class="border-l border-slate-200 h-32 hidden md:block"></div>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4 text-left">
+                    <div>
+                        <p class="text-slate-500 text-sm font-medium">Unattempted</p>
+                        <p class="text-xl font-bold text-slate-800" id="res-unattempted">0</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 text-sm font-medium">Correct</p>
+                        <p class="text-xl font-bold text-emerald-600" id="res-correct">0</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 text-sm font-medium">Incorrect</p>
+                        <p class="text-xl font-bold text-rose-600" id="res-incorrect">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 border-t border-slate-200 pt-8 text-left w-full">
+                <div class="flex items-center gap-3 mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="text-indigo-600">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                    <h3 class="text-2xl font-bold text-slate-800">Revision Insights</h3>
+                </div>
+                <div id="revision-insights" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Insights populated by JS -->
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-50 border-t border-slate-100 flex flex-wrap justify-center gap-4 print:hidden">
+                <button onclick="window.print()"
+                    class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Save as PDF
+                </button>
+                <button onclick="location.reload()"
+                    class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition shadow-sm">Try
+                    Another Test</button>
+                <button id="review-mistakes-btn" onclick="reviewAnswers()"
+                    class="px-6 py-2.5 bg-white border border-indigo-200 text-indigo-700 font-bold rounded-lg hover:bg-indigo-50 transition shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Review Mistakes
+                </button>
+                <a href="index.html"
+                    class="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center gap-2">
+                    Back to Home
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mockTestData = [];
+
+        // Fetch data on load
+        fetch('ts_eamcet_mock_test.json')
+            .then(res => res.json())
+            .then(data => {
+                // Ensure all questions are treated as MCQ with +1/0 marking
+                mockTestData = data.map(q => ({
+                    ...q,
+                    type: 'MCQ',
+                    answer: q.correctAnswer
+                }));
+            })
+            .catch(err => console.error("Error loading mock test data:", err));
+
+        const generateQuestionsForTest = (testId) => {
+            // Return a cloned version to avoid modifying the original array during the test
+            return JSON.parse(JSON.stringify(mockTestData));
+        };
+
+        const vDashboard = document.getElementById('view-dashboard');
+        const vExam = document.getElementById('view-exam');
+        const vResults = document.getElementById('view-results');
+        const elGrid = document.getElementById('test-grid');
+
+        // --- UTILS ---
+        const getMockTestResults = () => {
+            try {
+                return JSON.parse(localStorage.getItem('mockTestResults') || '{}');
+            } catch (e) {
+                return {};
+            }
+        };
+
+        const getRegisteredDisplayName = () => {
+            try {
+                const profileRaw = localStorage.getItem('user_profile');
+                const profile = profileRaw ? JSON.parse(profileRaw) : null;
+                if (profile) {
+                    return profile.name || profile.full_name || profile.username || null;
+                }
+            } catch (e) { }
+            return localStorage.getItem('user_email') || null;
+        };
+
+        // --- DASHBOARD SETUP ---
+        const renderDashboard = () => {
+            elGrid.innerHTML = '';
+            const results = getMockTestResults();
+
+            // Compute Analytics
+            const validResults = Object.values(results).filter(r => r && typeof r === 'object' && typeof r.score === 'number');
+            const resultValues = validResults.map(r => r.score);
+            const totalAttempts = resultValues.length;
+            const avgScore = totalAttempts ? Math.round(resultValues.reduce((a, b) => a + b, 0) / totalAttempts) : 0;
+            const highScore = totalAttempts ? Math.max(...resultValues) : 0;
+
+
+            const statsContainer = document.getElementById('dashboard-stats');
+            statsContainer.innerHTML = `
+                <div class="bg-indigo-600 text-white rounded-xl p-6 shadow-md flex items-center justify-between">
+                    <div><p class="text-indigo-200 text-sm font-bold uppercase tracking-wider mb-1">Tests Attempted</p><p class="text-4xl font-black">${totalAttempts} <span class="text-lg font-medium text-indigo-300">/ 25</span></p></div>
+                    <div class="p-3 bg-indigo-500 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-center justify-between">
+                    <div><p class="text-slate-500 text-sm font-bold uppercase tracking-wider mb-1">Average Score</p><p class="text-4xl font-black text-slate-800">${avgScore}</p></div>
+                    <div class="p-3 bg-slate-100 text-slate-500 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg></div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex items-center justify-between">
+                    <div><p class="text-slate-500 text-sm font-bold uppercase tracking-wider mb-1">Highest Score</p><p class="text-4xl font-black text-emerald-600">${highScore}</p></div>
+                    <div class="p-3 bg-emerald-50 text-emerald-500 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg></div>
+                </div>
+            `;
+
+            const difficultyLabels = ['Beginner', 'Easy', 'Moderate', 'Hard', 'Advanced'];
+            const difficultyColors = ['bg-emerald-50 text-emerald-700 border-emerald-200', 'bg-teal-50 text-teal-700 border-teal-200', 'bg-amber-50 text-amber-700 border-amber-200', 'bg-orange-50 text-orange-700 border-orange-200', 'bg-rose-50 text-rose-700 border-rose-200'];
+
+            for (let i = 1; i <= 25; i++) {
+                let isUnlocked = false;
+                try {
+                    const allUnlocked = localStorage.getItem('met_all_tests_unlocked') === 'true';
+                    const thisUnlocked = localStorage.getItem(`met_test_${i}_unlocked`) === 'true';
+                    isUnlocked = allUnlocked || thisUnlocked;
+                } catch (e) {
+                    // If localStorage is blocked/unavailable, default to locked
+                    isUnlocked = false;
+                }
+                const pastResult = results[i];
+
+                const diffIdx = Math.floor((i - 1) / 5); // Groups tests into 5 difficulty buckets
+                const diffLabel = difficultyLabels[diffIdx];
+                const diffColor = difficultyColors[diffIdx];
+
+                const card = document.createElement('div');
+                card.className = `bg-white border ${isUnlocked ? (pastResult ? 'border-indigo-200 border-b-4' : 'border-emerald-200 border-b-4') : 'border-slate-200'} rounded-xl p-6 shadow-sm flex flex-col h-full relative overflow-hidden`;
+
+                card.innerHTML = `
+                    ${isUnlocked && i === 1 && !pastResult ? '<div class="absolute -right-8 top-3 bg-emerald-500 text-white text-[10px] font-bold py-1 px-8 rotate-45 uppercase tracking-widest">New</div>' : ''}
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-xl text-slate-800">MET Mock Test ${i}</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="${diffColor} border px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">${diffLabel}</span>
+                            ${isUnlocked
+                        ? (pastResult ? '<span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-[10px] font-bold border border-indigo-100 uppercase tracking-wider">Completed</span>' : '')
+                        : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'
+                    }
+                        </div>
+                    </div>
+                    ${pastResult ? `
+                    <div class="mb-4 p-3 bg-slate-50 border border-slate-100 rounded-lg flex justify-between items-center">
+                        <span class="text-sm font-semibold text-slate-600">Previous Score:</span>
+                        <span class="text-lg font-black text-indigo-600">${pastResult.score} <span class="text-xs text-slate-400 font-medium">/ 240</span></span>
+                    </div>` : ''}
+                    <div class="text-sm text-slate-500 mb-6 space-y-1">
+                        <p>• 60 Questions (Math, Phy, Chem, Eng)</p>
+                        <p>• 120 Minutes Duration</p>
+                        <p>• Based on Latest 2026 Syllabus</p>
+                    </div>
+                    <div class="mt-auto flex gap-2 w-full">
+                        <button onclick="${isUnlocked ? `startTest(${i})` : `openPurchaseModal('single')`}" class="flex-1 py-2.5 rounded-lg font-semibold transition ${isUnlocked ? (pastResult ? 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200' : 'bg-slate-900 text-white hover:bg-slate-800') : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                    }">
+                            ${isUnlocked ? (pastResult ? 'Reattempt' : 'Start Test') : '🔒 Unlock All (₹500)'}
+                        </button>
+                        ${pastResult ? `
+                        <button onclick="viewPastResults(${i})" title="View Results" class="flex items-center justify-center px-4 py-2.5 rounded-lg font-semibold transition bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>` : ''}
+                    </div>
+                `;
+                elGrid.appendChild(card);
+            }
+        };
+
+        const clearMockData = () => {
+            if (confirm("Are you sure you want to clear all your mock test results? This cannot be undone.")) {
+                localStorage.removeItem('mockTestResults');
+                renderDashboard();
+            }
+        };
+
+        const viewPastResults = (id) => {
+            const results = getMockTestResults();
+            const pastResult = results[id];
+
+            if (!pastResult) return;
+
+            currentTestId = id;
+            questionsData = generateQuestionsForTest(id);
+            answers = pastResult.answers || new Array(questionsData.length).fill(null);
+            timeSpent = pastResult.timeSpent || new Array(questionsData.length).fill(0);
+            markedForReview = new Array(questionsData.length).fill(false);
+            visited = new Array(questionsData.length).fill(true);
+
+            vDashboard.classList.add('hide');
+            vResults.classList.remove('hide');
+
+            document.getElementById('result-score').innerText = pastResult.score !== undefined ? pastResult.score : 0;
+            const username = pastResult.username;
+            document.getElementById('result-username').innerText = (typeof username === 'string' && username.trim()) ? username.trim() : '—';
+            document.getElementById('res-unattempted').innerText = pastResult.unattempted !== undefined ? pastResult.unattempted : '-';
+
+            document.getElementById('res-correct').innerText = pastResult.correct !== undefined ? pastResult.correct : '-';
+            document.getElementById('res-incorrect').innerText = pastResult.incorrect !== undefined ? pastResult.incorrect : '-';
+
+            drawRadarChart(pastResult.subjectScores || { 'Mathematics': 0, 'Physics': 0, 'Chemistry': 0, 'English': 0 });
+
+            const btnReview = document.getElementById('review-mistakes-btn');
+            if (btnReview) {
+                if (pastResult.answers) btnReview.classList.remove('hide');
+                else btnReview.classList.add('hide');
+            }
+
+            const insightsContainer = document.getElementById('revision-insights');
+            insightsContainer.innerHTML = '';
+
+            if (!pastResult.incorrectTopics) {
+                insightsContainer.innerHTML = `
+                    <div class="col-span-full p-6 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-center shadow-sm">
+                        <p class="font-bold mb-1">Detailed Analytics Not Available</p>
+                        <p class="text-sm">Since this test was attempted before the detailed analytics feature was added, only your total score was saved to your local storage. Any new attempts will save your complete analysis, including your answers and topic-wise mistakes.</p>
+                    </div>
+                `;
+            } else {
+                const mistakeKeys = Object.keys(pastResult.incorrectTopics);
+                if (mistakeKeys.length === 0) {
+                    insightsContainer.innerHTML = '<div class="col-span-full p-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-medium text-center shadow-sm">Excellent work! No mistakes found to suggest revision. Keep it up! 🎉</div>';
+                } else {
+                    mistakeKeys.forEach(key => {
+                        const topicsArray = pastResult.incorrectTopics[key];
+                        const [sub, chap] = key.split('|');
+
+                        const subSafe = (sub || '').toString();
+                        const chapSafe = (chap || '').toString();
+
+                        const card = document.createElement('div');
+                        card.className = 'p-5 bg-rose-50 border border-rose-100 rounded-xl shadow-sm flex flex-col h-full';
+                        card.innerHTML = `
+                            <div class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">${sub}</div>
+                            <div class="text-lg font-bold text-slate-800 mb-3">${chap}</div>
+                            <div class="text-sm text-slate-600 mt-auto bg-white p-3 rounded-lg border border-rose-100/50">
+                                <span class="font-bold text-slate-700 block mb-1">Needs Review:</span> 
+                                <ul class="list-disc pl-4 space-y-1">${topicsArray.map(t => `<li>${t}</li>`).join('')}</ul>
+                            </div>
+                        `;
+                        insightsContainer.appendChild(card);
+                    });
+                }
+            }
+        };
+
+        const openPurchaseModal = (plan) => {
+            window.location.href = `payments.html?plan=${plan === 'all' ? 'combo' : 'met'}`;
+        };
+
+        // Auto-refresh dashboard when tab becomes active
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && document.getElementById('view-dashboard')?.style.display !== 'none') {
+                renderDashboard();
+            }
+        });
+        window.addEventListener('focus', () => {
+            if (document.getElementById('view-dashboard')?.style.display !== 'none') {
+                renderDashboard();
+            }
+        });
+
+        // --- EXAM LOGIC ---
+        const startTest = (id) => {
+            currentTestId = id;
+            vDashboard.classList.add('hide');
+            document.getElementById('view-instructions').classList.remove('hide');
+            document.getElementById('instructions-title').innerText = `Instructions for MET Mock Test ${id}`;
+            document.getElementById('gadget-checkbox').checked = false;
+            toggleProceedBtn();
+        };
+
+        const toggleProceedBtn = () => {
+            const btn = document.getElementById('proceed-btn');
+            if (document.getElementById('gadget-checkbox').checked) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.classList.add('hover:bg-indigo-700');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('hover:bg-indigo-700');
+            }
+        };
+
+        const backToDashboard = () => {
+            document.getElementById('view-instructions').classList.add('hide');
+            vDashboard.classList.remove('hide');
+        };
+
+        const proceedToExam = () => {
+            document.getElementById('view-instructions').classList.add('hide');
+            vExam.classList.remove('hide');
+
+            questionsData = generateQuestionsForTest(currentTestId);
+
+            // OPTION SHUFFLING FIX: Shuffle MCQ options using deterministic testId seed
+            const shuffleSeed = currentTestId * 7919;
+            let sX = shuffleSeed;
+            const shuffleRand = () => { sX ^= sX << 13; sX ^= sX >>> 17; sX ^= sX << 5; return (sX >>> 0) / 4294967296; };
+            questionsData.forEach(q => {
+                if (q.type !== 'MCQ' || !q.options) return;
+                const items = q.options.map((opt, idx) => ({ opt, isAns: idx === q.answer }));
+                for (let k = items.length - 1; k > 0; k--) {
+                    const j = Math.floor(shuffleRand() * (k + 1));
+                    [items[k], items[j]] = [items[j], items[k]];
+                }
+                q.options = items.map(x => x.opt);
+                q.answer = items.findIndex(x => x.isAns);
+            });
+
+            answers = new Array(questionsData.length).fill(null);
+            timeSpent = new Array(questionsData.length).fill(0);
+            markedForReview = new Array(questionsData.length).fill(false);
+            visited = new Array(questionsData.length).fill(false);
+
+            document.getElementById('exam-title').innerText = `Mock Test ${currentTestId}`;
+
+            currentQIndex = 0;
+            timeLeft = 10800;
+            examEndTime = Date.now() + 10800 * 1000;
+            reviewMode = false;
+            lastQStartTime = Date.now();
+
+            document.getElementById('virtual-calculator').classList.add('hide'); // Hide calc by default
+
+            isExamActive = true;
+            startTimer();
+            buildSubjects();
+            buildPalette();
+            loadQuestion(0);
+
+            // Ensure palette is closed on mobile when starting
+            if (window.innerWidth < 1024) {
+                document.getElementById('question-palette').classList.add('translate-x-full');
+                document.getElementById('palette-backdrop').classList.add('hide');
+            }
+        };
+
+        const startTimer = () => {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft = Math.max(0, Math.ceil((examEndTime - Date.now()) / 1000));
+                const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam(true);
+                }
+            }, 1000);
+        };
+
+        const pauseExam = () => {
+            if (!isExamActive) return;
+            clearInterval(timerInterval);
+            const remaining = examEndTime - Date.now();
+            document.getElementById('pause-overlay').dataset.remaining = remaining;
+            document.getElementById('pause-overlay').classList.remove('hide');
+            isExamActive = false;
+        };
+
+        const resumeExam = () => {
+            if (isExamActive) return;
+            const remaining = parseInt(document.getElementById('pause-overlay').dataset.remaining || (timeLeft * 1000));
+            examEndTime = Date.now() + remaining;
+            document.getElementById('pause-overlay').classList.add('hide');
+            isExamActive = true;
+            startTimer();
+            lastQStartTime = Date.now();
+        };
+
+        const cancelExam = () => {
+            if (!confirm('Cancel this test and return to the dashboard? Your current answers will not be saved as a completed attempt.')) return;
+            clearInterval(timerInterval);
+            isExamActive = false;
+            reviewMode = false;
+            currentTestId = null;
+            currentQIndex = null;
+            questionsData = [];
+            answers = [];
+            markedForReview = [];
+            visited = [];
+            document.getElementById('pause-overlay').classList.add('hide');
+            vExam.classList.add('hide');
+            vResults.classList.add('hide');
+            vDashboard.classList.remove('hide');
+            renderDashboard();
+        };
+
+        const togglePalette = () => {
+            const palette = document.getElementById('question-palette');
+            const backdrop = document.getElementById('palette-backdrop');
+            palette.classList.toggle('translate-x-full');
+            backdrop.classList.toggle('hide');
+        };
+
+        const buildSubjects = () => {
+            const subjects = [...new Set(questionsData.map(q => q.subject))];
+            const container = document.getElementById('subject-tabs');
+            container.innerHTML = '';
+
+            subjects.forEach(sub => {
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-800 transition`;
+                btn.innerText = sub;
+                btn.onclick = () => {
+                    const firstQIndex = questionsData.findIndex(q => q.subject === sub);
+                    loadQuestion(firstQIndex);
+                };
+                container.appendChild(btn);
+            });
+        };
+
+        const buildPalette = () => {
+            const container = document.getElementById('palette-grid');
+            container.innerHTML = '';
+
+            questionsData.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `pal-${idx}`;
+                btn.className = `h-10 w-10 rounded border border-slate-300 font-medium text-sm flex items-center justify-center transition hover:bg-slate-200`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => {
+                    loadQuestion(idx);
+                    if (window.innerWidth < 1024) {
+                        const palette = document.getElementById('question-palette');
+                        if (!palette.classList.contains('translate-x-full')) togglePalette();
+                    }
+                };
+                container.appendChild(btn);
+            });
+            updatePaletteColors();
+        };
+
+        const updatePaletteColors = () => {
+            questionsData.forEach((_, idx) => {
+                const btn = document.getElementById(`pal-${idx}`);
+                btn.className = `h-10 w-10 rounded border font-medium text-sm flex items-center justify-center transition hover:opacity-80 `;
+
+                if (reviewMode) {
+                    const q = questionsData[idx];
+                    const isRight = (q.type === 'NAT') ? (answers[idx] !== null && Math.abs(answers[idx] - q.answer) < 0.001) : (answers[idx] === q.answer);
+
+                    if (answers[idx] === null) btn.className += 'bg-slate-200 border-slate-300 text-slate-600';
+                    else if (isRight) btn.className += 'bg-emerald-500 border-emerald-600 text-white';
+                    else btn.className += 'bg-rose-500 border-rose-600 text-white';
+
+                    if (idx === currentQIndex) btn.className += ' ring-2 ring-indigo-500 ring-offset-2';
+                } else {
+                    if (markedForReview[idx] && answers[idx] !== null) {
+                        btn.className += 'bg-purple-600 border-purple-700 text-white';
+                    } else if (markedForReview[idx] && answers[idx] === null) {
+                        btn.className += 'bg-purple-100 border-purple-400 text-purple-700';
+                    } else if (answers[idx] !== null) {
+                        btn.className += 'bg-emerald-500 border-emerald-600 text-white';
+                    } else if (visited[idx]) {
+                        btn.className += 'bg-rose-500 border-rose-600 text-white';
+                    } else {
+                        btn.className += 'bg-white border-slate-300 text-slate-600';
+                    }
+
+                    if (idx === currentQIndex) {
+                        btn.className += ' ring-2 ring-indigo-500 ring-offset-1';
+                    }
+                }
+            });
+
+            const answeredCount = answers.filter(a => a !== null).length;
+            const progBar = document.getElementById('exam-progress');
+            if (progBar) progBar.style.width = `${(answeredCount / questionsData.length) * 100}%`;
+
+            // Update Subject Tabs Active State
+            const curSub = questionsData[currentQIndex].subject;
+            const tabs = document.getElementById('subject-tabs').children;
+            for (let t of tabs) {
+                if (t.innerText === curSub) {
+                    t.className = 'px-4 py-2 text-sm font-bold rounded-lg bg-white text-indigo-600 shadow-sm border border-slate-200';
+                } else {
+                    t.className = 'px-4 py-2 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-800 transition';
+                }
+            }
+        };
+
+        const loadQuestion = (idx) => {
+            if (isExamActive && currentQIndex !== null && currentQIndex !== undefined) {
+                const now = Date.now();
+                timeSpent[currentQIndex] += (now - lastQStartTime) / 1000; // Track fractional seconds
+                lastQStartTime = now;
+            }
+
+            currentQIndex = idx;
+            visited[idx] = true;
+            const q = questionsData[idx];
+
+            document.getElementById('q-num').innerText = idx + 1;
+            document.getElementById('q-type-badge').innerText = q.type === 'NAT' ? 'Numerical Answer Type (NAT)' : 'Multiple Choice (MCQ)';
+            document.getElementById('q-marking').innerText = q.type === 'NAT' ? 'Marking: +4 / 0' : 'Marking: +1 / 0';
+            document.getElementById('q-text').innerHTML = q.text;
+
+            const elTimeSpent = document.getElementById('q-time-spent');
+            if (reviewMode && timeSpent[idx] !== undefined) {
+                const totalSecs = Math.floor(timeSpent[idx]);
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                elTimeSpent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${mins > 0 ? mins + 'm ' : ''}${secs}s`;
+                elTimeSpent.classList.remove('hide');
+            } else {
+                elTimeSpent.classList.add('hide');
+            }
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+
+            if (q.type === 'NAT') {
+                if (reviewMode) {
+                    const isRight = answers[idx] !== null && Math.abs(answers[idx] - q.answer) < 0.001;
+                    optsContainer.innerHTML = `
+                        <div class="p-6 border-2 rounded-xl ${isRight ? 'border-emerald-500 bg-emerald-50' : 'border-rose-500 bg-rose-50'}">
+                            <p class="text-sm font-bold ${isRight ? 'text-emerald-700' : 'text-rose-700'} mb-1">Your Answer:</p>
+                            <p class="text-2xl font-black ${isRight ? 'text-emerald-900' : 'text-rose-900'}">${answers[idx] !== null ? answers[idx] : 'Unattempted'}</p>
+                            ${!isRight ? `<div class="mt-4 pt-4 border-t border-rose-200"><p class="text-sm font-bold text-emerald-700 mb-1">Correct Answer:</p><p class="text-xl font-black text-emerald-900">${q.answer}</p></div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    optsContainer.innerHTML = `<input type="number" step="any" class="w-full p-4 border border-slate-300 rounded-lg text-lg focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800" placeholder="Enter numerical answer here..." value="${answers[idx] !== null ? answers[idx] : ''}" oninput="selectNAT(this.value)">`;
+                }
+            } else {
+                q.options.forEach((opt, oIdx) => {
+                    const isSelected = answers[idx] === oIdx;
+                    const isCorrectAns = q.answer === oIdx;
+
+                    const div = document.createElement('div');
+                    let divClass = 'p-4 border rounded-lg flex items-center gap-3 transition ';
+
+                    if (reviewMode) {
+                        if (isCorrectAns) divClass += 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500';
+                        else if (isSelected && !isCorrectAns) divClass += 'border-rose-500 bg-rose-50';
+                        else divClass += 'border-slate-200 bg-white opacity-50';
+                    } else {
+                        divClass += `cursor-pointer ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 bg-white hover:border-slate-300'}`;
+                        div.onclick = () => selectOption(oIdx);
+                    }
+
+                    div.className = divClass;
+
+                    div.innerHTML = `
+                        <div class="h-5 w-5 rounded-full border flex items-center justify-center shrink-0 ${isSelected || (reviewMode && isCorrectAns) ? (reviewMode && isCorrectAns ? 'border-emerald-600' : (reviewMode && isSelected ? 'border-rose-600' : 'border-indigo-600')) : 'border-slate-400'}">
+                            ${isSelected || (reviewMode && isCorrectAns) ? `<div class="h-2.5 w-2.5 rounded-full ${reviewMode && isCorrectAns ? 'bg-emerald-600' : (reviewMode && isSelected ? 'bg-rose-600' : 'bg-indigo-600')}"></div>` : ''}
+                        </div>
+                        <span class="${isSelected || (reviewMode && isCorrectAns) ? 'font-semibold text-slate-900' : 'text-slate-700'}">${opt}</span>
+                    `;
+                    optsContainer.appendChild(div);
+                });
+            }
+
+            updatePaletteColors();
+
+            const activePalBtn = document.getElementById(`pal-${idx}`);
+            if (activePalBtn) {
+                activePalBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        };
+
+        const selectNAT = (val) => {
+            const parsed = parseFloat(val);
+            answers[currentQIndex] = isNaN(parsed) ? null : parsed;
+            updatePaletteColors();
+        };
+
+        const selectOption = (optIdx) => {
+            answers[currentQIndex] = optIdx;
+            loadQuestion(currentQIndex); // re-render to show selection
+        };
+
+        const clearSelection = () => {
+            answers[currentQIndex] = null;
+            loadQuestion(currentQIndex);
+        };
+
+        const markForReview = () => {
+            markedForReview[currentQIndex] = true;
+            if (currentQIndex < questionsData.length - 1) {
+                loadQuestion(currentQIndex + 1);
+            } else {
+                updatePaletteColors();
+            }
+        };
+
+        const saveAndNext = () => {
+            if (!reviewMode) {
+                markedForReview[currentQIndex] = false;
+            }
+            if (currentQIndex < questionsData.length - 1) {
+                loadQuestion(currentQIndex + 1);
+            } else {
+                updatePaletteColors(); // Just update colors if on the last question
+            }
+        };
+
+        const nextQuestion = () => {
+            if (currentQIndex < questionsData.length - 1) {
+                loadQuestion(currentQIndex + 1);
+            }
+        };
+
+        const prevQuestion = () => {
+            if (currentQIndex > 0) {
+                loadQuestion(currentQIndex - 1);
+            }
+        };
+
+        // --- VIRTUAL CALCULATOR LOGIC ---
+        const toggleCalculator = () => {
+            document.getElementById('virtual-calculator').classList.toggle('hide');
+        };
+
+        const calcPress = (val) => {
+            const display = document.getElementById('calc-display');
+
+            if (display.value === 'Error') {
+                display.value = '0';
+            }
+            if ((display.value === '0') && val !== '\u2190' && val !== '=' && val !== 'C' && val !== '.') {
+                display.value = '';
+            }
+
+            if (val === 'C') {
+                display.value = '0';
+            } else if (val === '=') {
+                try {
+                    let expr = display.value;
+                    expr = expr.replace(/(\d)(\s*)([a-zA-Z\(π])/g, '$1*$3');
+                    expr = expr.replace(/\)([\d\(a-zA-Zπ])/g, ')*$1');
+
+                    let evalExpr = expr
+                        .replace(/sin\(/g, 'sinDeg(')
+                        .replace(/cos\(/g, 'cosDeg(')
+                        .replace(/tan\(/g, 'tanDeg(')
+                        .replace(/log\(/g, 'Math.log10(')
+                        .replace(/ln\(/g, 'Math.log(')
+                        .replace(/sqrt\(/g, 'Math.sqrt(')
+                        .replace(/π/g, 'Math.PI')
+                        .replace(/E/g, 'Math.E')
+                        .replace(/\^/g, '**');
+
+                    const sinDeg = (deg) => Math.sin(deg * Math.PI / 180);
+                    const cosDeg = (deg) => Math.cos(deg * Math.PI / 180);
+                    const tanDeg = (deg) => Math.tan(deg * Math.PI / 180);
+
+                    let result = eval(evalExpr);
+                    if (result === undefined || isNaN(result) || !isFinite(result)) throw new Error("Invalid");
+                    display.value = parseFloat(Number(result).toPrecision(12)).toString();
+                } catch (e) {
+                    display.value = 'Error';
+                }
+            } else if (val === '\u2190') {
+                let start = typeof display.selectionStart === 'number' ? display.selectionStart : display.value.length;
+                let end = typeof display.selectionEnd === 'number' ? display.selectionEnd : display.value.length;
+                if (start === end && start > 0) {
+                    display.value = display.value.substring(0, start - 1) + display.value.substring(end);
+                    display.setSelectionRange(start - 1, start - 1);
+                } else if (start !== end) {
+                    display.value = display.value.substring(0, start) + display.value.substring(end);
+                    display.setSelectionRange(start, start);
+                }
+                if (display.value === '') display.value = '0';
+            } else {
+                let start = typeof display.selectionStart === 'number' ? display.selectionStart : display.value.length;
+                let end = typeof display.selectionEnd === 'number' ? display.selectionEnd : display.value.length;
+
+                if (val.endsWith('()')) {
+                    display.value = display.value.substring(0, start) + val + display.value.substring(end);
+                    let newCursorPos = start + val.length - 1;
+                    display.setSelectionRange(newCursorPos, newCursorPos);
+                } else {
+                    display.value = display.value.substring(0, start) + val + display.value.substring(end);
+                    let newCursorPos = start + val.length;
+                    display.setSelectionRange(newCursorPos, newCursorPos);
+                }
+            }
+            display.focus();
+        };
+
+        // --- DRAGGABLE CALCULATOR ---
+        const calcEl = document.getElementById("virtual-calculator");
+
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (calcEl) {
+            calcEl.onmousedown = dragMouseDown;
+            calcEl.ontouchstart = dragMouseDown;
+        }
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            // Allow click-through if they hit a button or the input field
+            const tag = e.target.tagName ? e.target.tagName.toLowerCase() : '';
+            if (tag === 'button' || e.target.closest('button') || tag === 'input') return;
+
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+            pos3 = clientX;
+            pos4 = clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+            document.ontouchend = closeDragElement;
+            document.ontouchmove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+            pos1 = pos3 - clientX;
+            pos2 = pos4 - clientY;
+            pos3 = clientX;
+            pos4 = clientY;
+            calcEl.style.top = (calcEl.offsetTop - pos2) + "px";
+            calcEl.style.left = (calcEl.offsetLeft - pos1) + "px";
+            calcEl.style.right = 'auto'; // Remove the hardcoded right anchor
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+            document.ontouchend = null;
+            document.ontouchmove = null;
+        }
+
+        const submitExam = (isAutoSubmit = false) => {
+            clearInterval(timerInterval);
+            if (isAutoSubmit !== true && !reviewMode && !confirm("Are you sure you want to submit the exam?")) {
+                startTimer(); // resume if cancelled
+                return;
+            }
+
+            if (isExamActive) {
+                const now = Date.now();
+                timeSpent[currentQIndex] += (now - lastQStartTime) / 1000;
+            }
+
+            isExamActive = false;
+            vExam.classList.add('hide');
+            vResults.classList.remove('hide');
+
+            let correct = 0;
+            let incorrect = 0;
+            let unattempted = 0;
+            let totalScore = 0;
+            let subjectScores = { 'Mathematics': 0, 'Physics': 0, 'Chemistry': 0, 'English': 0 };
+            let incorrectTopics = {};
+
+            answers.forEach((ans, idx) => {
+                const q = questionsData[idx];
+                if (ans === null) {
+                    unattempted++;
+                } else if (q.type === 'NAT' ? Math.abs(ans - q.answer) < 0.001 : ans === q.answer) {
+                    correct++;
+                    totalScore += 4;
+                    subjectScores[q.subject] += 4;
+                } else {
+                    incorrect++;
+                    // Apply -1 negative marking ONLY for MCQs, not NATs
+                    if (q.type === 'MCQ') {
+                        totalScore -= 1;
+                        subjectScores[q.subject] -= 1;
+                    }
+
+                    const key = `${q.subject}|${q.chapter}`;
+                    if (!incorrectTopics[key]) {
+                        incorrectTopics[key] = new Set();
+                    }
+                    incorrectTopics[key].add(q.topic);
+                }
+            });
+
+            // The test has 60 questions worth 240 marks total.
+            const scaledScore = totalScore;
+
+            const serializableTopics = {};
+            for (const key in incorrectTopics) {
+                serializableTopics[key] = Array.from(incorrectTopics[key]);
+            }
+
+            // Save score for this specific mock test to localStorage
+            const results = getMockTestResults();
+            results[currentTestId] = {
+                score: scaledScore, answers: answers, correct: correct,
+                incorrect: incorrect, unattempted: unattempted,
+                subjectScores: subjectScores, incorrectTopics: serializableTopics,
+                timeSpent: timeSpent
+            };
+            localStorage.setItem('mockTestResults', JSON.stringify(results));
+
+            document.getElementById('result-score').innerText = scaledScore;
+            document.getElementById('res-unattempted').innerText = unattempted;
+            document.getElementById('res-correct').innerText = correct;
+            document.getElementById('res-incorrect').innerText = incorrect;
+
+            const btnReview = document.getElementById('review-mistakes-btn');
+            if (btnReview) {
+                btnReview.classList.remove('hide');
+            }
+
+            // Save score to local storage so predictor can auto-load it
+            localStorage.setItem('metScore', scaledScore);
+
+            // Assuming an average board score for the predictor link if they don't have one saved
+            if (!localStorage.getItem('boardPercentage')) {
+                localStorage.setItem('boardPercentage', 85);
+            }
+
+            // Draw Radar Chart
+            drawRadarChart(subjectScores);
+
+            // Confetti Celebration for good scores (> 50%)
+            if (scaledScore > 120) {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#3b82f6', '#8b5cf6', '#6366f1'] });
+            }
+
+            // Populate Revision Insights
+            const insightsContainer = document.getElementById('revision-insights');
+            insightsContainer.innerHTML = '';
+            const mistakeKeys = Object.keys(incorrectTopics);
+
+            if (mistakeKeys.length === 0) {
+                insightsContainer.innerHTML = '<div class="col-span-full p-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-medium text-center shadow-sm">Excellent work! No mistakes found to suggest revision. Keep it up! 🎉</div>';
+            } else {
+                mistakeKeys.forEach(key => {
+                    const topicsArray = Array.from(incorrectTopics[key]);
+                    const [sub, chap] = key.split('|');
+
+                    const card = document.createElement('div');
+                    card.className = 'p-5 bg-rose-50 border border-rose-100 rounded-xl shadow-sm flex flex-col h-full';
+                    card.innerHTML = `
+                        <div class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">${sub}</div>
+                        <div class="text-lg font-bold text-slate-800 mb-3">${chap}</div>
+                        <div class="text-sm text-slate-600 mt-auto bg-white p-3 rounded-lg border border-rose-100/50">
+                            <span class="font-bold text-slate-700 block mb-1">Needs Review:</span> 
+                            <ul class="list-disc pl-4 space-y-1">${topicsArray.map(t => `<li>${t}</li>`).join('')}</ul>
+                        </div>
+                    `;
+                    insightsContainer.appendChild(card);
+                });
+            }
+        };
+
+        const drawRadarChart = (scores) => {
+            const ctxRadar = document.getElementById('subjectChart').getContext('2d');
+            if (radarChartInst) radarChartInst.destroy();
+
+            // Max scores: Math=80, Phy=60, Chem=60, Eng=40
+            const maxScores = [80, 60, 60, 40];
+            const actualScores = [Math.max(0, scores['Mathematics'] || 0), Math.max(0, scores['Physics'] || 0), Math.max(0, scores['Chemistry'] || 0), Math.max(0, scores['English'] || 0)];
+            const percentages = actualScores.map((score, i) => (score / maxScores[i]) * 100);
+
+            radarChartInst = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['Math', 'Physics', 'Chemistry', 'English'],
+                    datasets: [{
+                        label: 'Performance %',
+                        data: percentages,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)', // Emerald tint
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    scales: { r: { min: 0, max: 100, ticks: { display: false } } },
+                    plugins: { legend: { display: false } },
+                    maintainAspectRatio: false
+                }
+            });
+        };
+
+        const reviewAnswers = () => {
+            reviewMode = true;
+            vResults.classList.add('hide');
+            vExam.classList.remove('hide');
+
+            document.getElementById('timer-display').classList.add('hide');
+            document.getElementById('submit-btn').classList.add('hide');
+            document.getElementById('exit-review-btn').classList.remove('hide');
+            document.getElementById('clear-btn').classList.add('hide');
+            document.getElementById('mark-review-btn').classList.add('hide');
+            document.getElementById('next-btn').innerText = 'Next';
+
+            buildSubjects();
+            buildPalette();
+            loadQuestion(0);
+
+            // Ensure palette is closed on mobile when reviewing
+            if (window.innerWidth < 1024) {
+                document.getElementById('question-palette').classList.add('translate-x-full');
+                document.getElementById('palette-backdrop').classList.add('hide');
+            }
+        };
+
+        const exitReview = () => {
+            reviewMode = false;
+            vExam.classList.add('hide');
+            vResults.classList.remove('hide');
+            document.getElementById('timer-display').classList.remove('hide');
+            document.getElementById('submit-btn').classList.remove('hide');
+            document.getElementById('exit-review-btn').classList.add('hide');
+            document.getElementById('clear-btn').classList.remove('hide');
+            document.getElementById('mark-review-btn').classList.remove('hide');
+            document.getElementById('next-btn').innerText = 'Save & Next';
+        };
+
+        // Restore purchases from database on page load
+        const email = localStorage.getItem('user_email');
+        const token = localStorage.getItem('session_token');
+        if (email) {
+            // FIX: Pass token to get_purchases to validate manual grants
+            fetch(`api.php?action=get_purchases&email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.purchases && data.purchases.length > 0) {
+                        data.purchases.forEach(plan => {
+                            if (plan === 'combo') {
+                                ['met', 'vit', 'srm', 'bitsat', 'gitam', 'amrita'].forEach(exam => {
+                                    localStorage.setItem(`${exam}_all_tests_unlocked`, 'true');
+                                });
+                            } else {
+                                localStorage.setItem(`${plan}_all_tests_unlocked`, 'true');
+                            }
+                        });
+                    }
+                    renderDashboard();
+                })
+                .catch(err => {
+                    console.error('Purchase restore error:', err);
+                    renderDashboard();
+                });
+        } else {
+            renderDashboard();
+        }
+
+        // Global Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (!isExamActive && !reviewMode) return;
+            if (e.target.tagName && e.target.tagName.toLowerCase() === 'input') return;
+
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (currentQIndex < questionsData.length - 1) loadQuestion(currentQIndex + 1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevQuestion();
+            } else if (e.key.toLowerCase() === 'c' && document.getElementById('virtual-calculator')) {
+                e.preventDefault();
+                toggleCalculator();
+            }
+        });
+
+        // Prevent accidental tab closure during an active exam
+        window.addEventListener('beforeunload', (e) => {
+            if (isExamActive) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // --- THEME TOGGLE ---
+        const toggleDarkMode = () => {
+            document.documentElement.classList.toggle('dark-theme');
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const el = document.getElementById('theme-text');
+            if (el) el.innerText = isDark ? 'Light' : 'Dark';
+        };
+        if (localStorage.getItem('theme') === 'dark') {
+            const el = document.getElementById('theme-text');
+            if (el) el.innerText = 'Light';
+        }
+
+        // === CUSTOM TEST GENERATOR ===
+        const CUSTOM_SUBJECTS = { 'Mathematics': true, 'Physics': true, 'Chemistry': true, 'English': true };
+
+        const CUSTOM_SUBJECT_LABELS = {
+            'Mathematics': '🧮 Math',
+            'Physics': '⚡ Physics',
+            'Chemistry': '🔬 Chemistry',
+            'English': '📖 English',
+            'Logical Reasoning': '🧠 Reasoning',
+            'Aptitude': '🧠 Aptitude'
+        };
+
+        let isCustomTest = false;
+        let customPreviousTimeLeft = 10800;
+        let CUSTOM_CONFIG = {};
+
+        function openCustomModal() {
+            const dummyQuestions = generateQuestionsForTest(1);
+            CUSTOM_CONFIG = {};
+            dummyQuestions.forEach(q => {
+                if (!CUSTOM_CONFIG[q.subject]) {
+                    CUSTOM_CONFIG[q.subject] = { selected: true, chapters: {} };
+                }
+                if (q.chapter) {
+                    CUSTOM_CONFIG[q.subject].chapters[q.chapter] = true;
+                }
+            });
+
+            const container = document.getElementById('custom-subjects');
+            container.innerHTML = '';
+
+            Object.keys(CUSTOM_CONFIG).forEach(sub => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm';
+
+                const subHeader = document.createElement('div');
+                subHeader.className = 'flex items-center justify-between p-3 bg-slate-100 border-b border-slate-200';
+                const accentClass = 'accent-indigo-600';
+                subHeader.innerHTML = `
+                    <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-800">
+                        <input type="checkbox" checked class="w-4 h-4 ${accentClass} sub-cb" data-subj="${sub}">
+                        ${CUSTOM_SUBJECT_LABELS[sub] || sub}
+                    </label>
+                    <button class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2 py-1 bg-white rounded border border-slate-200 toggle-chaps">▼</button>
+                `;
+
+                const chapsDiv = document.createElement('div');
+                chapsDiv.className = 'p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 hide';
+
+                const subCb = subHeader.querySelector('.sub-cb');
+
+                Object.keys(CUSTOM_CONFIG[sub].chapters).forEach(chap => {
+                    const chapLabel = document.createElement('label');
+                    chapLabel.className = 'flex items-center gap-2 cursor-pointer text-sm text-slate-600 hover:text-slate-900 transition';
+                    chapLabel.innerHTML = `<input type="checkbox" checked class="w-3.5 h-3.5 ${accentClass} chap-cb" data-subj="${sub}" data-chap="${chap}"> <span class="truncate" title="${chap}">${chap}</span>`;
+
+                    const chapCb = chapLabel.querySelector('input');
+                    chapCb.addEventListener('change', (e) => {
+                        CUSTOM_CONFIG[sub].chapters[chap] = e.target.checked;
+                        const anyChecked = Object.values(CUSTOM_CONFIG[sub].chapters).some(v => v);
+                        subCb.checked = anyChecked;
+                        CUSTOM_CONFIG[sub].selected = anyChecked;
+                    });
+                    chapsDiv.appendChild(chapLabel);
+                });
+
+                subCb.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    CUSTOM_CONFIG[sub].selected = isChecked;
+                    Object.keys(CUSTOM_CONFIG[sub].chapters).forEach(c => {
+                        CUSTOM_CONFIG[sub].chapters[c] = isChecked;
+                    });
+                    chapsDiv.querySelectorAll('.chap-cb').forEach(cb => cb.checked = isChecked);
+                });
+
+                subHeader.querySelector('.toggle-chaps').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    chapsDiv.classList.toggle('hide');
+                    e.target.innerText = chapsDiv.classList.contains('hide') ? '▼' : '▲';
+                });
+
+                subDiv.appendChild(subHeader);
+                subDiv.appendChild(chapsDiv);
+                container.appendChild(subDiv);
+            });
+            document.getElementById('custom-qty').value = 60;
+            document.getElementById('custom-qty-val').innerText = '60';
+            document.getElementById('custom-time').value = 60;
+            document.getElementById('custom-time-val').innerText = '60';
+            document.getElementById('custom-modal').classList.remove('hide');
+        }
+
+        function closeCustomModal() {
+            document.getElementById('custom-modal').classList.add('hide');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('custom-history-modal').classList.add('hide');
+        }
+
+        function openHistoryModal() {
+            const key = 'customTestResults_met';
+            const entries = JSON.parse(localStorage.getItem(key) || '[]').slice().reverse();
+            const list = document.getElementById('custom-history-list');
+            list.innerHTML = '';
+            if (entries.length === 0) {
+                list.innerHTML = '<p class="text-sm text-slate-500">No custom test history available yet.</p>';
+            } else {
+                entries.forEach((entry, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-50 rounded-2xl border border-slate-200 p-4 shadow-sm';
+                    const timestamp = new Date(entry.timestamp).toLocaleString('en-IN', { hour12: false });
+                    const subjects = entry.subjectScores ? Object.entries(entry.subjectScores).map(([sub, score]) => `<div class="flex justify-between gap-4"><span>${sub}</span><span>${score}</span></div>`).join('') : '';
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-slate-500 text-xs uppercase tracking-[0.18em]">Attempt ${entries.length - index}</p>
+                                <h4 class="text-lg font-semibold text-slate-800">${entry.totalQ} Questions</h4>
+                                <p class="text-slate-500 text-sm">${timestamp}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-extrabold text-orange-600">${entry.score}</p>
+                                <p class="text-xs text-slate-500">Score</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 mt-4 text-center text-slate-700 text-sm font-medium">
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.correct}</div><div class="text-slate-500">Correct</div></div>
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.incorrect}</div><div class="text-slate-500">Incorrect</div></div>
+                            <div class="bg-white rounded-2xl border border-slate-200 p-3"><div class="text-slate-900 text-xl">${entry.unattempted}</div><div class="text-slate-500">Unattempted</div></div>
+                        </div>
+                        ${subjects ? `<div class="mt-4 text-sm text-slate-600"><div class="font-semibold mb-2">Subject scores</div>${subjects}</div>` : ''}
+                    `;
+                    list.appendChild(card);
+                });
+            }
+            document.getElementById('custom-history-modal').classList.remove('hide');
+        }
+
+        function startCustomTest() {
+            closeCustomModal();
+
+            const totalQ = parseInt(document.getElementById('custom-qty').value);
+            const totalMinutes = parseInt(document.getElementById('custom-time').value);
+            const totalSeconds = totalMinutes * 60;
+
+            isCustomTest = true;
+            let allQuestions = [];
+            const baseSeed = 99999 + Date.now() % 99999;
+            for (let i = 0; i < 8; i++) {
+                allQuestions = allQuestions.concat(generateQuestionsForTest(baseSeed + i));
+            }
+
+            questionsData = allQuestions.filter(q => {
+                const subCfg = CUSTOM_CONFIG[q.subject];
+                if (!subCfg || !subCfg.selected) return false;
+                if (!q.chapter) return true;
+                return subCfg.chapters[q.chapter];
+            });
+
+            questionsData = questionsData.sort(() => Math.random() - 0.5);
+            questionsData = questionsData.slice(0, Math.min(totalQ, questionsData.length));
+
+            if (questionsData.length === 0) {
+                alert('No questions found for the selected subjects and chapters. Please select more options.');
+                isCustomTest = false;
+                return;
+            }
+
+            // Trim arrays
+            const n = questionsData.length;
+            answers = new Array(n).fill(null);
+            timeSpent = new Array(n).fill(0);
+            markedForReview = new Array(n).fill(false);
+            visited = new Array(n).fill(false);
+
+            document.getElementById('exam-title').innerText = 'Custom Test (' + totalQ + ' Q, ' + totalMinutes + ' min)';
+
+            currentQIndex = 0;
+            timeLeft = totalSeconds;
+            examEndTime = Date.now() + totalSeconds * 1000;
+            reviewMode = false;
+            isExamActive = true;
+            lastQStartTime = Date.now();
+            document.getElementById('virtual-calculator').classList.add('hide');
+
+            document.getElementById('view-dashboard').classList.add('hide');
+            document.getElementById('view-instructions').classList.add('hide');
+            document.getElementById('view-exam').classList.remove('hide');
+            document.getElementById('view-results').classList.add('hide');
+
+            // Update timer display format
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = m + ':' + s;
+
+            startTimer();
+            buildSubjects();
+            buildPalette();
+            loadQuestion(0);
+
+            if (window.innerWidth < 1024) {
+                document.getElementById('question-palette').classList.add('translate-x-full');
+                document.getElementById('palette-backdrop').classList.add('hide');
+            }
+        }
+
+        // Override the result saving to save custom tests separately
+        const originalSubmitExam = submitExam;
+        submitExam = function (isAuto) {
+            if (!isCustomTest) {
+                return originalSubmitExam(isAuto);
+            }
+
+            clearInterval(timerInterval);
+            if (!isAuto && !reviewMode && !confirm("Submit custom test?")) { startTimer(); return; }
+
+            if (isExamActive) timeSpent[currentQIndex] += (Date.now() - lastQStartTime) / 1000;
+            isExamActive = false;
+
+            document.getElementById('view-exam').classList.add('hide');
+            document.getElementById('view-results').classList.remove('hide');
+
+            let cor = 0, incor = 0, un = 0, tot = 0;
+            let subScores = {};
+            let incTopics = {};
+
+            questionsData.forEach((q, i) => {
+                const ans = answers[i];
+                const sub = q.subject;
+                if (!subScores[sub]) subScores[sub] = 0;
+
+                if (ans === null) un++;
+                else if (ans === q.answer) { cor++; tot += 1; subScores[sub] += 1; }
+                else {
+                    incor++; tot -= 0.25;
+                    subScores[sub] -= 0.25;
+                    const key = sub + '|' + (q.chapter || 'General');
+                    if (!incTopics[key]) incTopics[key] = new Set();
+                    incTopics[key].add(q.topic || 'General');
+                }
+            });
+
+            const serTopics = {};
+            for (const k in incTopics) serTopics[k] = Array.from(incTopics[k]);
+
+            // Save custom test results
+            try {
+                const key = 'customTestResults_met';
+                const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                existing.push({
+                    timestamp: new Date().toISOString(),
+                    score: Math.round(tot * 10) / 10,
+                    correct: cor,
+                    incorrect: incor,
+                    unattempted: un,
+                    totalQ: questionsData.length,
+                    subjectScores: subScores,
+                    incorrectTopics: serTopics,
+                    answers: answers
+                });
+                localStorage.setItem(key, JSON.stringify(existing));
+            } catch (e) { }
+
+            document.getElementById('result-score').innerText = Math.round(tot);
+            document.getElementById('res-unattempted').innerText = un;
+            document.getElementById('res-correct').innerText = cor;
+            document.getElementById('res-incorrect').innerText = incor;
+
+            drawRadarChart(subScores);
+            populateRevisionInsights(serTopics);
+
+            if (typeof confetti !== 'undefined' && tot >= questionsData.length * 0.6) {
+                confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
+            }
+
+            isCustomTest = false;
+        };
+
+
+    </script>
+
+    <!-- CUSTOM TEST GENERATOR MODAL -->
+    <div id="custom-modal"
+        class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh]">
+            <header
+                class="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg">🎯 Custom Test Generator</h3>
+                <button onclick="closeCustomModal()"
+                    class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-4 md:p-5 overflow-y-auto space-y-4">
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Select Subjects:</p>
+                    <div id="custom-subjects"
+                        class="space-y-3 max-h-60 overflow-y-auto p-2 border border-slate-200 rounded-lg bg-slate-50/50">
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Number of Questions: <span
+                            id="custom-qty-val">60</span></p>
+                    <input type="range" id="custom-qty" min="60" max="180" value="60" step="10"
+                        class="w-full accent-purple-600"
+                        oninput="document.getElementById('custom-qty-val').innerText=this.value">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1">
+                        <span>60</span><span>120</span><span>180</span></div>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-700 mb-2">Time Limit (minutes): <span
+                            id="custom-time-val">60</span></p>
+                    <input type="range" id="custom-time" min="30" max="180" value="60" step="5"
+                        class="w-full accent-purple-600"
+                        oninput="document.getElementById('custom-time-val').innerText=this.value">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1">
+                        <span>30</span><span>105</span><span>180</span></div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-800">
+                    <strong>Note:</strong> Questions are generated dynamically from the same question bank as regular
+                    mock tests, with shuffled options.
+                </div>
+            </div>
+            <footer class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeCustomModal()"
+                    class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition">Cancel</button>
+                <button onclick="startCustomTest()"
+                    class="px-6 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition shadow-md">Generate
+                    & Start</button>
+            </footer>
+        </div>
+    </div>
+    <div id="custom-history-modal"
+        class="hide fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[95vh]">
+            <header class="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg">📚 Custom Test History</h3>
+                    <p class="text-sm text-slate-200 mt-1">Review your saved custom test attempts and scores.</p>
+                </div>
+                <button onclick="closeHistoryModal()"
+                    class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition">&times;</button>
+            </header>
+            <div class="p-4 md:p-5 overflow-y-auto space-y-4">
+                <div id="custom-history-list" class="space-y-4"></div>
+            </div>
+            <footer class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeHistoryModal()"
+                    class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-slate-100 transition">Close</button>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>
